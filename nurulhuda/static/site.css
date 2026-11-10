@@ -266,3 +266,55 @@ body { background-image: var(--pat-ink); }
 .faq summary { font-weight: 650; cursor: pointer; }
 .faq details[open] summary { margin-bottom: 8px; }
 .faq p { margin: 0; color: var(--muted); }
+/* ---------- Futuristic layer: night-emerald, light from the arch, glass and gold ---------- */
+:root { --night: #03140f; --night-2: #062a20; --gold-1: #f7d488; --gold-2: #e3a237; }
+h1 { font-size: clamp(2.5rem, 5.8vw, 4.6rem); letter-spacing: -0.035em; }
+
+.site-header { position: sticky; top: 0; z-index: 20; background: rgba(3, 22, 16, .94);
+  -webkit-backdrop-filter: saturate(140%) blur(14px); backdrop-filter: saturate(140%) blur(14px);
+  border-bottom: 1px solid rgba(242, 169, 59, .18); }
+
+.btn.gold { background: linear-gradient(180deg, var(--gold-1), var(--gold-2)); color: #1b1305;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.55), 0 6px 18px rgba(227,162,55,.28); }
+.btn.gold:hover { background: linear-gradient(180deg, #fbe0a0, #eaae47); color: #1b1305;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.6), 0 0 28px rgba(242,169,59,.55); }
+.btn.outline { border-color: rgba(247,212,136,.55); }
+.btn.outline:hover { background: rgba(247,212,136,.1); border-color: var(--gold-1); }
+
+/* dark bands: hero, page heads, closing band */
+.hero, .page-head, .band { position: relative; isolation: isolate; overflow: hidden;
+  background: radial-gradient(ellipse 70% 80% at 72% 45%, #0f5a44 0%, var(--night-2) 55%, var(--night) 100%); }
+.page-head, .band { background: radial-gradient(ellipse 80% 120% at 85% 0%, #0f5a44 0%, var(--night-2) 55%, var(--night) 100%); }
+.hero::before, .page-head::before, .band::before { content: ""; position: absolute; inset: 0; z-index: -1;
+  background-image: var(--pat-light); opacity: .9;
+  -webkit-mask-image: radial-gradient(ellipse 75% 90% at 70% 50%, #000 10%, transparent 75%);
+  mask-image: radial-gradient(ellipse 75% 90% at 70% 50%, #000 10%, transparent 75%); }
+.page-head::after, .band::after { content: ""; position: absolute; left: 0; right: 0; bottom: 0; height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(247,212,136,.6), transparent); }
+
+/* light of guidance: a halo and slow rays behind the arch */
+.calligraphy::before { content: ""; position: absolute; width: 150%; aspect-ratio: 1; z-index: 0;
+  background: repeating-conic-gradient(from 0deg, rgba(247,212,136,.16) 0deg 3deg, transparent 3deg 15deg);
+  -webkit-mask-image: radial-gradient(circle, #000 0%, transparent 62%); mask-image: radial-gradient(circle, #000 0%, transparent 62%);
+  animation: turn 160s linear infinite; }
+.calligraphy::after { content: ""; position: absolute; width: 80%; aspect-ratio: 1; z-index: 0; border-radius: 50%;
+  background: radial-gradient(circle, rgba(242,169,59,.35), rgba(242,169,59,0) 65%); filter: blur(10px); }
+.calligraphy svg.arch { z-index: 1; }
+/* a single glint across the gold when the page opens */
+.calligraphy .glint { position: absolute; inset: 0; z-index: 2; pointer-events: none; mix-blend-mode: overlay;
+  background: linear-gradient(105deg, transparent 35%, rgba(255,255,255,.85) 50%, transparent 65%) no-repeat;
+  background-size: 250% 100%; background-position: 130% 0; animation: glint 2.6s ease-out .5s 1 both; }
+@keyframes glint { to { background-position: -130% 0; } }
+@media (prefers-reduced-motion: reduce) { .calligraphy::before, .calligraphy .glint { animation: none; } .calligraphy .glint { display: none; } }
+
+/* white sections: crisper cards with a gold hairline */
+.door { position: relative; border: 1px solid rgba(11,93,69,.10); box-shadow: 0 1px 0 rgba(255,255,255,.8) inset, 0 20px 40px -24px rgba(7,61,46,.35); }
+.door::before { content: ""; position: absolute; left: 34px; right: 34px; top: 0; height: 2px; border-radius: 2px;
+  background: linear-gradient(90deg, transparent, var(--gold-2), transparent); }
+.path li::before { background: radial-gradient(circle at 35% 30%, #16805f, var(--emerald-deep)); box-shadow: 0 0 0 3px rgba(242,169,59,.35), 0 6px 16px rgba(7,61,46,.35); }
+.promises > div { border-top: 0; padding-top: 22px; position: relative; }
+.promises > div::before { content: ""; position: absolute; top: 0; left: 0; width: 56px; height: 3px; border-radius: 3px;
+  background: linear-gradient(90deg, var(--gold-2), var(--gold-1)); }
+.founder .seal { box-shadow: 0 0 0 2px rgba(242,169,59,.6), 0 0 0 10px rgba(242,169,59,.10), 0 24px 50px -20px rgba(3,20,15,.6);
+  background: radial-gradient(circle at 40% 35%, #0f5a44, var(--night)); }
+.site-footer { background: var(--night); }
