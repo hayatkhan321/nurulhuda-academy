@@ -6,7 +6,7 @@
   <div class="wrap">
     <form class="form-card" method="post" novalidate>
       {{ hidden() }}
-      {% if errors %}<p class="alert" role="alert">Please check the highlighted fields.</p>{% endif %}
+      {% if errors._save %}<p class="alert" role="alert">{{ errors._save }}</p>{% elif errors %}<p class="alert" role="alert">Please check the highlighted fields.</p>{% endif %}
       <h2 style="font-size:1.4rem">About you</h2>
       <div class="grid2">
         {{ field('parent_name', "Parent's name", required=True, auto='name') }}

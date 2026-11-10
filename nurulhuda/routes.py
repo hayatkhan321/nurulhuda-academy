@@ -32,6 +32,23 @@ def _f(name, limit=200):
     return (request.form.get(name) or "").strip()[:limit]
 
 
+def _save(row) -> bool:
+    try:
+        db.session.add(row)
+        db.session.commit()
+        return True
+    except Exception:
+        db.session.rollback()
+        current_app.logger.exception("Could not save %s", type(row).__name__)
+        return False
+
+
+def _save_failed(template, page, title, form):
+    msg = ("We could not save your details just now. Please try again in a minute, or e-mail us at "
+           + current_app.config["CONTACT_EMAIL"] + ".")
+    return render_template(template, page=page, title=title, errors={"_save": msg}, form=form), 503
+
+
 @site_bp.route("/")
 def home():
     return render_template("home.html", page="home")
@@ -65,8 +82,8 @@ def trial():
                              student_age=_f("student_age", 20), course=_f("course", 60),
                              teacher_gender=_f("teacher_gender", 20), preferred_times=_f("preferred_times"),
                              notes=_f("notes", 2000))
-            db.session.add(t)
-            db.session.commit()
+            if not _save(t):
+                return _save_failed("trial.html", "families", "Book a free trial class", form)
             mail.trial_emails(t)
             return redirect(url_for("site.thanks", kind="trial"))
     return render_template("trial.html", page="families", title="Book a free trial class", errors=errors, form=form)
@@ -93,8 +110,8 @@ def teach():
                                    qualifications=_f("qualifications", 3000),
                                    experience_years=_f("experience_years", 20), languages=_f("languages", 120),
                                    hours=_f("hours"), recitation_link=_f("recitation_link", 300))
-            db.session.add(a)
-            db.session.commit()
+            if not _save(a):
+                return _save_failed("teach.html", "teach", "Teach with us", form)
             mail.teacher_emails(a)
             return redirect(url_for("site.thanks", kind="teacher"))
     return render_template("teach.html", page="teach", title="Teach with us", errors=errors, form=form)

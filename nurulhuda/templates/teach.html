@@ -21,7 +21,7 @@
     <form class="form-card" method="post" novalidate>
       {{ hidden() }}
       <h2>Apply to teach</h2>
-      {% if errors %}<p class="alert" role="alert">Please check the highlighted fields.</p>{% endif %}
+      {% if errors._save %}<p class="alert" role="alert">{{ errors._save }}</p>{% elif errors %}<p class="alert" role="alert">Please check the highlighted fields.</p>{% endif %}
       <div class="grid2">
         {{ field('full_name', 'Full name', required=True, auto='name') }}
         {{ field('email', 'E-mail', type='email', required=True, auto='email') }}
