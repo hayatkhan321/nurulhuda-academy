@@ -8,7 +8,8 @@ IS_VERCEL = bool(os.getenv("VERCEL"))
 
 
 def _database_url() -> str:
-    url = os.getenv("DATABASE_URL", "")
+    url = os.getenv("DATABASE_URL", "").strip()
+    url = _with_password(url, os.getenv("DB_PASSWORD", ""))
     if not url:
         # Local fallback only. On Vercel /tmp is wiped regularly, so set DATABASE_URL (Supabase Postgres) there.
         return "sqlite:////tmp/nurulhuda.db" if IS_VERCEL else "sqlite:///nurulhuda_local.db"
@@ -17,6 +18,19 @@ def _database_url() -> str:
     if url.startswith("postgresql://"):
         url = url.replace("postgresql://", "postgresql+psycopg2://", 1)
     return url
+
+
+def _with_password(url: str, password: str) -> str:
+    """If DB_PASSWORD is set, put it into DATABASE_URL safely, so a password with symbols
+    (@ / : # ?) cannot break the address. DATABASE_URL may then be written without a password."""
+    if not url or not password:
+        return url
+    from urllib.parse import quote, urlsplit, urlunsplit
+    parts = urlsplit(url)
+    host = parts.netloc.rsplit("@", 1)[-1]
+    user = parts.netloc.rsplit("@", 1)[0].split(":", 1)[0] if "@" in parts.netloc else ""
+    netloc = f"{user}:{quote(password.strip(), safe='')}@{host}"
+    return urlunsplit((parts.scheme, netloc, parts.path, parts.query, parts.fragment))
 
 
 class Config:
