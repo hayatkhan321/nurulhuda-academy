@@ -56,5 +56,8 @@ class Config:
     # Where new trial requests and teacher applications are announced.
     NOTIFY_EMAIL = os.getenv("NOTIFY_EMAIL", "nurulhudaacademy2@gmail.com")
 
+    # Classroom video (https://daily.co). Without it, the classroom page explains that video is not set up yet.
+    DAILY_API_KEY = os.getenv("DAILY_API_KEY", "").strip()
+
     # Password for /admin, the list of sign-ups. Leave empty to keep /admin switched off.
     ADMIN_PASSWORD = os.getenv("ADMIN_PASSWORD", "")

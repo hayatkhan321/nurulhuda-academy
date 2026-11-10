@@ -1,0 +1,13 @@
+<section class="page-head lattice"><div class="wrap admin-head">
+  <h1>{{ title }}</h1>
+  <nav class="admin-nav" aria-label="Admin">
+    <a href="{{ url_for('site.admin') }}" {% if tab == 'signups' %}aria-current="page"{% endif %}>Sign-ups</a>
+    <a href="{{ url_for('admin.families') }}" {% if tab == 'families' %}aria-current="page"{% endif %}>Families</a>
+    <a href="{{ url_for('admin.teachers') }}" {% if tab == 'teachers' %}aria-current="page"{% endif %}>Teachers</a>
+    <a href="{{ url_for('admin.classes') }}" {% if tab == 'classes' %}aria-current="page"{% endif %}>Classes</a>
+    <a href="{{ url_for('admin.problems') }}" {% if tab == 'problems' %}aria-current="page"{% endif %}>Problems</a>
+    <a href="{{ url_for('admin.payouts') }}" {% if tab == 'payouts' %}aria-current="page"{% endif %}>Payouts</a>
+    <a href="{{ url_for('admin.packages') }}" {% if tab == 'packages' %}aria-current="page"{% endif %}>Packages</a>
+    <a href="{{ url_for('site.admin_sign_out') }}">Sign out</a>
+  </nav>
+</div></section>

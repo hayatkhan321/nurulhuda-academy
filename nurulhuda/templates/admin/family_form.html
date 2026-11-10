@@ -1,0 +1,23 @@
+{% extends "base.html" %}
+{% block main %}{% include "admin/_nav.html" %}
+<section class="section"><div class="wrap">
+  <form class="form-card" method="post">
+    <input type="hidden" name="csrf" value="{{ csrf }}">
+    {% if error %}<p class="alert">{{ error }}</p>{% endif %}
+    {% if trial %}<p class="small">From the trial request of {{ trial.created_at.strftime('%d %b %Y') }}. Check the details, then save.</p>{% endif %}
+    <div class="grid2">
+      <div class="field"><label for="parent_name">Parent's name</label><input id="parent_name" name="parent_name" required value="{{ trial.parent_name if trial else '' }}"></div>
+      <div class="field"><label for="email">E-mail (used to sign in)</label><input id="email" name="email" type="email" required value="{{ trial.email if trial else '' }}"></div>
+      <div class="field"><label for="phone">Phone or WhatsApp</label><input id="phone" name="phone" value="{{ trial.phone if trial else '' }}"></div>
+      <div class="field"><label for="country">Country</label><input id="country" name="country" value="{{ trial.country if trial else '' }}"></div>
+      <div class="field"><label for="timezone">Family's time zone</label>{% with zsel='America/Toronto' %}{% include "admin/_zone_select.html" %}{% endwith %}</div>
+      <div class="field"><label for="teacher_gender">Teacher preference</label><input id="teacher_gender" name="teacher_gender" value="{{ trial.teacher_gender if trial else '' }}"></div>
+      <div class="field"><label for="student_name">Child's first name</label><input id="student_name" name="student_name" value="{{ trial.student_name if trial else '' }}"></div>
+      <div class="field"><label for="student_age">Child's age</label><input id="student_age" name="student_age" value="{{ trial.student_age if trial else '' }}"></div>
+      <div class="field"><label for="course">Course</label><select id="course" name="course"><option value="">Choose</option>{% for c in C.COURSE_CHOICES %}<option{% if trial and trial.course == c %} selected{% endif %}>{{ c }}</option>{% endfor %}</select></div>
+    </div>
+    <label class="check"><input type="checkbox" name="recording_consent"> Parent agrees to classes being recorded for quality checks</label>
+    <p style="margin-top:20px"><button class="btn green" type="submit">Save family</button></p>
+  </form>
+</div></section>
+{% endblock %}

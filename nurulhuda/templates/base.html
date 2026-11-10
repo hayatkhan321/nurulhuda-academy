@@ -41,6 +41,7 @@
       <a href="{{ url_for('site.islam') }}" {% if page == 'islam' %}aria-current="page"{% endif %}>Discover Islam</a>
       <a href="{{ url_for('site.about') }}" {% if page == 'about' %}aria-current="page"{% endif %}>About</a>
     </nav>
+    {% if signed_in_role %}<a class="nav-signin" href="{{ url_for('portal.teacher_home' if signed_in_role == 'teacher' else 'portal.family_home') }}">My classes</a>{% else %}<a class="nav-signin" href="{{ url_for('portal.login') }}">Sign in</a>{% endif %}
     <a class="btn gold header-cta" href="{{ url_for('site.trial') }}">Book a free trial</a>
     <details class="menu">
       <summary aria-label="Menu"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h16"/></svg></summary>
@@ -55,6 +56,7 @@
         <li><a href="{{ url_for('site.about') }}">About</a></li>
         <li><a href="{{ url_for('site.contact') }}">Contact</a></li>
         <li><a href="{{ url_for('site.app') }}">Get the app</a></li>
+        <li><a href="{{ url_for('portal.login') }}">Sign in</a></li>
       </ul>
     </details>
   </div>

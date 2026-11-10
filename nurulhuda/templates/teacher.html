@@ -1,0 +1,44 @@
+{% extends "base.html" %}
+{% block main %}
+<section class="page-head lattice"><div class="wrap">
+  <h1>Assalamu alaikum, {{ teacher.full_name.split(' ')[0] }}</h1>
+  <p>Times are shown in {{ zone_name(teacher.timezone) }}. <a href="{{ url_for('portal.logout') }}" style="color:var(--gold-1)">Sign out</a></p>
+</div></section>
+<section class="section white"><div class="wrap">
+  <div class="stats">
+    <div class="stat"><b>{{ '%.2f' % owed }} {{ teacher.rate_currency }}</b><span>owed to you, paid weekly</span></div>
+    {% if held %}<div class="stat"><b>{{ '%.2f' % held }} {{ teacher.rate_currency }}</b><span>on hold while a parent's report is reviewed</span></div>{% endif %}
+    <div class="stat"><b>{{ '%.2f' % paid }} {{ teacher.rate_currency }}</b><span>paid so far</span></div>
+  </div>
+
+  {% if to_mark %}
+  <h2 style="margin-top:36px">Please mark these classes</h2>
+  <p class="small">You are paid once a class is marked. Write two lines on what you covered; parents read them.</p>
+  {% for c in to_mark %}
+  <form class="class-note" method="post" action="{{ url_for('portal.mark', cid=c.id) }}">
+    <input type="hidden" name="csrf" value="{{ csrf }}">
+    <p><b>{{ fmt_time(c.starts_at, teacher.timezone) }}</b>: {{ c.student.first_name }} ({{ c.student.course or 'course not set' }})</p>
+    <div class="field"><label for="n{{ c.id }}">What did you cover?</label><textarea id="n{{ c.id }}" name="note" placeholder="e.g. Qaida lesson 6, letters with fatha; revised lesson 5."></textarea></div>
+    <div class="choices">
+      <button class="btn green sm" name="status" value="completed" type="submit">Class completed</button>
+      <button class="btn sm outline-dark" name="status" value="student_missed" type="submit">Student did not come</button>
+    </div>
+  </form>
+  {% endfor %}
+  {% endif %}
+
+  <h2 style="margin-top:36px">Upcoming classes</h2>
+  {% if upcoming %}
+  <div class="table-wrap"><table class="data">
+    <tr><th>When</th><th>Student</th><th>Length</th><th>Status</th><th></th></tr>
+    {% for c in upcoming %}{% with zone=teacher.timezone, viewer='teacher' %}{% include "_class_row.html" %}{% endwith %}{% endfor %}
+  </table></div>
+  {% else %}<p>No classes scheduled yet.</p>{% endif %}
+
+  <h2 style="margin-top:36px">Recent classes</h2>
+  {% if past %}
+  <div class="table-wrap"><table class="data"><tr><th>When</th><th>Student</th><th>Status</th><th>Your note</th></tr>
+  {% for c in past %}<tr><td>{{ fmt_time(c.starts_at, teacher.timezone, False) }}</td><td>{{ c.student.first_name }}</td><td>{{ STATUS_LABELS[c.status] }}{% if c.flagged_at and not c.flag_resolution %} (reported){% endif %}</td><td>{{ c.teacher_note or '' }}</td></tr>{% endfor %}
+  </table></div>{% else %}<p>None yet.</p>{% endif %}
+</div></section>
+{% endblock %}

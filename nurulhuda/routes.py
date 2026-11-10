@@ -188,7 +188,7 @@ def admin():
     trials = TrialRequest.query.order_by(TrialRequest.created_at.desc()).limit(500).all()
     teachers = TeacherApplication.query.order_by(TeacherApplication.created_at.desc()).limit(500).all()
     dawah = DawahRequest.query.order_by(DawahRequest.created_at.desc()).limit(500).all()
-    return render_template("admin.html", title="Sign-ups", trials=trials, teachers=teachers, dawah=dawah)
+    return render_template("admin.html", title="Sign-ups", tab="signups", trials=trials, teachers=teachers, dawah=dawah)
 
 
 @site_bp.route("/admin/sign-out")

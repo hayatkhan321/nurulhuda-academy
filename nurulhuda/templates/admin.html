@@ -1,20 +1,19 @@
 {% extends "base.html" %}
 {% block main %}
+{% include "admin/_nav.html" %}
 <section class="section"><div class="wrap">
-  <p style="float:right"><a href="{{ url_for('site.admin_sign_out') }}">Sign out</a></p>
-  <h1 style="font-size:2rem">Sign-ups</h1>
   <h2 style="font-size:1.4rem">Free trial requests ({{ trials|length }})</h2>
   {% if trials %}
   <div class="table-wrap"><table class="data">
-    <tr><th>Received</th><th>Parent</th><th>Contact</th><th>Country</th><th>Child</th><th>Course</th><th>Teacher</th><th>Times</th><th>Notes</th></tr>
-    {% for t in trials %}<tr><td>{{ t.created_at.strftime('%d %b %Y %H:%M') }}</td><td>{{ t.parent_name }}</td><td><a href="mailto:{{ t.email }}">{{ t.email }}</a><br>{{ t.phone }}</td><td>{{ t.country }} {{ t.city }}</td><td>{{ t.student_name }} {% if t.student_age %}({{ t.student_age }}){% endif %}</td><td>{{ t.course }}</td><td>{{ t.teacher_gender }}</td><td>{{ t.preferred_times }}</td><td>{{ t.notes }}</td></tr>{% endfor %}
+    <tr><th>Received</th><th>Parent</th><th>Contact</th><th>Country</th><th>Child</th><th>Course</th><th>Teacher</th><th>Times</th><th>Notes</th><th></th></tr>
+    {% for t in trials %}<tr><td>{{ t.created_at.strftime('%d %b %Y %H:%M') }}</td><td>{{ t.parent_name }}</td><td><a href="mailto:{{ t.email }}">{{ t.email }}</a><br>{{ t.phone }}</td><td>{{ t.country }} {{ t.city }}</td><td>{{ t.student_name }} {% if t.student_age %}({{ t.student_age }}){% endif %}</td><td>{{ t.course }}</td><td>{{ t.teacher_gender }}</td><td>{{ t.preferred_times }}</td><td>{{ t.notes }}</td><td>{% if t.status != 'converted' %}<a class="btn sm green" href="{{ url_for('admin.family_new', trial=t.id) }}">Make family</a>{% else %}Family ✓{% endif %}</td></tr>{% endfor %}
   </table></div>
   {% else %}<p>No trial requests yet.</p>{% endif %}
   <h2 style="font-size:1.4rem">Teacher applications ({{ teachers|length }})</h2>
   {% if teachers %}
   <div class="table-wrap"><table class="data">
-    <tr><th>Received</th><th>Name</th><th>Contact</th><th>Country</th><th>Gender</th><th>Levels</th><th>Years</th><th>Languages</th><th>Hours</th><th>Recitation</th><th>Qualifications</th></tr>
-    {% for a in teachers %}<tr><td>{{ a.created_at.strftime('%d %b %Y %H:%M') }}</td><td>{{ a.full_name }}</td><td><a href="mailto:{{ a.email }}">{{ a.email }}</a><br>{{ a.phone }}</td><td>{{ a.country }}</td><td>{{ a.gender }}</td><td>{{ a.levels }}</td><td>{{ a.experience_years }}</td><td>{{ a.languages }}</td><td>{{ a.hours }}</td><td>{% if a.recitation_link %}<a href="{{ a.recitation_link }}" rel="noopener nofollow">Listen</a>{% endif %}</td><td>{{ a.qualifications }}</td></tr>{% endfor %}
+    <tr><th>Received</th><th>Name</th><th>Contact</th><th>Country</th><th>Gender</th><th>Levels</th><th>Years</th><th>Languages</th><th>Hours</th><th>Recitation</th><th>Qualifications</th><th></th></tr>
+    {% for a in teachers %}<tr><td>{{ a.created_at.strftime('%d %b %Y %H:%M') }}</td><td>{{ a.full_name }}</td><td><a href="mailto:{{ a.email }}">{{ a.email }}</a><br>{{ a.phone }}</td><td>{{ a.country }}</td><td>{{ a.gender }}</td><td>{{ a.levels }}</td><td>{{ a.experience_years }}</td><td>{{ a.languages }}</td><td>{{ a.hours }}</td><td>{% if a.recitation_link %}<a href="{{ a.recitation_link }}" rel="noopener nofollow">Listen</a>{% endif %}</td><td>{{ a.qualifications }}</td><td>{% if a.status != 'approved' %}<a class="btn sm green" href="{{ url_for('admin.teacher', app=a.id) }}">Approve as teacher</a>{% else %}Teacher ✓{% endif %}</td></tr>{% endfor %}
   </table></div>
   {% else %}<p>No teacher applications yet.</p>{% endif %}
   <h2 style="font-size:1.4rem">Discover Islam requests ({{ dawah|length }})</h2>

@@ -1,0 +1,7 @@
+<tr>
+  <td>{{ fmt_time(c.starts_at, zone) }}</td>
+  <td>{{ c.student.first_name if viewer != 'student' else c.teacher.full_name }}</td>
+  <td>{{ c.minutes }} min</td>
+  <td><span class="status s-{{ c.status }}">{{ STATUS_LABELS[c.status] }}</span>{% if c.flagged_at %} <span class="status s-flag">{{ 'Reported' if not c.flag_resolution else 'Resolved' }}</span>{% endif %}</td>
+  <td>{% if joinable(c) %}<a class="btn green sm" href="{{ url_for('portal.room', cid=c.id) }}">Join class</a>{% endif %}</td>
+</tr>

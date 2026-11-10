@@ -1,0 +1,21 @@
+{% extends "base.html" %}
+{% block main %}
+{% with head="Sign in", sub="For families and teachers of Nurul Huda Academy. We e-mail you a one-time link, so there is no password to remember." %}{% include "_page_head.html" %}{% endwith %}
+<section class="section"><div class="wrap">
+  {% if sent %}
+  <div class="form-card" style="max-width:520px">
+    <h2 style="font-size:1.5rem">Check your e-mail</h2>
+    <p>If that address belongs to a Nurul Huda family or teacher, a sign-in link is on its way. It works once and expires in 30 minutes. Check your spam folder if it does not arrive.</p>
+    <p><a href="{{ url_for('portal.login') }}">Send another link</a></p>
+  </div>
+  {% else %}
+  <form class="form-card" method="post" style="max-width:520px">
+    <input type="hidden" name="csrf" value="{{ csrf }}">
+    {% if error %}<p class="alert" role="alert">{{ error }}</p>{% endif %}
+    <div class="field"><label for="email">Your e-mail</label><input id="email" name="email" type="email" required autocomplete="email"></div>
+    <button class="btn green" type="submit">E-mail me a sign-in link</button>
+    <p class="small" style="margin-top:14px">New to the academy? <a href="{{ url_for('site.trial') }}">Book a free trial class</a> or <a href="{{ url_for('site.teach') }}">apply to teach</a>.</p>
+  </form>
+  {% endif %}
+</div></section>
+{% endblock %}

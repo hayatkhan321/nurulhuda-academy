@@ -1,0 +1,13 @@
+{% extends "base.html" %}
+{% block main %}{% include "admin/_nav.html" %}
+<section class="section"><div class="wrap">
+  <p><a class="btn green" href="{{ url_for('admin.family_new') }}">Add a family</a> <span class="small">or convert a trial request from Sign-ups.</span></p>
+  {% if rows %}
+  <div class="table-wrap"><table class="data">
+    <tr><th>Parent</th><th>Children</th><th>Country</th><th>Classes left</th><th>Since</th></tr>
+    {% for f in rows %}<tr><td><a href="{{ url_for('admin.family', fid=f.id) }}">{{ f.parent_name }}</a><br><span class="small">{{ f.email }}</span></td>
+      <td>{{ f.students|map(attribute='first_name')|join(', ') }}</td><td>{{ f.country or '' }}</td><td><b>{{ balance(f.id) }}</b></td><td>{{ f.created_at.strftime('%d %b %Y') }}</td></tr>{% endfor %}
+  </table></div>
+  {% else %}<p>No families yet.</p>{% endif %}
+</div></section>
+{% endblock %}

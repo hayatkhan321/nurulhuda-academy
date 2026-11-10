@@ -1,0 +1,27 @@
+{% extends "base.html" %}
+{% block main %}{% include "admin/_nav.html" %}
+<section class="section"><div class="wrap">
+  {% if error %}<p class="alert">{{ error }}</p>{% endif %}
+  <div class="stats">
+    <div class="stat"><b>{{ active }} of {{ limit }}</b><span>active teachers (your current limit)</span></div>
+  </div>
+  <form method="post" class="inline-form">
+    <input type="hidden" name="csrf" value="{{ csrf }}"><input type="hidden" name="action" value="limit">
+    <label for="limit">Teacher limit</label><input id="limit" name="limit" type="number" min="1" value="{{ limit }}" style="width:90px">
+    <button class="btn green sm" type="submit">Update limit</button>
+  </form>
+  <p style="margin-top:24px"><a class="btn green" href="{{ url_for('admin.teacher') }}">Add a teacher</a> <span class="small">or approve an application from Sign-ups.</span></p>
+  {% if rows %}
+  <div class="table-wrap"><table class="data">
+    <tr><th>Teacher</th><th>Country</th><th>Levels</th><th>Pay per class</th><th>Status</th><th></th></tr>
+    {% for t in rows %}<tr>
+      <td><a href="{{ url_for('admin.teacher', tid=t.id) }}">{{ t.full_name }}</a><br><span class="small">{{ t.email }} · {{ t.gender or '' }}</span></td>
+      <td>{{ t.country or '' }}</td><td>{{ t.levels or '' }}</td><td>{{ t.rate }} {{ t.rate_currency }}</td>
+      <td>{{ 'Active' if t.active else 'Paused' }}</td>
+      <td><form method="post"><input type="hidden" name="csrf" value="{{ csrf }}"><input type="hidden" name="action" value="toggle"><input type="hidden" name="teacher_id" value="{{ t.id }}">
+        <button class="btn sm {{ 'outline-dark' if t.active else 'green' }}" type="submit">{{ 'Pause' if t.active else 'Activate' }}</button></form></td>
+    </tr>{% endfor %}
+  </table></div>
+  {% else %}<p>No teachers yet.</p>{% endif %}
+</div></section>
+{% endblock %}

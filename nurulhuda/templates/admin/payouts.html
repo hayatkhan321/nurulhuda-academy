@@ -1,0 +1,24 @@
+{% extends "base.html" %}
+{% block main %}{% include "admin/_nav.html" %}
+<section class="section"><div class="wrap">
+  <p>Teachers are owed only for classes marked completed (or student absent). Pay held for reported classes is released once you decide. <a href="{{ url_for('admin.payouts_csv') }}">Download this week's payout list (CSV)</a> for Wise or Payoneer.</p>
+  {% for o in owed %}
+  <div class="class-note">
+    <p><b>{{ o.t.full_name }}</b> ({{ o.t.country or '' }}): <b>{{ '%.2f' % o.total }} {{ o.currency }}</b> for {{ o.rows|length }} class{{ 'es' if o.rows|length != 1 }}{% if o.held %}; {{ o.held }} on hold{% endif %}.</p>
+    <p class="small">Payout details: {{ o.t.payout_method or 'not set' }}</p>
+    {% if o.rows %}
+    <form method="post" class="inline-form">
+      <input type="hidden" name="csrf" value="{{ csrf }}"><input type="hidden" name="teacher_id" value="{{ o.t.id }}">
+      <select name="method" aria-label="Paid by"><option>Wise</option><option>Payoneer</option><option>Bank transfer</option><option>Other</option></select>
+      <input name="reference" placeholder="Transfer reference">
+      <button class="btn sm green" type="submit">Mark as paid</button>
+    </form>
+    {% endif %}
+  </div>
+  {% else %}<p>Nothing owed right now.</p>{% endfor %}
+  {% if history %}<h2 style="margin-top:30px">Paid</h2>
+  <div class="table-wrap"><table class="data"><tr><th>Date</th><th>Teacher</th><th>Amount</th><th>Method</th><th>Reference</th></tr>
+  {% for p in history %}<tr><td>{{ p.created_at.strftime('%d %b %Y') }}</td><td>{{ names.get(p.teacher_id) }}</td><td>{{ p.amount }} {{ p.currency }}</td><td>{{ p.method or '' }}</td><td>{{ p.reference or '' }}</td></tr>{% endfor %}
+  </table></div>{% endif %}
+</div></section>
+{% endblock %}

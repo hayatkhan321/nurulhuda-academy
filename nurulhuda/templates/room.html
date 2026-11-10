@@ -1,0 +1,38 @@
+{% extends "base.html" %}
+{% block main %}
+{% if state == 'open' %}
+<section class="classroom">
+  <div class="classroom-bar wrap">
+    <p><b>{{ cs.student.first_name }}</b> with <b>{{ cs.teacher.full_name }}</b> · {{ cs.minutes }} minutes{% if role == 'observer' %} · <span class="status s-flag">Observing quietly</span>{% endif %}</p>
+    <a class="btn outline sm" href="{{ url_for('portal.teacher_home' if role == 'teacher' else 'portal.family_home' if role == 'student' else 'admin.classes') }}">Leave</a>
+  </div>
+  <div id="call" class="classroom-frame"></div>
+  <p class="small wrap" style="color:#b9d8cb;padding:10px 0">If the camera or microphone does not start, allow them when your browser asks, or tap the lock icon by the address and allow camera and microphone.</p>
+</section>
+{% else %}
+{% with head="Classroom" %}{% include "_page_head.html" %}{% endwith %}
+<section class="section"><div class="wrap prose">
+  {% if state == 'closed' %}<p>This classroom opens 15 minutes before the class starts and closes 30 minutes after it ends.</p>
+  {% elif state == 'not_configured' %}<p>The online classroom is being set up. For now, your teacher will share the class link with you directly.</p>
+  {% else %}<p>The classroom could not open just now. Please wait a moment and try again. If it keeps happening, write to <a href="mailto:{{ contact_email }}">{{ contact_email }}</a>.</p>{% endif %}
+  <p><a class="btn green" href="{{ url_for('site.home') }}">Back</a></p>
+</div></section>
+{% endif %}
+{% endblock %}
+{% block scripts %}
+{% if state == 'open' %}
+<script src="https://unpkg.com/@daily-co/daily-js@0.94.0/dist/daily-iframe.js"></script>
+<script>
+(function () {
+  var frame = window.DailyIframe.createFrame(document.getElementById("call"), {
+    showLeaveButton: true, iframeStyle: { width: "100%", height: "100%", border: "0", borderRadius: "14px" }
+  });
+  frame.on("joined-meeting", function () {
+    fetch("{{ url_for('portal.joined', cid=cs.id) }}", { method: "POST", headers: { "X-CSRF": "{{ csrf }}" } });
+  });
+  frame.on("left-meeting", function () { window.location = "{{ url_for('portal.teacher_home' if role == 'teacher' else 'portal.family_home' if role == 'student' else 'admin.classes') }}"; });
+  frame.join({ url: {{ url|tojson }}, token: {{ token|tojson }} });
+})();
+</script>
+{% endif %}
+{% endblock %}

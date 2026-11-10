@@ -1,0 +1,44 @@
+{% extends "base.html" %}
+{% block main %}{% include "admin/_nav.html" %}
+<section class="section"><div class="wrap">
+  {% if error %}<p class="alert">{{ error }}</p>{% endif %}
+  {% if unmarked %}<p class="alert" style="background:#fff4df;color:var(--ink)">{{ unmarked }} past class{{ 'es' if unmarked != 1 }} not marked by the teacher yet. Remind them, or set the status below.</p>{% endif %}
+  <form class="form-card" method="post" style="max-width:none">
+    <input type="hidden" name="csrf" value="{{ csrf }}"><input type="hidden" name="action" value="schedule">
+    <h2>Schedule classes</h2>
+    <div class="grid3">
+      <div class="field"><label for="student_id">Student</label><select id="student_id" name="student_id" required><option value="">Choose</option>{% for s in students %}<option value="{{ s.id }}">{{ s.first_name }} ({{ s.family.parent_name }})</option>{% endfor %}</select></div>
+      <div class="field"><label for="teacher_id">Teacher</label><select id="teacher_id" name="teacher_id" required><option value="">Choose</option>{% for t in teachers %}<option value="{{ t.id }}">{{ t.full_name }} ({{ t.gender or '' }})</option>{% endfor %}</select></div>
+      <div class="field"><label for="minutes">Minutes</label><input id="minutes" name="minutes" type="number" value="30"></div>
+      <div class="field"><label for="date">First class date</label><input id="date" name="date" type="date" required></div>
+      <div class="field"><label for="time">Time</label><input id="time" name="time" type="time" required></div>
+      <div class="field"><label for="timezone">In which time zone?</label>{% with zsel='America/Toronto' %}{% include "admin/_zone_select.html" %}{% endwith %}</div>
+    </div>
+    <fieldset class="field"><legend>Repeat on these days (leave empty for the first date's weekday)</legend>
+      <div class="choices">{% for d in ['Mon','Tue','Wed','Thu','Fri','Sat','Sun'] %}<label><input type="checkbox" name="days" value="{{ loop.index0 }}"> {{ d }}</label>{% endfor %}</div>
+    </fieldset>
+    <div class="grid3">
+      <div class="field"><label for="weeks">For how many weeks</label><input id="weeks" name="weeks" type="number" min="1" max="26" value="1"></div>
+    </div>
+    <label class="check"><input type="checkbox" name="notify" checked> E-mail the family and the teacher their times</label>
+    <p style="margin-top:16px"><button class="btn green" type="submit">Schedule</button></p>
+  </form>
+
+  <h2 style="margin-top:34px">From two days ago onwards (Dubai time)</h2>
+  {% if rows %}
+  <div class="table-wrap"><table class="data">
+    <tr><th>When</th><th>Student</th><th>Teacher</th><th>Status</th><th>Joined</th><th>Actions</th></tr>
+    {% for c in rows %}<tr>
+      <td>{{ fmt_time(c.starts_at, 'Asia/Dubai', False) }}</td><td>{{ c.student.first_name }}</td><td>{{ c.teacher.full_name }}</td>
+      <td>{{ STATUS_LABELS[c.status] }}{% if c.flagged_at and not c.flag_resolution %} <b>(reported)</b>{% endif %}</td>
+      <td class="small">{% if c.teacher_joined_at %}Teacher ✓{% endif %} {% if c.student_joined_at %}Student ✓{% endif %}</td>
+      <td class="actions">
+        {% if c.status == 'scheduled' %}<a class="btn sm green" href="{{ url_for('portal.room', cid=c.id) }}">Observe</a>{% endif %}
+        <form method="post"><input type="hidden" name="csrf" value="{{ csrf }}"><input type="hidden" name="action" value="status"><input type="hidden" name="class_id" value="{{ c.id }}">
+          <select name="status" aria-label="Set status">{% for k, v in STATUS_LABELS.items() %}<option value="{{ k }}"{% if k == c.status %} selected{% endif %}>{{ v }}</option>{% endfor %}</select>
+          <button class="btn sm outline-dark" type="submit">Set</button></form>
+      </td></tr>{% endfor %}
+  </table></div>
+  {% else %}<p>No classes yet.</p>{% endif %}
+</div></section>
+{% endblock %}

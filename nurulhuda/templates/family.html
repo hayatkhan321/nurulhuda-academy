@@ -1,0 +1,49 @@
+{% extends "base.html" %}
+{% block main %}
+<section class="page-head lattice"><div class="wrap">
+  <h1>Assalamu alaikum, {{ family.parent_name.split(' ')[0] }}</h1>
+  <p>Times are shown in {{ zone_name(family.timezone) }}. <a href="{{ url_for('portal.logout') }}" style="color:var(--gold-1)">Sign out</a></p>
+</div></section>
+<section class="section white"><div class="wrap">
+  <div class="stats">
+    <div class="stat"><b>{{ balance }}</b><span>classes remaining</span></div>
+    {% for s in family.students %}<div class="stat"><b>{{ s.first_name }}</b><span>{{ s.course or 'Course to be set' }}{% if s.level %}, {{ s.level }}{% endif %}</span></div>{% endfor %}
+  </div>
+  {% if balance <= 2 %}<p class="alert" style="background:#fff4df;color:var(--ink)">{% if balance <= 0 %}You have no classes left.{% else %}Only {{ balance }} class{{ 'es' if balance != 1 }} left.{% endif %} Reply to any academy e-mail or write to <a href="mailto:{{ contact_email }}">{{ contact_email }}</a> to continue.</p>{% endif %}
+
+  <h2 style="margin-top:36px">Upcoming classes</h2>
+  {% if upcoming %}
+  <div class="table-wrap"><table class="data">
+    <tr><th>When</th><th>Teacher</th><th>Length</th><th>Status</th><th></th></tr>
+    {% for c in upcoming %}{% with zone=family.timezone, viewer='student' %}{% include "_class_row.html" %}{% endwith %}{% endfor %}
+  </table></div>
+  <p class="small">The <b>Join class</b> button appears 15 minutes before each class. Parents are always welcome to sit in.</p>
+  {% else %}<p>No classes scheduled yet. We will e-mail you as soon as they are.</p>{% endif %}
+
+  <h2 style="margin-top:36px">Past classes</h2>
+  {% if past %}
+  {% for c in past %}
+  <div class="class-note">
+    <p><b>{{ fmt_time(c.starts_at, family.timezone) }}</b>: {{ c.student.first_name }} with {{ c.teacher.full_name }}. <span class="status s-{{ c.status }}">{{ STATUS_LABELS[c.status] }}</span></p>
+    {% if c.teacher_note %}<p class="small">Teacher's note: {{ c.teacher_note }}</p>{% endif %}
+    {% if c.flagged_at %}<p class="small">You reported a problem{% if c.flag_resolution %}; it has been resolved{% else %}; we are looking into it{% endif %}.</p>
+    {% elif can_flag(c) %}
+    <details class="report"><summary>Report a problem with this class</summary>
+      <form method="post" action="{{ url_for('portal.report', cid=c.id) }}">
+        <input type="hidden" name="csrf" value="{{ csrf }}">
+        <div class="field"><label for="r{{ c.id }}">What went wrong?</label><textarea id="r{{ c.id }}" name="reason" required></textarea></div>
+        <button class="btn green sm" type="submit">Send to the academy</button>
+      </form>
+    </details>
+    {% endif %}
+  </div>
+  {% endfor %}
+  {% else %}<p>Your child's class notes will appear here.</p>{% endif %}
+
+  <h2 style="margin-top:36px">Classes bought and used</h2>
+  {% if entries %}
+  <div class="table-wrap"><table class="data"><tr><th>Date</th><th>Change</th><th>Details</th></tr>
+  {% for e in entries %}<tr><td>{{ fmt_time(e.created_at, family.timezone, False) }}</td><td>{{ '%+d' % e.classes }}</td><td>{{ e.note or e.kind }}</td></tr>{% endfor %}
+  </table></div>{% else %}<p>Nothing yet.</p>{% endif %}
+</div></section>
+{% endblock %}
