@@ -1,0 +1,93 @@
+{% extends "base.html" %}
+{% from "_form.html" import field, select, hidden with context %}
+{% block desc %}Discover Islam: clear, friendly answers about what Muslims believe, and free private classes with a teacher for anyone who is curious, considering Islam, or new to Islam.{% endblock %}
+{% block main %}
+{% with head="Discover Islam", sub="Curious about Islam, thinking of becoming Muslim, or new to the faith? You are welcome here. Ask anything, at your own pace, with no pressure." %}{% include "_page_head.html" %}{% endwith %}
+
+<section class="section white">
+  <div class="wrap prose">
+    <h2>What is Islam?</h2>
+    <p>Islam means peaceful submission to the One God, called Allah in Arabic. Muslims believe God sent the same message through a long line of prophets, including Adam, Noah, Abraham, Moses, Jesus and, finally, Muhammad, peace be upon them all.</p>
+    <p>The Quran is the word of God revealed to the Prophet Muhammad ﷺ over 23 years. Muslims read it in Arabic and in translation, and learn how to live by it from the example of the Prophet, known as the Sunnah.</p>
+    <p>The Quran says: <i>"There is no compulsion in religion"</i> (2:256). Faith must come from the heart, freely. That is why we teach and answer questions, and leave every decision to you.</p>
+  </div>
+</section>
+
+<section class="section">
+  <div class="wrap">
+    <div class="doors">
+      <div class="door family">
+        <h3>The six articles of faith</h3>
+        <p>What a Muslim believes in:</p>
+        <ul>
+          <li>The One God, Allah</li>
+          <li>His angels</li>
+          <li>His revealed books, including the Torah, the Gospel and the Quran</li>
+          <li>His prophets and messengers</li>
+          <li>The Day of Judgement</li>
+          <li>Divine decree, the good and the bad</li>
+        </ul>
+      </div>
+      <div class="door teacher">
+        <h3>The five pillars of Islam</h3>
+        <p>What a Muslim does:</p>
+        <ul>
+          <li><b>Shahada:</b> declaring faith in One God and His Messenger</li>
+          <li><b>Salah:</b> praying five times a day</li>
+          <li><b>Zakah:</b> giving a share of savings to people in need</li>
+          <li><b>Sawm:</b> fasting in the month of Ramadan</li>
+          <li><b>Hajj:</b> pilgrimage to Makkah once in a lifetime, for those able</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="section white">
+  <div class="wrap prose">
+    <h2>Becoming Muslim</h2>
+    <p>A person becomes Muslim by sincerely declaring the Shahada, the testimony of faith:</p>
+    <p class="ar shahada" lang="ar">أَشْهَدُ أَنْ لَا إِلَٰهَ إِلَّا ٱللَّٰهُ، وَأَشْهَدُ أَنَّ مُحَمَّدًا رَسُولُ ٱللَّٰهِ</p>
+    <p><i>Ash-hadu an lā ilāha illa-llāh, wa ash-hadu anna Muḥammadan rasūlu-llāh.</i></p>
+    <p>"I bear witness that there is no god but God, and I bear witness that Muhammad is the Messenger of God."</p>
+    <p>There is no fee, ceremony or paperwork required, and you do not need to change your name. If you would like to say the Shahada with one of our teachers, or simply talk it through first, use the form below.</p>
+  </div>
+</section>
+
+<section class="section">
+  <div class="wrap">
+    <div class="section-head"><h2>Questions people often ask</h2></div>
+    <div class="faq">
+      <details><summary>Do I have to know Arabic?</summary><p>No. You can learn about Islam, and pray, while you gradually learn the few Arabic phrases used in prayer. We teach these step by step.</p></details>
+      <details><summary>Will anyone pressure me?</summary><p>Never. Our classes are for learning and honest questions. Whether you embrace Islam is entirely your own decision.</p></details>
+      <details><summary>Is it private?</summary><p>Yes. Classes are one-to-one, and we never share your details. You may choose a male or female teacher.</p></details>
+      <details><summary>I have just become Muslim. What now?</summary><p>Welcome. Our free new Muslim classes cover wudu, the five daily prayers, short surahs, and the basics of daily Islamic life, at a gentle pace with a mentor you can message.</p></details>
+      <details><summary>What does it cost?</summary><p>Discover Islam and new Muslim classes are free.</p></details>
+    </div>
+  </div>
+</section>
+
+<section class="section white" id="classes">
+  <div class="wrap">
+    <form class="form-card" method="post" novalidate>
+      {{ hidden() }}
+      <h2>Request a free class on Islam</h2>
+      <p class="small">One-to-one and private. We reply within one working day.</p>
+      {% if errors._save %}<p class="alert" role="alert">{{ errors._save }}</p>{% elif errors %}<p class="alert" role="alert">Please check the highlighted fields.</p>{% endif %}
+      <div class="grid2">
+        {{ field('name', 'Your name', required=True, auto='name') }}
+        {{ field('email', 'E-mail', type='email', required=True, auto='email') }}
+        {{ field('phone', 'Phone or WhatsApp', type='tel', hint='Include the country code', auto='tel') }}
+        {{ select('country', 'Country', C.COUNTRIES) }}
+        {{ select('interest', 'Which describes you best?', C.DAWAH_INTERESTS) }}
+        {{ select('teacher_gender', 'Teacher', ['Female teacher', 'Male teacher', 'No preference']) }}
+      </div>
+      <div class="field">
+        <label for="message">Your questions, or what you would like to learn <span class="hint" style="display:inline">(optional)</span></label>
+        <textarea id="message" name="message">{{ form.get('message', '') }}</textarea>
+      </div>
+      <button class="btn green" type="submit">Request my free class</button>
+    </form>
+  </div>
+</section>
+{% endblock %}

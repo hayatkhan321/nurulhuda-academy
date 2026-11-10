@@ -63,3 +63,6 @@ COURSE_CHOICES = [p["name"] for p in PATH] + [a["name"] for a in ALONGSIDE] + ["
 
 # Short videos (YouTube Shorts / TikTok). Add an entry once a video is uploaded; "youtube" is the video ID.
 VIDEOS: list[dict] = []
+
+DAWAH_INTERESTS = ["I am curious about Islam", "I am thinking of becoming Muslim", "I would like to say the Shahada",
+                   "I am a new Muslim", "I am asking for someone else"]

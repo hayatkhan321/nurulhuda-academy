@@ -21,7 +21,7 @@
   <script>window.va = window.va || function () { (window.vaq = window.vaq || []).push(arguments); };</script>
   <script defer src="/_vercel/insights/script.js"></script>
 </head>
-{% set pats = {"home": "star", "courses": "circles", "families": "octagon", "teach": "hexstar", "videos": "circles", "about": "hexstar", "contact": "octagon"} %}
+{% set pats = {"home": "star", "courses": "circles", "families": "octagon", "teach": "hexstar", "videos": "circles", "about": "hexstar", "contact": "octagon", "vision": "star", "islam": "circles"} %}
 <body class="pat-{{ pats.get(page, 'octagon') }}">
 <a class="skip" href="#main">Skip to content</a>
 <header class="site-header">
@@ -31,7 +31,7 @@
       <a href="{{ url_for('site.courses') }}" {% if page == 'courses' %}aria-current="page"{% endif %}>Courses</a>
       <a href="{{ url_for('site.families') }}" {% if page == 'families' %}aria-current="page"{% endif %}>For families</a>
       <a href="{{ url_for('site.teach') }}" {% if page == 'teach' %}aria-current="page"{% endif %}>Teach with us</a>
-      <a href="{{ url_for('site.videos') }}" {% if page == 'videos' %}aria-current="page"{% endif %}>Videos</a>
+      <a href="{{ url_for('site.islam') }}" {% if page == 'islam' %}aria-current="page"{% endif %}>Discover Islam</a>
       <a href="{{ url_for('site.about') }}" {% if page == 'about' %}aria-current="page"{% endif %}>About</a>
     </nav>
     <a class="btn gold header-cta" href="{{ url_for('site.trial') }}">Book a free trial</a>
@@ -42,6 +42,8 @@
         <li><a href="{{ url_for('site.courses') }}">Courses</a></li>
         <li><a href="{{ url_for('site.families') }}">For families</a></li>
         <li><a href="{{ url_for('site.teach') }}">Teach with us</a></li>
+        <li><a href="{{ url_for('site.islam') }}">Discover Islam</a></li>
+        <li><a href="{{ url_for('site.vision') }}">Our vision</a></li>
         <li><a href="{{ url_for('site.videos') }}">Videos</a></li>
         <li><a href="{{ url_for('site.about') }}">About</a></li>
         <li><a href="{{ url_for('site.contact') }}">Contact</a></li>
@@ -73,6 +75,8 @@
         <ul>
           <li><a href="{{ url_for('site.teach') }}">Teach with us</a></li>
           <li><a href="{{ url_for('site.about') }}">About us</a></li>
+          <li><a href="{{ url_for('site.vision') }}">Our vision: Jamia Nurul Huda</a></li>
+          <li><a href="{{ url_for('site.islam') }}">Discover Islam</a></li>
           <li><a href="{{ url_for('site.contact') }}">Contact</a></li>
           <li><a href="mailto:{{ contact_email }}">{{ contact_email }}</a></li>
           {% if C.YOUTUBE %}<li><a href="{{ C.YOUTUBE }}" rel="noopener">YouTube</a></li>{% endif %}

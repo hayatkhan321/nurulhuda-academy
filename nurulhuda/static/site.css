@@ -255,3 +255,14 @@ body { background-image: var(--pat-ink); }
 .calligraphy svg.arch { position: relative; width: min(400px, 100%); height: auto; overflow: visible;
   filter: drop-shadow(0 18px 40px rgba(0,0,0,.35)); }
 @media (max-width: 860px) { .calligraphy svg.arch { width: 250px; } }
+
+/* vision and Discover Islam */
+.vision-motto { display: grid; grid-template-columns: auto 1fr; gap: 48px; align-items: center; }
+.motto-ar { font-size: clamp(2.6rem, 6vw, 4.2rem); color: var(--saffron-ink); line-height: 1.6; margin: 0; }
+@media (max-width: 760px) { .vision-motto { grid-template-columns: 1fr; gap: 8px; } }
+.shahada { font-size: clamp(1.6rem, 4vw, 2.3rem); color: var(--emerald-deep); line-height: 2; text-align: center; margin: .5em 0; }
+.faq { max-width: 760px; display: grid; gap: 12px; }
+.faq details { background: var(--white); border: 1px solid var(--line); border-radius: var(--r-sm); padding: 16px 20px; }
+.faq summary { font-weight: 650; cursor: pointer; }
+.faq details[open] summary { margin-bottom: 8px; }
+.faq p { margin: 0; color: var(--muted); }

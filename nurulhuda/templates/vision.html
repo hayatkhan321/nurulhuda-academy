@@ -1,0 +1,51 @@
+{% extends "base.html" %}
+{% block desc %}Our vision: world-class Islamic education that joins Deen and Dunya, grounded in knowledge, open to all, and growing into Jamia Nurul Huda, an online university.{% endblock %}
+{% block main %}
+{% with head="Our vision: Jamia Nurul Huda", sub="World-class Islamic education that joins Deen and Dunya, open to every learner, wherever they live." %}{% include "_page_head.html" %}{% endwith %}
+
+<section class="section white">
+  <div class="wrap vision-motto">
+    <p class="ar motto-ar" lang="ar">جامعة نور الهدى</p>
+    <div class="prose">
+      <h2>Our motto</h2>
+      <p class="lead" style="color:var(--ink)">To give world-class Islamic education that brings together Deen and Dunya, faith and knowledge of the world, and to carry it to the farthest corners of the earth.</p>
+      <p>Our final objective is to grow this academy into <b>Jamia Nurul Huda</b>, an online university. It will bridge the gaps that borders, distance and cost put between people and learning, so that good education reaches everyone.</p>
+    </div>
+  </div>
+</section>
+
+<section class="section">
+  <div class="wrap">
+    <div class="section-head"><h2>What we stand for</h2></div>
+    <div class="promises">
+      <div><h3>Deen and Dunya together</h3><p>Quran, Arabic and Islamic studies taught alongside the knowledge children and adults need to thrive in the modern world.</p></div>
+      <div><h3>Grounded in knowledge</h3><p>Teaching built on authentic sources, sound scholarship and scientific knowledge. We encourage questions, evidence and clear thinking.</p></div>
+      <div><h3>Against hate and division</h3><p>We reject anything that spreads hatred or divides people. Our classrooms bring people together, with respect for every human being.</p></div>
+      <div><h3>For all humankind</h3><p>Our doors are open to everyone, whatever their background or religion. Learning is a gift we want to share with the whole of humanity.</p></div>
+      <div><h3>Without borders</h3><p>Online, affordable and available in many time zones, so a child in a small town learns from the same teachers as a child in a capital city.</p></div>
+    </div>
+  </div>
+</section>
+
+<section class="section white">
+  <div class="wrap">
+    <div class="section-head"><h2>The road to Jamia Nurul Huda</h2><p>Each stage builds on the one before it.</p></div>
+    <ol class="steps">
+      <li><div><h3>Nurul Huda Academy</h3><p>Today: one-to-one Quran, tajweed, hifz, Arabic and Islamic studies classes, with tested teachers and protected payments.</p></div></li>
+      <li><div><h3>Nurul Huda Institute</h3><p>Structured courses with certificates, teacher training, and programmes for adults and new Muslims.</p></div></li>
+      <li><div><h3>Jamia Nurul Huda</h3><p>Our final objective: an accredited online university offering diplomas and degrees that join Islamic sciences with modern disciplines, open to learners everywhere.</p></div></li>
+    </ol>
+  </div>
+</section>
+
+<section class="band lattice">
+  <div class="wrap">
+    <h2>Be part of the beginning</h2>
+    <p>Every student and every teacher who joins today helps build Jamia Nurul Huda.</p>
+    <div class="actions">
+      <a class="btn gold" href="{{ url_for('site.trial') }}">Book a free trial class</a>
+      <a class="btn outline" href="{{ url_for('site.teach') }}">Apply to teach</a>
+    </div>
+  </div>
+</section>
+{% endblock %}

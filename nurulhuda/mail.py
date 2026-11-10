@@ -79,3 +79,19 @@ def teacher_emails(a) -> None:
         "If you have not yet sent a recitation recording, please reply to this e-mail with a link to one (2 to 3 minutes of any surah).</p>"
         "<p>We aim to reply within five working days.</p><p>JazakAllahu khairan,<br>Nurul Huda Academy</p>",
     )
+
+
+def dawah_emails(d) -> None:
+    send_email(
+        current_app.config.get("NOTIFY_EMAIL"), f"Discover Islam request: {d.name} ({d.interest or 'not stated'})",
+        "<p>Someone has asked for a free class on Islam.</p>" + _rows([
+            ("Name", d.name), ("E-mail", d.email), ("Phone / WhatsApp", d.phone), ("Country", d.country),
+            ("About them", d.interest), ("Teacher", d.teacher_gender), ("Message", d.message)]),
+    )
+    send_email(
+        d.email, "Your free class on Islam",
+        f"<p>Dear {html.escape(d.name)},</p>"
+        "<p>Thank you for getting in touch. A teacher will contact you within one working day to arrange a private, "
+        "one-to-one conversation at a time that suits you. There is no cost and no pressure: ask anything you like.</p>"
+        "<p>With warm regards,<br>Nurul Huda Academy</p>",
+    )

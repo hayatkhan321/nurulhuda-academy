@@ -6,12 +6,12 @@ from flask import (Blueprint, Response, abort, current_app, redirect, render_tem
 
 from nurulhuda import content as C
 from nurulhuda import db, mail
-from nurulhuda.models import TeacherApplication, TrialRequest
+from nurulhuda.models import DawahRequest, TeacherApplication, TrialRequest
 
 site_bp = Blueprint("site", __name__)
 
 PAGES = ["site.home", "site.courses", "site.families", "site.trial", "site.teach", "site.about", "site.videos",
-         "site.contact", "site.terms"]
+         "site.contact", "site.terms", "site.vision", "site.islam"]
 
 
 @site_bp.app_context_processor
@@ -119,7 +119,7 @@ def teach():
 
 @site_bp.route("/thanks/<kind>")
 def thanks(kind):
-    if kind not in ("trial", "teacher"):
+    if kind not in ("trial", "teacher", "islam"):
         abort(404)
     return render_template("thanks.html", kind=kind, title="Thank you")
 
@@ -127,6 +127,34 @@ def thanks(kind):
 @site_bp.route("/about")
 def about():
     return render_template("about.html", page="about", title="About us")
+
+
+@site_bp.route("/vision")
+def vision():
+    return render_template("vision.html", page="vision", title="Our vision")
+
+
+@site_bp.route("/discover-islam", methods=["GET", "POST"])
+def islam():
+    errors, form = {}, {}
+    if request.method == "POST":
+        form = request.form
+        if not _check_form():
+            return redirect(url_for("site.thanks", kind="islam"))
+        for key, label in [("name", "your name"), ("email", "your e-mail")]:
+            if not _f(key):
+                errors[key] = f"Enter {label}."
+        if _f("email") and "@" not in _f("email"):
+            errors["email"] = "Enter an e-mail address like name@example.com."
+        if not errors:
+            d = DawahRequest(name=_f("name", 120), email=_f("email"), phone=_f("phone", 40), country=_f("country", 60),
+                             interest=_f("interest", 80), teacher_gender=_f("teacher_gender", 20),
+                             message=_f("message", 3000))
+            if not _save(d):
+                return _save_failed("islam.html", "islam", "Discover Islam", form)
+            mail.dawah_emails(d)
+            return redirect(url_for("site.thanks", kind="islam"))
+    return render_template("islam.html", page="islam", title="Discover Islam", errors=errors, form=form)
 
 
 @site_bp.route("/videos")
@@ -159,7 +187,8 @@ def admin():
         return render_template("admin_login.html", title="Sign in")
     trials = TrialRequest.query.order_by(TrialRequest.created_at.desc()).limit(500).all()
     teachers = TeacherApplication.query.order_by(TeacherApplication.created_at.desc()).limit(500).all()
-    return render_template("admin.html", title="Sign-ups", trials=trials, teachers=teachers)
+    dawah = DawahRequest.query.order_by(DawahRequest.created_at.desc()).limit(500).all()
+    return render_template("admin.html", title="Sign-ups", trials=trials, teachers=teachers, dawah=dawah)
 
 
 @site_bp.route("/admin/sign-out")

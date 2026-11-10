@@ -2,6 +2,8 @@
 {% block main %}
 {% if kind == 'trial' %}
 {% with head="Your free trial request is in", sub="JazakAllahu khairan. We will contact you within one working day to agree a time and introduce your teacher." %}{% include "_page_head.html" %}{% endwith %}
+{% elif kind == 'islam' %}
+{% with head="Thank you for getting in touch", sub="A teacher will contact you within one working day to arrange a private conversation. There is no cost and no pressure." %}{% include "_page_head.html" %}{% endwith %}
 {% else %}
 {% with head="Your application is in", sub="JazakAllahu khairan. Our Head of Academics reviews every application personally. We aim to reply within five working days." %}{% include "_page_head.html" %}{% endwith %}
 {% endif %}

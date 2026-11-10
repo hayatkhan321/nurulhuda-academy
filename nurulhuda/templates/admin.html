@@ -17,5 +17,12 @@
     {% for a in teachers %}<tr><td>{{ a.created_at.strftime('%d %b %Y %H:%M') }}</td><td>{{ a.full_name }}</td><td><a href="mailto:{{ a.email }}">{{ a.email }}</a><br>{{ a.phone }}</td><td>{{ a.country }}</td><td>{{ a.gender }}</td><td>{{ a.levels }}</td><td>{{ a.experience_years }}</td><td>{{ a.languages }}</td><td>{{ a.hours }}</td><td>{% if a.recitation_link %}<a href="{{ a.recitation_link }}" rel="noopener nofollow">Listen</a>{% endif %}</td><td>{{ a.qualifications }}</td></tr>{% endfor %}
   </table></div>
   {% else %}<p>No teacher applications yet.</p>{% endif %}
+  <h2 style="font-size:1.4rem">Discover Islam requests ({{ dawah|length }})</h2>
+  {% if dawah %}
+  <div class="table-wrap"><table class="data">
+    <tr><th>Received</th><th>Name</th><th>Contact</th><th>Country</th><th>About them</th><th>Teacher</th><th>Message</th></tr>
+    {% for d in dawah %}<tr><td>{{ d.created_at.strftime('%d %b %Y %H:%M') }}</td><td>{{ d.name }}</td><td><a href="mailto:{{ d.email }}">{{ d.email }}</a><br>{{ d.phone }}</td><td>{{ d.country }}</td><td>{{ d.interest }}</td><td>{{ d.teacher_gender }}</td><td>{{ d.message }}</td></tr>{% endfor %}
+  </table></div>
+  {% else %}<p>No Discover Islam requests yet.</p>{% endif %}
 </div></section>
 {% endblock %}
