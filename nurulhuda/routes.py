@@ -1,8 +1,8 @@
 import hmac
 import secrets
 
-from flask import (Blueprint, Response, abort, current_app, redirect, render_template, request, session,
-                   url_for)
+from flask import (Blueprint, Response, abort, current_app, redirect, render_template, request, send_from_directory,
+                   session, url_for)
 
 from nurulhuda import content as C
 from nurulhuda import db, mail
@@ -11,7 +11,7 @@ from nurulhuda.models import DawahRequest, TeacherApplication, TrialRequest
 site_bp = Blueprint("site", __name__)
 
 PAGES = ["site.home", "site.courses", "site.families", "site.trial", "site.teach", "site.about", "site.videos",
-         "site.contact", "site.terms", "site.vision", "site.islam"]
+         "site.contact", "site.terms", "site.vision", "site.islam", "site.app"]
 
 
 @site_bp.app_context_processor
@@ -19,7 +19,7 @@ def _inject():
     if "csrf" not in session:
         session["csrf"] = secrets.token_urlsafe(24)
     return {"C": C, "site_url": current_app.config["SITE_URL"].rstrip("/"), "csrf": session["csrf"],
-            "contact_email": current_app.config["CONTACT_EMAIL"]}
+            "contact_email": current_app.config["CONTACT_EMAIL"], "admin_email": current_app.config["ADMIN_EMAIL"]}
 
 
 def _check_form():
@@ -217,6 +217,34 @@ def sitemap():
     rows = "".join(f"<url><loc>{base}{url_for(ep)}</loc></url>" for ep in PAGES)
     return Response('<?xml version="1.0" encoding="UTF-8"?><urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">'
                     f"{rows}</urlset>", mimetype="application/xml")
+
+
+@site_bp.route("/app")
+def app():
+    return render_template("app.html", page="app", title="Get the app")
+
+
+@site_bp.route("/offline")
+def offline():
+    return render_template("offline.html", title="Offline")
+
+
+@site_bp.route("/sw.js")
+def service_worker():
+    # Served from the site root so it can look after every page.
+    resp = send_from_directory(current_app.static_folder, "sw.js", mimetype="application/javascript", max_age=0)
+    resp.headers["Cache-Control"] = "no-cache"
+    return resp
+
+
+@site_bp.route("/manifest.webmanifest")
+def manifest():
+    return send_from_directory(current_app.static_folder, "manifest.webmanifest", mimetype="application/manifest+json", max_age=3600)
+
+
+@site_bp.route("/favicon.ico")
+def favicon():
+    return send_from_directory(current_app.static_folder + "/icons", "favicon-32.png", mimetype="image/png", max_age=86400)
 
 
 @site_bp.route("/health")

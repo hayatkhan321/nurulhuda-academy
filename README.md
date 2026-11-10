@@ -17,6 +17,7 @@ Sign-ups are listed at `/admin` (password from `ADMIN_PASSWORD`).
 | `RESEND_API_KEY` | Resend key, so confirmation and notification e-mails are sent. |
 | `MAIL_FROM` | Default `Nurul Huda Academy <hello@nurulhudaacademy.org>`; verify the domain in Resend first. |
 | `NOTIFY_EMAIL` | Where new sign-ups are announced. Default nurulhudaacademy2@gmail.com. |
+| `CONTACT_EMAIL` / `ADMIN_EMAIL` | Public addresses, default info@ and admin@nurulhudaacademy.org (ImprovMX forwards both to the academy Gmail). |
 | `APP_ENV` | `production` on Vercel. |
 
 ## Adding a short video

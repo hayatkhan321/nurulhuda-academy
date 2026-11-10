@@ -1,0 +1,61 @@
+{% extends "base.html" %}
+{% block desc %}Install the Nurul Huda Academy app on Android, iPhone, iPad and Windows. Free, small, and always up to date.{% endblock %}
+{% block main %}
+{% with head="Get the Nurul Huda app", sub="Book classes, apply to teach and reach us in one tap from your home screen. Free, very small, and always up to date." %}{% include "_page_head.html" %}{% endwith %}
+<section class="section white">
+  <div class="wrap">
+    <div class="install-now" id="install-box" hidden>
+      <p class="lead" style="color:var(--ink);margin:0">Your device can install the app right now.</p>
+      <button class="btn green" type="button" id="install-btn">Install the app</button>
+    </div>
+    <p class="installed-msg" id="installed-msg" hidden>The app is installed on this device. Open it from your home screen or apps list.</p>
+    <div class="platforms">
+      <div class="platform" id="p-android">
+        <h2>Android</h2>
+        <ol>
+          <li>Open this page in <b>Chrome</b>.</li>
+          <li>Tap <b>Install the app</b> above, or tap the <b>⋮</b> menu and choose <b>Install app</b>.</li>
+          <li>Nurul Huda appears with your other apps.</li>
+        </ol>
+      </div>
+      <div class="platform" id="p-ios">
+        <h2>iPhone and iPad</h2>
+        <ol>
+          <li>Open this page in <b>Safari</b>.</li>
+          <li>Tap the <b>Share</b> button (the square with an arrow).</li>
+          <li>Choose <b>Add to Home Screen</b>, then tap <b>Add</b>.</li>
+        </ol>
+      </div>
+      <div class="platform" id="p-windows">
+        <h2>Windows and Mac</h2>
+        <ol>
+          <li>Open this page in <b>Microsoft Edge</b> or <b>Chrome</b>.</li>
+          <li>Click <b>Install the app</b> above, or the install icon at the right end of the address bar.</li>
+          <li>Nurul Huda opens in its own window and appears in the Start menu.</li>
+        </ol>
+      </div>
+    </div>
+  </div>
+</section>
+{% endblock %}
+{% block scripts %}
+<script>
+(function () {
+  var ua = navigator.userAgent, box = document.getElementById("install-box");
+  var mine = /iPhone|iPad|iPod/.test(ua) || (navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1) ? "p-ios"
+           : /Android/.test(ua) ? "p-android" : "p-windows";
+  document.getElementById(mine).classList.add("yours");
+  if (window.matchMedia("(display-mode: standalone)").matches || navigator.standalone) {
+    document.getElementById("installed-msg").hidden = false;
+  }
+  var deferred = null;
+  window.addEventListener("beforeinstallprompt", function (e) { e.preventDefault(); deferred = e; box.hidden = false; });
+  document.getElementById("install-btn").addEventListener("click", function () {
+    if (!deferred) return;
+    deferred.prompt();
+    deferred.userChoice.then(function () { deferred = null; box.hidden = true; });
+  });
+  window.addEventListener("appinstalled", function () { box.hidden = true; document.getElementById("installed-msg").hidden = false; });
+})();
+</script>
+{% endblock %}

@@ -318,3 +318,16 @@ h1 { font-size: clamp(2.5rem, 5.8vw, 4.6rem); letter-spacing: -0.035em; }
 .founder .seal { box-shadow: 0 0 0 2px rgba(242,169,59,.6), 0 0 0 10px rgba(242,169,59,.10), 0 24px 50px -20px rgba(3,20,15,.6);
   background: radial-gradient(circle at 40% 35%, #0f5a44, var(--night)); }
 .site-footer { background: var(--night); }
+
+/* Get the app */
+.install-now { display: flex; flex-wrap: wrap; align-items: center; gap: 16px 24px; padding: 22px 26px; margin-bottom: 36px;
+  border-radius: var(--r-lg); background: #fff4df; border: 1px solid rgba(227,162,55,.35); }
+.installed-msg { padding: 14px 18px; border-radius: var(--r-sm); background: #e3f1ea; margin-bottom: 30px; }
+.platforms { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; }
+.platform { border: 1px solid var(--line); border-radius: var(--r-lg); padding: 26px; background: var(--white); }
+.platform h2 { font-size: 1.35rem; }
+.platform ol { padding-left: 1.2em; margin: 0; }
+.platform li { margin: .45em 0; }
+.platform.yours { border-color: var(--gold-2); box-shadow: 0 0 0 3px rgba(242,169,59,.25); }
+.platform.yours h2::after { content: " (this device)"; font-size: .8rem; font-weight: 500; color: var(--saffron-ink); }
+@media (max-width: 860px) { .platforms { grid-template-columns: 1fr; } }

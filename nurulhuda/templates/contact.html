@@ -2,8 +2,10 @@
 {% block main %}
 {% with head="Contact us", sub="We reply within one working day, insha'Allah." %}{% include "_page_head.html" %}{% endwith %}
 <section class="section"><div class="wrap prose">
-  <h2>E-mail</h2>
+  <h2>Families and general questions</h2>
   <p><a href="mailto:{{ contact_email }}" style="font-size:1.3rem">{{ contact_email }}</a></p>
+  <h2 style="margin-top:28px">Teachers, partnerships and administration</h2>
+  <p><a href="mailto:{{ admin_email }}" style="font-size:1.3rem">{{ admin_email }}</a></p>
   <h2 style="margin-top:32px">Looking for something specific?</h2>
   <ul>
     <li><a href="{{ url_for('site.trial') }}">Book a free trial class for your child</a></li>

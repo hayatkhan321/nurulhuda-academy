@@ -1,0 +1,5 @@
+{% extends "base.html" %}
+{% block main %}
+{% with head="You are offline", sub="Connect to the internet to book a class or reach your teacher. Everything will be here when you are back." %}{% include "_page_head.html" %}{% endwith %}
+<section class="section"><div class="wrap prose"><p><a class="btn green" href="/">Try again</a></p></div></section>
+{% endblock %}

@@ -7,14 +7,14 @@ import urllib.request
 from flask import current_app
 
 
-def send_email(to: str, subject: str, inner_html: str) -> bool:
+def send_email(to: str, subject: str, inner_html: str, reply_to: str | None = None) -> bool:
     key = current_app.config.get("RESEND_API_KEY")
     if not key or not to:
         current_app.logger.info("E-mail not sent (RESEND_API_KEY or recipient missing): %s", subject)
         return False
     payload = {"from": current_app.config["MAIL_FROM"], "to": [to], "subject": subject, "html": _wrap(inner_html)}
-    if current_app.config.get("MAIL_REPLY_TO"):
-        payload["reply_to"] = current_app.config["MAIL_REPLY_TO"]
+    if reply_to or current_app.config.get("MAIL_REPLY_TO"):
+        payload["reply_to"] = reply_to or current_app.config["MAIL_REPLY_TO"]
     req = urllib.request.Request(
         "https://api.resend.com/emails", data=json.dumps(payload).encode(), method="POST",
         headers={"Authorization": f"Bearer {key}", "Content-Type": "application/json", "User-Agent": "nurulhuda/1.0"},
@@ -34,7 +34,7 @@ def _wrap(inner: str) -> str:
         '<div style="font-family:Arial,sans-serif;font-size:16px;line-height:1.6;color:#13241f;max-width:560px;margin:0 auto">'
         '<p style="font-size:22px;color:#0b5d45;margin:0 0 4px"><b>Nurul Huda Academy</b></p>'
         f'<p style="font-size:20px;color:#c98a1c;margin:0 0 20px" dir="rtl">نور الهدى</p>{inner}'
-        '<p style="color:#5c6f68;font-size:13px;margin-top:32px">Nurul Huda Academy &middot; nurulhudaacademy.org</p></div>'
+        '<p style="color:#5c6f68;font-size:13px;margin-top:32px">Nurul Huda Academy &middot; nurulhudaacademy.org &middot; info@nurulhudaacademy.org</p></div>'
     )
 
 
@@ -78,6 +78,7 @@ def teacher_emails(a) -> None:
         "<p>Thank you for applying to teach with Nurul Huda Academy. Our Head of Academics reviews every application personally. "
         "If you have not yet sent a recitation recording, please reply to this e-mail with a link to one (2 to 3 minutes of any surah).</p>"
         "<p>We aim to reply within five working days.</p><p>JazakAllahu khairan,<br>Nurul Huda Academy</p>",
+        reply_to=current_app.config.get("ADMIN_EMAIL"),
     )
 
 

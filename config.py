@@ -45,14 +45,16 @@ class Config:
     SESSION_COOKIE_SECURE = IS_PRODUCTION
 
     SITE_URL = os.getenv("SITE_URL", "https://www.nurulhudaacademy.org")
-    CONTACT_EMAIL = os.getenv("CONTACT_EMAIL", "nurulhudaacademy2@gmail.com")
+    # Public addresses on the website (ImprovMX forwards both to the academy Gmail).
+    CONTACT_EMAIL = os.getenv("CONTACT_EMAIL", "info@nurulhudaacademy.org")
+    ADMIN_EMAIL = os.getenv("ADMIN_EMAIL", "admin@nurulhudaacademy.org")
 
     # E-mail goes through Resend (https://resend.com) when RESEND_API_KEY is set, as on hayatclinics.com.
     RESEND_API_KEY = os.getenv("RESEND_API_KEY", "").strip()
     MAIL_FROM = os.getenv("MAIL_FROM", "Nurul Huda Academy <hello@nurulhudaacademy.org>")
     MAIL_REPLY_TO = os.getenv("MAIL_REPLY_TO", CONTACT_EMAIL)
     # Where new trial requests and teacher applications are announced.
-    NOTIFY_EMAIL = os.getenv("NOTIFY_EMAIL", CONTACT_EMAIL)
+    NOTIFY_EMAIL = os.getenv("NOTIFY_EMAIL", "nurulhudaacademy2@gmail.com")
 
     # Password for /admin, the list of sign-ups. Leave empty to keep /admin switched off.
     ADMIN_PASSWORD = os.getenv("ADMIN_PASSWORD", "")

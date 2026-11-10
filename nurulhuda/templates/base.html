@@ -14,6 +14,13 @@
   <meta property="og:url" content="{{ site_url }}{{ request.path }}">
   <meta name="theme-color" content="#073d2e">
   <link rel="icon" href="{{ url_for('static', filename='img/icon.svg') }}" type="image/svg+xml">
+  <link rel="icon" href="{{ url_for('static', filename='icons/favicon-32.png') }}" type="image/png" sizes="32x32">
+  <link rel="manifest" href="/manifest.webmanifest">
+  <link rel="apple-touch-icon" href="{{ url_for('static', filename='icons/apple-touch-icon.png') }}">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-title" content="Nurul Huda">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
   <link rel="stylesheet" href="{{ url_for('static', filename='site.css') }}">
   <script type="application/ld+json">{{ {"@context": "https://schema.org", "@type": "EducationalOrganization", "name": "Nurul Huda Academy", "alternateName": "نور الهدى", "url": site_url, "email": contact_email, "description": "Online Quran and Arabic classes for children with accredited teachers."} | tojson }}</script>
@@ -21,7 +28,7 @@
   <script>window.va = window.va || function () { (window.vaq = window.vaq || []).push(arguments); };</script>
   <script defer src="/_vercel/insights/script.js"></script>
 </head>
-{% set pats = {"home": "star", "courses": "circles", "families": "octagon", "teach": "hexstar", "videos": "circles", "about": "hexstar", "contact": "octagon", "vision": "star", "islam": "circles"} %}
+{% set pats = {"home": "star", "courses": "circles", "families": "octagon", "teach": "hexstar", "videos": "circles", "about": "hexstar", "contact": "octagon", "vision": "star", "islam": "circles", "app": "hexstar"} %}
 <body class="pat-{{ pats.get(page, 'octagon') }}">
 <a class="skip" href="#main">Skip to content</a>
 <header class="site-header">
@@ -47,6 +54,7 @@
         <li><a href="{{ url_for('site.videos') }}">Videos</a></li>
         <li><a href="{{ url_for('site.about') }}">About</a></li>
         <li><a href="{{ url_for('site.contact') }}">Contact</a></li>
+        <li><a href="{{ url_for('site.app') }}">Get the app</a></li>
       </ul>
     </details>
   </div>
@@ -68,6 +76,7 @@
           <li><a href="{{ url_for('site.courses') }}">Courses</a></li>
           <li><a href="{{ url_for('site.families') }}">How it works for families</a></li>
           <li><a href="{{ url_for('site.videos') }}">Short videos</a></li>
+          <li><a href="{{ url_for('site.app') }}">Get the app</a></li>
         </ul>
       </div>
       <div>
@@ -88,5 +97,7 @@
     <p class="small">&copy; 2026 Nurul Huda Academy. <a href="{{ url_for('site.terms') }}">Terms and privacy</a></p>
   </div>
 </footer>
+<script>if ("serviceWorker" in navigator) { window.addEventListener("load", function () { navigator.serviceWorker.register("/sw.js").catch(function () {}); }); }</script>
+{% block scripts %}{% endblock %}
 </body>
 </html>
