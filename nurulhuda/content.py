@@ -74,3 +74,65 @@ LEVELS = ["Native", "Fluent", "Good", "Basic"]
 LEVELS_WITH_NONE = LEVELS + ["None"]
 # The language a teacher uses to explain the lesson
 INSTRUCTION_LANGS = ["English", "Urdu", "Arabic", "Hindi", "Malay", "Indonesian", "French", "Spanish", "Any"]
+
+# Free Quran downloads. We link to the publishers' own files rather than copying them, so each family always
+# gets the latest corrected edition. QuranEnc.com allows re-publishing unchanged with credit; the others we link.
+QURAN_RESOURCES = [
+    {"lang": "English", "native": "English", "title": "The Noble Quran, Saheeh International",
+     "note": "Clear modern English, widely used in classes.", "source": "IslamHouse.com",
+     "pdf": "https://d1.islamhouse.com/data/en/ih_books/single2/en-translation-of-the-meanings-of-the-quran.pdf",
+     "page": "https://islamhouse.com/en/books/78592/"},
+    {"lang": "English", "native": "English", "title": "Translation by the Rowwad Translation Center",
+     "note": "Arabic and English side by side. Also a version for phones.", "source": "QuranEnc.com",
+     "pdf": "https://quranenc.com/downloads/pdf/english_rwwad.pdf",
+     "page": "https://quranenc.com/en/browse/english_rwwad"},
+    {"lang": "Urdu", "native": "اردو", "title": "ترجمہ: مولانا محمد جوناگڑھی، تفسیر: صلاح الدین یوسف",
+     "note": "Urdu translation with short commentary.", "source": "IslamHouse.com",
+     "pdf": "", "page": "https://old.islamhouse.com/27221/en/ur/books/Translation_of_the_meaning_of_the_Holy_Quran_in_Urdu"},
+    {"lang": "Hindi", "native": "हिन्दी", "title": "हिन्दी अनुवाद: अज़ीज़ुल हक़ उमरी",
+     "note": "Read online, verse by verse, with the Arabic.", "source": "QuranEnc.com",
+     "pdf": "", "page": "https://quranenc.com/hi/browse/hindi_omari"},
+    {"lang": "Malay", "native": "Bahasa Melayu", "title": "Terjemahan Abdullah Muhammad Basmeih",
+     "note": "Read online, verse by verse, with the Arabic.", "source": "QuranEnc.com",
+     "pdf": "", "page": "https://quranenc.com/ms/browse/malay_basumayyah"},
+    {"lang": "Indonesian", "native": "Bahasa Indonesia", "title": "Al-Qur'an dan Terjemahnya",
+     "note": "The King Fahd Complex edition.", "source": "IslamHouse.com",
+     "pdf": "", "page": "https://old.islamhouse.com/41483/en/id/books/Translation_of_the_Meanings_of_the_Quran_into_Indonesian"},
+    {"lang": "French", "native": "Français", "title": "Traduction de Rachid Maach",
+     "note": "Arabe et français côte à côte.", "source": "QuranEnc.com",
+     "pdf": "https://quranenc.com/downloads/pdf/french_rashid.pdf",
+     "page": "https://quranenc.com/fr/browse/french_rashid"},
+    {"lang": "Spanish", "native": "Español", "title": "Traducción de Muhammad Isa García",
+     "note": "Árabe y español lado a lado.", "source": "QuranEnc.com",
+     "pdf": "https://quranenc.com/downloads/pdf/spanish_garcia.pdf",
+     "page": "https://quranenc.com/es/browse/spanish_garcia"},
+]
+# Every language, with audio, in one place
+QURAN_ONLINE = [
+    {"name": "Quran.com", "url": "https://quran.com", "text": "Read and listen in dozens of languages, on any phone."},
+    {"name": "QuranEnc.com", "url": "https://quranenc.com", "text": "Reviewed translations in over 70 languages, free to download."},
+]
+
+# Why we read the Quran. Only well-known, authentic texts, each with its reference.
+QURAN_VERSES = [
+    {"text": "Indeed, this Quran guides to that which is most upright.", "ref": "Quran 17:9"},
+    {"text": "And We have certainly made the Quran easy to remember, so is there anyone who will be mindful?", "ref": "Quran 54:17"},
+    {"text": "A blessed Book which We have revealed to you, that they might reflect upon its verses and that those of understanding would be reminded.", "ref": "Quran 38:29"},
+]
+HADITH = [
+    {"text": "The best of you are those who learn the Quran and teach it.", "ref": "Sahih al-Bukhari 5027"},
+    {"text": "The one who is skilled in the Quran will be with the noble and righteous scribes (the angels). And the one who recites the Quran and stumbles over it, finding it difficult, will have a double reward.", "ref": "Sahih al-Bukhari 4937, Sahih Muslim 798"},
+    {"text": "Recite the Quran, for on the Day of Resurrection it will come as an intercessor for its companions.", "ref": "Sahih Muslim 804"},
+    {"text": "Whoever reads a letter from the Book of Allah will have a good deed, and a good deed is rewarded tenfold. I do not say that Alif Lam Mim is one letter; rather Alif is a letter, Lam is a letter and Mim is a letter.", "ref": "Jami' at-Tirmidhi 2910, graded hasan sahih"},
+    {"text": "It will be said to the companion of the Quran: Recite and rise, and recite slowly as you used to recite in the world, for your place will be at the last verse you recite.", "ref": "Sunan Abi Dawud 1464, Jami' at-Tirmidhi 2914"},
+    {"text": "No people gather in one of the houses of Allah, reciting the Book of Allah and studying it together, except that tranquillity descends upon them, mercy covers them, the angels surround them, and Allah mentions them to those who are with Him.", "ref": "Sahih Muslim 2699"},
+    {"text": "The example of a believer who recites the Quran is like a citron: its fragrance is pleasant and its taste is pleasant.", "ref": "Sahih al-Bukhari 5020, Sahih Muslim 797"},
+    {"text": "Allah raises some people by this Book and lowers others by it.", "ref": "Sahih Muslim 817"},
+]
+# For families: the Quran in the home and in marriage
+FAMILY_TEXTS = [
+    {"text": "A woman is married for four things: her wealth, her lineage, her beauty and her religion. Choose the one with religion, may your hands be blessed.", "ref": "Sahih al-Bukhari 5090, Sahih Muslim 1466"},
+    {"text": "This world is provision, and the best provision of this world is a righteous woman.", "ref": "Sahih Muslim 1467"},
+    {"text": "May Allah have mercy on a man who gets up at night to pray and wakes his wife, and may Allah have mercy on a woman who gets up at night to pray and wakes her husband.", "ref": "Sunan Abi Dawud 1308, Sunan an-Nasa'i 1610"},
+    {"text": "The Quran will meet its companion on the Day of Resurrection, and his parents will be clothed in two garments that the whole world cannot match. They will ask: Why have we been given these? It will be said: Because your child learned the Quran.", "ref": "Musnad Ahmad and al-Hakim; graded hasan by al-Albani (as-Silsilah as-Sahihah 2829). Narration abridged."},
+]

@@ -1,0 +1,32 @@
+{% extends "base.html" %}
+{% block desc %}Free Quran with translation to download or read online, in English, Urdu, Hindi, Malay, Indonesian, French and Spanish, from trusted publishers.{% endblock %}
+{% block main %}
+{% with head="Free Quran downloads", sub="The Quran with translation in your language, free to download or read online. Every file comes from its publisher, so you always get the latest corrected edition." %}{% include "_page_head.html" %}{% endwith %}
+<section class="section white">
+  <div class="wrap">
+    <div class="res-grid">
+      {% for r in C.QURAN_RESOURCES %}
+      <article class="res">
+        <p class="res-lang"><span lang="{{ {'Urdu':'ur','Hindi':'hi','Malay':'ms','Indonesian':'id','French':'fr','Spanish':'es'}.get(r.lang, 'en') }}">{{ r.native }}</span>{% if r.native != r.lang %} <span class="small">{{ r.lang }}</span>{% endif %}</p>
+        <h2 dir="auto"><!--nt-->{{ r.title }}<!--/nt--></h2>
+        <p>{{ r.note }}</p>
+        <p class="res-actions">
+          {% if r.pdf %}<a class="btn green sm" href="{{ r.pdf }}" rel="noopener" target="_blank">Download PDF</a>{% endif %}
+          <a class="btn sm outline-dark" href="{{ r.page }}" rel="noopener" target="_blank">{{ 'Publisher page' if r.pdf else 'Read or download' }}</a>
+        </p>
+        <p class="small">Source: {{ r.source }}</p>
+      </article>
+      {% endfor %}
+    </div>
+  </div>
+</section>
+<section class="section">
+  <div class="wrap prose">
+    <h2>Read and listen online</h2>
+    <ul>{% for o in C.QURAN_ONLINE %}<li><a href="{{ o.url }}" rel="noopener" target="_blank">{{ o.name }}</a>: {{ o.text }}</li>{% endfor %}</ul>
+    <p class="small">These are free publications of their publishers. Nurul Huda Academy links to them and does not change them. Please keep printed copies clean and treat the mushaf with respect.</p>
+    <p>Reading is the first step; reading correctly needs a teacher. <a href="{{ url_for('site.why_quran') }}">Why we learn the Quran</a></p>
+    <p><a class="btn green" href="{{ url_for('site.trial') }}">Book a free trial class</a></p>
+  </div>
+</section>
+{% endblock %}

@@ -30,7 +30,7 @@
   <script>window.va = window.va || function () { (window.vaq = window.vaq || []).push(arguments); };</script>
   <script defer src="/_vercel/insights/script.js"></script>
 </head>
-{% set pats = {"home": "star", "courses": "circles", "families": "octagon", "teach": "hexstar", "videos": "circles", "about": "hexstar", "contact": "octagon", "vision": "star", "islam": "circles", "app": "hexstar"} %}
+{% set pats = {"home": "star", "courses": "circles", "families": "octagon", "teach": "hexstar", "videos": "circles", "about": "hexstar", "contact": "octagon", "vision": "star", "islam": "circles", "app": "hexstar", "resources": "star", "why": "octagon"} %}
 <body class="pat-{{ pats.get(page, 'octagon') }}">
 <a class="skip" href="#main">Skip to content</a>
 <header class="site-header">
@@ -58,6 +58,8 @@
         <li><a href="{{ url_for('site.teach') }}">Teach with us</a></li>
         <li><a href="{{ url_for('site.islam') }}">Discover Islam</a></li>
         <li><a href="{{ url_for('site.vision') }}">Our vision</a></li>
+        <li><a href="{{ url_for('site.resources') }}">Free Quran downloads</a></li>
+        <li><a href="{{ url_for('site.why_quran') }}">Why we learn the Quran</a></li>
         <li><a href="{{ url_for('site.videos') }}">Videos</a></li>
         <li><a href="{{ url_for('site.about') }}">About</a></li>
         <li><a href="{{ url_for('site.contact') }}">Contact</a></li>
@@ -83,6 +85,8 @@
           <li><a href="{{ url_for('site.trial') }}">Book a free trial</a></li>
           <li><a href="{{ url_for('site.courses') }}">Courses</a></li>
           <li><a href="{{ url_for('site.families') }}">How it works for families</a></li>
+          <li><a href="{{ url_for('site.resources') }}">Free Quran downloads</a></li>
+          <li><a href="{{ url_for('site.why_quran') }}">Why we learn the Quran</a></li>
           <li><a href="{{ url_for('site.videos') }}">Short videos</a></li>
           <li><a href="{{ url_for('site.app') }}">Get the app</a></li>
         </ul>

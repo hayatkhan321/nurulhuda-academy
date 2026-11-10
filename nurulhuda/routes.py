@@ -11,7 +11,8 @@ from nurulhuda.models import DawahRequest, TeacherApplication, TrialRequest
 site_bp = Blueprint("site", __name__)
 
 PAGES = ["site.home", "site.courses", "site.families", "site.trial", "site.teach", "site.about", "site.videos",
-         "site.contact", "site.terms", "site.vision", "site.islam", "site.app"]
+         "site.contact", "site.terms", "site.vision", "site.islam", "site.app",
+         "site.resources", "site.why_quran"]
 
 
 @site_bp.app_context_processor
@@ -236,6 +237,16 @@ def sitemap():
     rows = "".join(f"<url><loc>{base}{url_for(ep)}</loc></url>" for ep in PAGES)
     return Response('<?xml version="1.0" encoding="UTF-8"?><urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">'
                     f"{rows}</urlset>", mimetype="application/xml")
+
+
+@site_bp.route("/quran-downloads")
+def resources():
+    return render_template("resources.html", page="resources", title="Free Quran downloads")
+
+
+@site_bp.route("/why-quran")
+def why_quran():
+    return render_template("why_quran.html", page="why", title="Why we learn the Quran")
 
 
 @site_bp.route("/app")
