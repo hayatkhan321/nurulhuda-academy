@@ -1,0 +1,26 @@
+{% extends "base.html" %}
+{% block main %}
+{% with head="How it works for families", sub="From the free trial to steady weekly progress, with your payment protected at every step." %}{% include "_page_head.html" %}{% endwith %}
+<section class="section white">
+  <div class="wrap">
+    <ol class="steps">
+      <li><div><h3>Book a free trial class</h3><p>Tell us your child's age, level and the times that suit you.</p></div></li>
+      <li><div><h3>Meet the teacher</h3><p>The teacher checks your child's level in a free 30-minute class. You are welcome to sit in.</p></div></li>
+      <li><div><h3>Choose a package</h3><p>Every day for 15 days, weekly, alternate days or your own schedule. You pay the academy, not the teacher.</p></div></li>
+      <li><div><h3>Learn and watch progress</h3><p>After each class you see a short note on what was covered. You can join any lesson in our video room.</p></div></li>
+      <li><div><h3>Teachers are paid for real classes</h3><p>We release the teacher's pay only for classes that took place. A missed class is credited back to you.</p></div></li>
+    </ol>
+  </div>
+</section>
+<section class="section">
+  <div class="wrap">
+    <div class="section-head"><h2>Keeping children safe</h2></div>
+    <div class="promises">
+      <div><h3>Checked teachers</h3><p>ID, references and a live trial lesson are checked before any teacher meets a child.</p></div>
+      <div><h3>Classes stay on our platform</h3><p>Lessons happen only in our video room, never on private chat apps.</p></div>
+      <div><h3>Parents are in control</h3><p>Join any lesson, ask for a different teacher at any time, and report any concern straight to us.</p></div>
+    </div>
+    <p style="margin-top:40px"><a class="btn green" href="{{ url_for('site.trial') }}">Book a free trial class</a></p>
+  </div>
+</section>
+{% endblock %}

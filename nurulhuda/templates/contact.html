@@ -1,0 +1,14 @@
+{% extends "base.html" %}
+{% block main %}
+{% with head="Contact us", sub="We reply within one working day, insha'Allah." %}{% include "_page_head.html" %}{% endwith %}
+<section class="section"><div class="wrap prose">
+  <h2>E-mail</h2>
+  <p><a href="mailto:{{ contact_email }}" style="font-size:1.3rem">{{ contact_email }}</a></p>
+  <h2 style="margin-top:32px">Looking for something specific?</h2>
+  <ul>
+    <li><a href="{{ url_for('site.trial') }}">Book a free trial class for your child</a></li>
+    <li><a href="{{ url_for('site.teach') }}">Apply to teach</a></li>
+    <li><a href="{{ url_for('site.families') }}">How classes and payments work</a></li>
+  </ul>
+</div></section>
+{% endblock %}

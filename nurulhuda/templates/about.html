@@ -1,0 +1,22 @@
+{% extends "base.html" %}
+{% block main %}
+{% with head="About Nurul Huda Academy", sub="Nurul Huda means light of guidance. We started the academy to give families a Quran teacher they can trust, and teachers the fair, reliable pay they deserve." %}{% include "_page_head.html" %}{% endwith %}
+<section class="section white">
+  <div class="wrap founder">
+    <div class="seal lattice" lang="ar">حافظة</div>
+    <div class="prose">
+      <h2>Our Head of Academics</h2>
+      <p>Our Head of Academics is a Hafiza of the Quran. She designs the curriculum for each level, personally reviews every teacher's recitation and trial lesson before approval, and teaches her own students every day.</p>
+      <p>Her standard is simple: would she trust this teacher with her own child?</p>
+    </div>
+  </div>
+</section>
+<section class="section">
+  <div class="wrap prose">
+    <h2>Why we started</h2>
+    <p>Living in Canada and the UAE, we saw how hard it is for families abroad to find a reliable Quran teacher. Teachers would message families directly, classes started and stopped, and sometimes teachers were never paid for the work they did.</p>
+    <p>Nurul Huda Academy fixes both sides. Families pay the academy, and we release the teacher's pay only for classes that took place. Teachers are tested before they teach, and they are paid on time, every week.</p>
+    <p><a class="btn green" href="{{ url_for('site.trial') }}">Book a free trial class</a></p>
+  </div>
+</section>
+{% endblock %}

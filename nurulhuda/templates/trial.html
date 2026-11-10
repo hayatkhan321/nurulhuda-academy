@@ -1,0 +1,35 @@
+{% extends "base.html" %}
+{% from "_form.html" import field, select, hidden with context %}
+{% block main %}
+{% with head="Book a free trial class", sub="Takes two minutes. We reply within one working day to agree a time." %}{% include "_page_head.html" %}{% endwith %}
+<section class="section">
+  <div class="wrap">
+    <form class="form-card" method="post" novalidate>
+      {{ hidden() }}
+      {% if errors %}<p class="alert" role="alert">Please check the highlighted fields.</p>{% endif %}
+      <h2 style="font-size:1.4rem">About you</h2>
+      <div class="grid2">
+        {{ field('parent_name', "Parent's name", required=True, auto='name') }}
+        {{ field('email', 'E-mail', type='email', required=True, auto='email') }}
+        {{ field('phone', 'Phone or WhatsApp', type='tel', hint='Include the country code, e.g. +1 or +971', auto='tel') }}
+        {{ select('country', 'Country', C.COUNTRIES) }}
+        {{ field('city', 'City', auto='address-level2') }}
+      </div>
+      <h2 style="font-size:1.4rem;margin-top:12px">About your child</h2>
+      <div class="grid2">
+        {{ field('student_name', "Child's first name") }}
+        {{ field('student_age', "Child's age", type='number') }}
+        {{ select('course', 'What would you like to learn?', C.COURSE_CHOICES) }}
+        {{ select('teacher_gender', 'Teacher', ['Female teacher', 'Male teacher', 'No preference']) }}
+      </div>
+      {{ field('preferred_times', 'Days and times that suit you', hint='e.g. weekdays after 5 pm Toronto time') }}
+      <div class="field">
+        <label for="notes">Anything else we should know? <span class="hint" style="display:inline">(optional)</span></label>
+        <textarea id="notes" name="notes">{{ form.get('notes', '') }}</textarea>
+      </div>
+      <button class="btn green" type="submit">Book my free trial class</button>
+      <p class="small" style="margin-top:14px">We use your details only to arrange classes. See <a href="{{ url_for('site.terms') }}">terms and privacy</a>.</p>
+    </form>
+  </div>
+</section>
+{% endblock %}

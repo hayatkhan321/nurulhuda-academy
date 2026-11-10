@@ -1,0 +1,17 @@
+{% extends "base.html" %}
+{% block main %}
+{% with head="Terms and privacy" %}{% include "_page_head.html" %}{% endwith %}
+<section class="section"><div class="wrap prose">
+  <h2>What we collect</h2>
+  <p>When you book a trial or apply to teach, we keep the details you type into the form: names, contact details, country, your child's first name and age, and your preferences. We use them only to arrange classes or review applications.</p>
+  <h2>Who sees it</h2>
+  <p>The academy team, and the teacher matched with your child. We do not sell or share your details with anyone else. E-mails are sent through our e-mail provider, Resend.</p>
+  <h2>Children</h2>
+  <p>We ask parents, not children, to sign up. Only a child's first name and age are needed.</p>
+  <h2>Deleting your details</h2>
+  <p>Write to <a href="mailto:{{ contact_email }}">{{ contact_email }}</a> and we will delete them.</p>
+  <h2>Classes and payments</h2>
+  <p>Fees, packages, cancellation and refund terms are confirmed in writing before your first paid class.</p>
+  <p class="small">Last updated 10 November 2026.</p>
+</div></section>
+{% endblock %}

@@ -1,0 +1,24 @@
+{% extends "base.html" %}
+{% block main %}
+{% with head="Courses for every stage", sub="One-to-one live classes of 30 minutes, with a teacher matched to your child's level, age and time zone." %}{% include "_page_head.html" %}{% endwith %}
+<section class="section white">
+  <div class="wrap">
+    <div class="section-head"><h2>The learning path</h2><p>Most children move through these in order. The free trial class tells us where your child should start.</p></div>
+    <ol class="path">
+      {% for s in C.PATH %}<li><span class="ar" lang="ar">{{ s.ar }}</span><h3>{{ s.name }}</h3><p class="age">{{ s.age }}</p><p>{{ s.text }}</p></li>{% endfor %}
+    </ol>
+    <div class="alongside">
+      {% for a in C.ALONGSIDE %}<div><span class="ar" lang="ar">{{ a.ar }}</span><h3>{{ a.name }}</h3><p>{{ a.text }}</p></div>{% endfor %}
+    </div>
+  </div>
+</section>
+<section class="section">
+  <div class="wrap">
+    <div class="section-head"><h2>Class packages</h2><p>Pick the rhythm that fits your family. We confirm the fee for your package after the free trial class.</p></div>
+    <div class="packages">
+      {% for p in C.PACKAGES %}<div class="package"><b>{{ p.name }}</b><span>{{ p.rhythm }}</span><span>Best for: {{ p.best }}</span></div>{% endfor %}
+    </div>
+    <p style="margin-top:32px"><a class="btn green" href="{{ url_for('site.trial') }}">Book a free trial class</a></p>
+  </div>
+</section>
+{% endblock %}

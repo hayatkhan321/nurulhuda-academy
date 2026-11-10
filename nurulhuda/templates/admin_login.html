@@ -1,0 +1,11 @@
+{% extends "base.html" %}
+{% block main %}
+<section class="section"><div class="wrap">
+  <form class="form-card" method="post" style="max-width:420px">
+    <h1 style="font-size:1.8rem">Sign in to see sign-ups</h1>
+    {% if error %}<p class="alert" role="alert">{{ error }}</p>{% endif %}
+    <div class="field"><label for="password">Password</label><input id="password" name="password" type="password" required autocomplete="current-password"></div>
+    <button class="btn green" type="submit">Sign in</button>
+  </form>
+</div></section>
+{% endblock %}

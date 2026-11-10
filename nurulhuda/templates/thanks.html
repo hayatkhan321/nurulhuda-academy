@@ -1,0 +1,12 @@
+{% extends "base.html" %}
+{% block main %}
+{% if kind == 'trial' %}
+{% with head="Your free trial request is in", sub="JazakAllahu khairan. We will contact you within one working day to agree a time and introduce your teacher." %}{% include "_page_head.html" %}{% endwith %}
+{% else %}
+{% with head="Your application is in", sub="JazakAllahu khairan. Our Head of Academics reviews every application personally. We aim to reply within five working days." %}{% include "_page_head.html" %}{% endwith %}
+{% endif %}
+<section class="section"><div class="wrap prose">
+  <p>A confirmation e-mail is on its way. If it does not arrive, check your spam folder or write to <a href="mailto:{{ contact_email }}">{{ contact_email }}</a>.</p>
+  <p><a class="btn green" href="{{ url_for('site.home') }}">Back to the home page</a></p>
+</div></section>
+{% endblock %}

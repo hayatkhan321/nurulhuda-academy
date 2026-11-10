@@ -1,0 +1,22 @@
+{% extends "base.html" %}
+{% block main %}
+{% with head="Short videos", sub="One-minute lessons and tips for children and parents, also on YouTube, TikTok and X." %}{% include "_page_head.html" %}{% endwith %}
+<section class="section"><div class="wrap">
+  {% if C.VIDEOS %}
+  <div class="video-grid">
+    {% for v in C.VIDEOS %}
+    <figure style="margin:0">
+      <iframe class="video-frame" src="https://www.youtube-nocookie.com/embed/{{ v.youtube }}?rel=0" title="{{ v.title }}" loading="lazy" allow="accelerometer; encrypted-media; picture-in-picture" allowfullscreen></iframe>
+      <figcaption><b>{{ v.title }}</b></figcaption>
+    </figure>
+    {% endfor %}
+  </div>
+  {% else %}
+  <div class="empty">
+    <h2 style="font-size:1.5rem">The first videos are being recorded</h2>
+    <p>Short lessons on the Arabic letters, tajweed tips and duas for children will appear here soon. Meanwhile, a free trial class is the best way to meet our teachers.</p>
+    <a class="btn green" href="{{ url_for('site.trial') }}">Book a free trial class</a>
+  </div>
+  {% endif %}
+</div></section>
+{% endblock %}

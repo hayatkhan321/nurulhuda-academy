@@ -1,0 +1,52 @@
+{% extends "base.html" %}
+{% from "_form.html" import field, select, hidden with context %}
+{% block main %}
+{% with head="Teach Quran and Arabic with us", sub="Teach children in Canada, the US, the UK and the Gulf from your home, and be paid every week for every class." %}{% include "_page_head.html" %}{% endwith %}
+<section class="section white">
+  <div class="wrap">
+    <div class="doors">
+      <div>
+        <h2>Why teachers join</h2>
+        <ul style="padding-left:1.1em">{% for p in C.TEACHER_POINTS %}<li style="margin:.4em 0">{{ p }}</li>{% endfor %}</ul>
+      </div>
+      <div>
+        <h2>How approval works</h2>
+        <ol class="steps">{% for s in C.TEACHER_STEPS %}<li><div><h3>{{ s.title }}</h3><p>{{ s.text }}</p></div></li>{% endfor %}</ol>
+      </div>
+    </div>
+  </div>
+</section>
+<section class="section" id="apply">
+  <div class="wrap">
+    <form class="form-card" method="post" novalidate>
+      {{ hidden() }}
+      <h2>Apply to teach</h2>
+      {% if errors %}<p class="alert" role="alert">Please check the highlighted fields.</p>{% endif %}
+      <div class="grid2">
+        {{ field('full_name', 'Full name', required=True, auto='name') }}
+        {{ field('email', 'E-mail', type='email', required=True, auto='email') }}
+        {{ field('phone', 'Phone or WhatsApp', type='tel', hint='Include the country code, e.g. +92 or +20', auto='tel') }}
+        {{ select('country', 'Country you live in', C.COUNTRIES, required=True) }}
+        {{ select('gender', 'You are', ['Female', 'Male']) }}
+        {{ select('experience_years', 'Years of teaching', ['Less than 1', '1 to 3', '3 to 5', '5 to 10', 'More than 10']) }}
+      </div>
+      <fieldset class="field{% if errors.get('levels') %} has-error{% endif %}">
+        <legend>Levels you can teach</legend>
+        <div class="choices">
+          {% set chosen = form.getlist('levels') if form else [] %}
+          {% for c in C.COURSE_CHOICES[:-1] %}<label><input type="checkbox" name="levels" value="{{ c }}"{% if c in chosen %} checked{% endif %}> {{ c }}</label>{% endfor %}
+        </div>
+        {% if errors.get('levels') %}<span class="error">{{ errors.levels }}</span>{% endif %}
+      </fieldset>
+      {{ field('languages', 'Languages you teach in', hint='e.g. English, Urdu, Arabic') }}
+      {{ field('hours', 'Hours you can teach', hint='Your local time, e.g. 2 am to 8 am Karachi time') }}
+      {{ field('recitation_link', 'Link to a recitation recording', type='url', hint='2 to 3 minutes of any surah, on Google Drive, YouTube or similar. You can also send it later.') }}
+      <div class="field">
+        <label for="qualifications">Ijazah, certificates and experience <span class="hint" style="display:inline">(optional)</span></label>
+        <textarea id="qualifications" name="qualifications">{{ form.get('qualifications', '') }}</textarea>
+      </div>
+      <button class="btn green" type="submit">Send my application</button>
+    </form>
+  </div>
+</section>
+{% endblock %}

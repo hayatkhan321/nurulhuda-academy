@@ -1,0 +1,87 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{% if title %}{{ title }} | {% endif %}Nurul Huda Academy</title>
+  {% set _desc %}{% block desc %}Online Quran, tajweed, hifz and Arabic classes for children, with tested teachers, female teachers on request and protected payments. For families in Canada, the US, the UK and the Gulf.{% endblock %}{% endset %}
+  <meta name="description" content="{{ _desc|trim }}">
+  <link rel="canonical" href="{{ site_url }}{{ request.path }}">
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="Nurul Huda Academy">
+  <meta property="og:title" content="{% if title %}{{ title }} | {% endif %}Nurul Huda Academy">
+  <meta property="og:description" content="{{ _desc|trim }}">
+  <meta property="og:url" content="{{ site_url }}{{ request.path }}">
+  <meta name="theme-color" content="#073d2e">
+  <link rel="icon" href="{{ url_for('static', filename='img/icon.svg') }}" type="image/svg+xml">
+  <link rel="preload" href="{{ url_for('static', filename='fonts/bricolage-grotesque-latin-opsz-normal.woff2') }}" as="font" type="font/woff2" crossorigin>
+  <link rel="stylesheet" href="{{ url_for('static', filename='site.css') }}">
+  <script type="application/ld+json">{{ {"@context": "https://schema.org", "@type": "EducationalOrganization", "name": "Nurul Huda Academy", "alternateName": "نور الهدى", "url": site_url, "email": contact_email, "description": "Online Quran and Arabic classes for children with accredited teachers."} | tojson }}</script>
+  <!-- Vercel Web Analytics: cookieless visitor counts (enable it in the project's Analytics tab) -->
+  <script>window.va = window.va || function () { (window.vaq = window.vaq || []).push(arguments); };</script>
+  <script defer src="/_vercel/insights/script.js"></script>
+</head>
+<body>
+<a class="skip" href="#main">Skip to content</a>
+<header class="site-header">
+  <div class="wrap">
+    <a class="brand" href="{{ url_for('site.home') }}">{% with cls='', color='#f2a93b', sw=8, op=1 %}{% include "_star.html" %}{% endwith %}<span><b>Nurul Huda Academy</b><span class="ar" lang="ar">نور الهدى</span></span></a>
+    <nav class="nav" aria-label="Main">
+      <a href="{{ url_for('site.courses') }}" {% if page == 'courses' %}aria-current="page"{% endif %}>Courses</a>
+      <a href="{{ url_for('site.families') }}" {% if page == 'families' %}aria-current="page"{% endif %}>For families</a>
+      <a href="{{ url_for('site.teach') }}" {% if page == 'teach' %}aria-current="page"{% endif %}>Teach with us</a>
+      <a href="{{ url_for('site.videos') }}" {% if page == 'videos' %}aria-current="page"{% endif %}>Videos</a>
+      <a href="{{ url_for('site.about') }}" {% if page == 'about' %}aria-current="page"{% endif %}>About</a>
+    </nav>
+    <a class="btn gold header-cta" href="{{ url_for('site.trial') }}">Book a free trial</a>
+    <details class="menu">
+      <summary aria-label="Menu"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h16"/></svg></summary>
+      <ul>
+        <li><a href="{{ url_for('site.trial') }}"><b>Book a free trial</b></a></li>
+        <li><a href="{{ url_for('site.courses') }}">Courses</a></li>
+        <li><a href="{{ url_for('site.families') }}">For families</a></li>
+        <li><a href="{{ url_for('site.teach') }}">Teach with us</a></li>
+        <li><a href="{{ url_for('site.videos') }}">Videos</a></li>
+        <li><a href="{{ url_for('site.about') }}">About</a></li>
+        <li><a href="{{ url_for('site.contact') }}">Contact</a></li>
+      </ul>
+    </details>
+  </div>
+</header>
+<main id="main">
+{% block main %}{% endblock %}
+</main>
+<footer class="site-footer">
+  <div class="wrap">
+    <div class="cols">
+      <div>
+        <p class="ar" lang="ar">نور الهدى</p>
+        <p>Online Quran and Arabic classes for children, taught by tested teachers from around the world.</p>
+      </div>
+      <div>
+        <h2>Learn</h2>
+        <ul>
+          <li><a href="{{ url_for('site.trial') }}">Book a free trial</a></li>
+          <li><a href="{{ url_for('site.courses') }}">Courses</a></li>
+          <li><a href="{{ url_for('site.families') }}">How it works for families</a></li>
+          <li><a href="{{ url_for('site.videos') }}">Short videos</a></li>
+        </ul>
+      </div>
+      <div>
+        <h2>Academy</h2>
+        <ul>
+          <li><a href="{{ url_for('site.teach') }}">Teach with us</a></li>
+          <li><a href="{{ url_for('site.about') }}">About us</a></li>
+          <li><a href="{{ url_for('site.contact') }}">Contact</a></li>
+          <li><a href="mailto:{{ contact_email }}">{{ contact_email }}</a></li>
+          {% if C.YOUTUBE %}<li><a href="{{ C.YOUTUBE }}" rel="noopener">YouTube</a></li>{% endif %}
+          {% if C.TIKTOK %}<li><a href="{{ C.TIKTOK }}" rel="noopener">TikTok</a></li>{% endif %}
+          {% if C.X_URL %}<li><a href="{{ C.X_URL }}" rel="noopener">X</a></li>{% endif %}
+        </ul>
+      </div>
+    </div>
+    <p class="small">&copy; 2026 Nurul Huda Academy. <a href="{{ url_for('site.terms') }}">Terms and privacy</a></p>
+  </div>
+</footer>
+</body>
+</html>
