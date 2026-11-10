@@ -48,7 +48,7 @@ class Config:
     CONTACT_EMAIL = os.getenv("CONTACT_EMAIL", "nurulhudaacademy2@gmail.com")
 
     # E-mail goes through Resend (https://resend.com) when RESEND_API_KEY is set, as on hayatclinics.com.
-    RESEND_API_KEY = os.getenv("RESEND_API_KEY", "")
+    RESEND_API_KEY = os.getenv("RESEND_API_KEY", "").strip()
     MAIL_FROM = os.getenv("MAIL_FROM", "Nurul Huda Academy <hello@nurulhudaacademy.org>")
     MAIL_REPLY_TO = os.getenv("MAIL_REPLY_TO", CONTACT_EMAIL)
     # Where new trial requests and teacher applications are announced.
