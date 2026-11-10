@@ -1,7 +1,7 @@
 /* Nurul Huda Academy. Emerald and saffron, with an eight-point star (khatam) lattice. */
-@font-face { font-family: "Bricolage Grotesque"; src: url("fonts/bricolage-grotesque-latin-opsz-normal.woff2") format("woff2-variations"); font-weight: 200 800; font-stretch: 75% 100%; font-display: swap; }
-@font-face { font-family: "Amiri"; src: url("fonts/amiri-arabic-400-normal.woff2") format("woff2"); font-weight: 400; font-display: swap; }
-@font-face { font-family: "Amiri"; src: url("fonts/amiri-arabic-700-normal.woff2") format("woff2"); font-weight: 700; font-display: swap; }
+@font-face { font-family: "Bricolage Grotesque"; src: url("https://cdn.jsdelivr.net/npm/@fontsource-variable/bricolage-grotesque@5.3.0/files/bricolage-grotesque-latin-opsz-normal.woff2") format("woff2-variations"); font-weight: 200 800; font-stretch: 75% 100%; font-display: swap; }
+@font-face { font-family: "Amiri"; src: url("https://cdn.jsdelivr.net/npm/@fontsource/amiri@5.3.0/files/amiri-arabic-400-normal.woff2") format("woff2"); font-weight: 400; font-display: swap; }
+@font-face { font-family: "Amiri"; src: url("https://cdn.jsdelivr.net/npm/@fontsource/amiri@5.3.0/files/amiri-arabic-700-normal.woff2") format("woff2"); font-weight: 700; font-display: swap; }
 :root {
   --emerald: #0b5d45;
   --emerald-deep: #073d2e;

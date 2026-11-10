@@ -14,7 +14,7 @@
   <meta property="og:url" content="{{ site_url }}{{ request.path }}">
   <meta name="theme-color" content="#073d2e">
   <link rel="icon" href="{{ url_for('static', filename='img/icon.svg') }}" type="image/svg+xml">
-  <link rel="preload" href="{{ url_for('static', filename='fonts/bricolage-grotesque-latin-opsz-normal.woff2') }}" as="font" type="font/woff2" crossorigin>
+  <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
   <link rel="stylesheet" href="{{ url_for('static', filename='site.css') }}">
   <script type="application/ld+json">{{ {"@context": "https://schema.org", "@type": "EducationalOrganization", "name": "Nurul Huda Academy", "alternateName": "نور الهدى", "url": site_url, "email": contact_email, "description": "Online Quran and Arabic classes for children with accredited teachers."} | tojson }}</script>
   <!-- Vercel Web Analytics: cookieless visitor counts (enable it in the project's Analytics tab) -->
