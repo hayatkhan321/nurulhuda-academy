@@ -1,0 +1,80 @@
+<svg class="arch" viewBox="0 0 400 500" role="img" aria-label="Golden Islamic arch with the words Nurul Huda in Arabic calligraphy">
+  <defs>
+    <linearGradient id="gold" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#fff2bf"/><stop offset=".22" stop-color="#e9b84d"/>
+      <stop offset=".48" stop-color="#9a6716"/><stop offset=".7" stop-color="#f4d074"/>
+      <stop offset="1" stop-color="#a5711b"/>
+    </linearGradient>
+    <linearGradient id="goldV" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#ffe9a6"/><stop offset=".5" stop-color="#c88f2c"/><stop offset="1" stop-color="#7d5110"/>
+    </linearGradient>
+    <radialGradient id="recess" cx=".5" cy=".42" r=".7">
+      <stop offset="0" stop-color="#14805f"/><stop offset=".6" stop-color="#0a4a38"/><stop offset="1" stop-color="#04241b"/>
+    </radialGradient>
+    <pattern id="spandrel" width="18" height="18" patternUnits="userSpaceOnUse">
+      <rect width="18" height="18" fill="#0a4a38"/>
+      <polygon points="9.0,1.5 10.3,5.9 14.3,3.7 12.1,7.7 16.5,9.0 12.1,10.3 14.3,14.3 10.3,12.1 9.0,16.5 7.7,12.1 3.7,14.3 5.9,10.3 1.5,9.0 5.9,7.7 3.7,3.7 7.7,5.9" fill="none" stroke="#e7b54a" stroke-width=".9" stroke-opacity=".75"/>
+    </pattern>
+    <filter id="emboss" x="-15%" y="-15%" width="130%" height="130%" color-interpolation-filters="sRGB">
+      <feGaussianBlur in="SourceAlpha" stdDeviation="1.5" result="blur"/>
+      <feSpecularLighting in="blur" surfaceScale="3.2" specularConstant=".95" specularExponent="20" lighting-color="#fff7da" result="spec">
+        <feDistantLight azimuth="235" elevation="40"/>
+      </feSpecularLighting>
+      <feComposite in="spec" in2="SourceAlpha" operator="in" result="specIn"/>
+      <feComposite in="SourceGraphic" in2="specIn" operator="arithmetic" k1="0" k2="1" k3=".9" k4="0" result="lit"/>
+      <feGaussianBlur in="SourceAlpha" stdDeviation="2.4" result="sb"/>
+      <feOffset in="sb" dx="2.5" dy="4" result="so"/>
+      <feFlood flood-color="#011a12" flood-opacity=".55"/>
+      <feComposite in2="so" operator="in" result="shadow"/>
+      <feMerge><feMergeNode in="shadow"/><feMergeNode in="lit"/></feMerge>
+    </filter>
+    <filter id="inset" x="-5%" y="-5%" width="110%" height="110%">
+      <feFlood flood-color="#000" flood-opacity=".6"/>
+      <feComposite in2="SourceAlpha" operator="out"/>
+      <feGaussianBlur stdDeviation="7"/><feOffset dx="0" dy="6" result="ish"/>
+      <feComposite in="ish" in2="SourceAlpha" operator="in" result="inner"/>
+      <feMerge><feMergeNode in="SourceGraphic"/><feMergeNode in="inner"/></feMerge>
+    </filter>
+    <clipPath id="frameClip"><rect x="40" y="22" width="320" height="438"/></clipPath>
+  </defs>
+
+  <!-- alfiz frame with geometric spandrels -->
+  <g filter="url(#emboss)">
+    <rect x="40" y="22" width="320" height="438" rx="3" fill="url(#gold)"/>
+  </g>
+  <rect x="50" y="32" width="300" height="428" fill="url(#spandrel)"/>
+
+  <!-- stepped arch mouldings -->
+  <g filter="url(#emboss)" fill="none">
+    <path d="M66.0 452 V236 A192.1 192.1 0 0 1 200.0 52.9 A192.1 192.1 0 0 1 334.0 236 V452" stroke="url(#gold)" stroke-width="7"/><path d="M76.0 452 V236 A180.7 180.7 0 0 1 200.0 64.4 A180.7 180.7 0 0 1 324.0 236 V452" stroke="url(#gold)" stroke-width="5"/><path d="M85.0 452 V236 A170.6 170.6 0 0 1 200.0 74.8 A170.6 170.6 0 0 1 315.0 236 V452" stroke="url(#gold)" stroke-width="6"/><path d="M93.0 452 V236 A161.5 161.5 0 0 1 200.0 84.0 A161.5 161.5 0 0 1 307.0 236 V452" stroke="url(#gold)" stroke-width="4"/>
+  </g>
+  <!-- pearl moulding -->
+  <path d="M93.0 452 V236 A161.5 161.5 0 0 1 200.0 84.0 A161.5 161.5 0 0 1 307.0 236 V452" fill="none" stroke="#fff0c2" stroke-width="3.2" stroke-linecap="round" stroke-dasharray="0 7.5" opacity=".9"/>
+
+  <!-- the recess -->
+  <path d="M100.0 452 V236 A153.7 153.7 0 0 1 200.0 92.0 A153.7 153.7 0 0 1 300.0 236 V452 Z" fill="url(#recess)" filter="url(#inset)"/>
+  <path d="M112.0 452 V238 A140.0 140.0 0 0 1 200.0 108.0 A140.0 140.0 0 0 1 288.0 238 V452" fill="none" stroke="#e7b54a" stroke-opacity=".35" stroke-width="1.2"/>
+
+  <!-- crown medallion -->
+  <g filter="url(#emboss)">
+    <polygon points="200.0,140.0 204.8,154.5 218.4,147.6 211.5,161.2 226.0,166.0 211.5,170.8 218.4,184.4 204.8,177.5 200.0,192.0 195.2,177.5 181.6,184.4 188.5,170.8 174.0,166.0 188.5,161.2 181.6,147.6 195.2,154.5" fill="url(#gold)"/>
+    <circle cx="200" cy="166" r="7" fill="#0a4a38"/>
+    <circle cx="200" cy="166" r="3.2" fill="url(#gold)"/>
+  </g>
+
+  <!-- calligraphy -->
+  <text x="200" y="306" text-anchor="middle" direction="rtl" font-family="Amiri, 'Noto Naskh Arabic', serif" font-weight="700"
+        font-size="50" fill="url(#goldV)" filter="url(#emboss)" lang="ar">نور الهدى</text>
+  <text x="200" y="340" text-anchor="middle" font-family="'Bricolage Grotesque', system-ui, sans-serif" font-size="13"
+        fill="#e9d6a0" letter-spacing=".5">Light of guidance</text>
+
+  <!-- columns, capitals and plinth -->
+  <g filter="url(#emboss)">
+    <rect x="80" y="244" width="14" height="208" rx="3" fill="url(#goldV)"/>
+    <rect x="306" y="244" width="14" height="208" rx="3" fill="url(#goldV)"/>
+    <path d="M74 236 h26 l-4 10 h-18 z" fill="url(#gold)"/>
+    <path d="M300 236 h26 l-4 10 h-18 z" fill="url(#gold)"/>
+    <rect x="30" y="456" width="340" height="12" rx="2" fill="url(#gold)"/>
+    <rect x="20" y="468" width="360" height="14" rx="2" fill="url(#goldV)"/>
+  </g>
+</svg>

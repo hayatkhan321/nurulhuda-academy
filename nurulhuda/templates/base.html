@@ -21,7 +21,8 @@
   <script>window.va = window.va || function () { (window.vaq = window.vaq || []).push(arguments); };</script>
   <script defer src="/_vercel/insights/script.js"></script>
 </head>
-<body>
+{% set pats = {"home": "star", "courses": "circles", "families": "octagon", "teach": "hexstar", "videos": "circles", "about": "hexstar", "contact": "octagon"} %}
+<body class="pat-{{ pats.get(page, 'octagon') }}">
 <a class="skip" href="#main">Skip to content</a>
 <header class="site-header">
   <div class="wrap">
