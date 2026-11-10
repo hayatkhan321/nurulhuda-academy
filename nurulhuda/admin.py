@@ -8,6 +8,7 @@ from decimal import Decimal, InvalidOperation
 
 from flask import Blueprint, Response, abort, redirect, render_template, request, url_for
 
+from nurulhuda import content as C
 from nurulhuda import auth, db, ledger, mail
 from nurulhuda.ledger import now
 from nurulhuda.models import (ClassSession, CreditEntry, Family, Package, Payout, Student, Teacher,
@@ -89,6 +90,7 @@ def family_new():
                                    course=_f("course", 60)))
         if trial:
             trial.status = "converted"
+            fam.instruction_language, fam.site_lang = trial.instruction_language, trial.site_lang or "en"
         db.session.commit()
         return redirect(url_for("admin.family", fid=fam.id))
     return render_template("admin/family_form.html", title="New family", tab="families", trial=trial)
@@ -157,7 +159,14 @@ def teachers():
                 db.session.commit()
         if not error:
             return redirect(url_for("admin.teachers"))
-    rows = Teacher.query.order_by(Teacher.active.desc(), Teacher.full_name).all()
+    q = Teacher.query
+    # Sort teachers by language strength, e.g. ?english=Fluent shows Native and Fluent English speakers
+    order = C.LEVELS_WITH_NONE
+    for key, col in (("english", Teacher.english_level), ("urdu", Teacher.urdu_level)):
+        want = request.args.get(key, "")
+        if want in order:
+            q = q.filter(col.in_(order[: order.index(want) + 1]))
+    rows = q.order_by(Teacher.active.desc(), Teacher.full_name).all()
     return render_template("admin/teachers.html", title="Teachers", tab="teachers", rows=rows, error=error,
                            limit=ledger.teacher_limit(), active=ledger.active_teacher_count())
 
@@ -185,6 +194,11 @@ def teacher(tid=None):
         t.country, t.timezone, t.gender = _f("country", 60), _f("timezone", 60) or "Asia/Karachi", _f("gender", 20)
         t.levels, t.rate, t.rate_currency = _f("levels", 200), rate, _f("rate_currency", 3) or "USD"
         t.payout_method = _f("payout_method", 200)
+        t.language_profile = _f("language_profile", 500) or None
+        for key in ("english_level", "urdu_level", "arabic_level"):
+            setattr(t, key, _f(key, 20) if _f(key) in C.LEVELS_WITH_NONE else None)
+        if app and not t.site_lang:
+            t.site_lang = app.site_lang or "en"
         db.session.commit()
         return redirect(url_for("admin.teachers"))
     return render_template("admin/teacher_form.html", title="Teacher", tab="teachers", t=t, app=app)

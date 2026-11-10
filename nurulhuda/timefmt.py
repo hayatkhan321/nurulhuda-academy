@@ -28,12 +28,30 @@ def local(dt, zone):
     return aware(dt).astimezone(tz(zone)) if dt else None
 
 
-def fmt(dt, zone, with_zone=True):
+def _lang():
+    try:
+        from flask import g
+        return getattr(g, "lang", "en")
+    except RuntimeError:          # outside a request (e.g. e-mails sent from a script)
+        return "en"
+
+
+def fmt(dt, zone, with_zone=True, lang=None):
+    """A class time in the person's own time zone and in the language they are reading the site in."""
     d = local(dt, zone)
     if not d:
         return ""
-    s = d.strftime("%a %d %b, %I:%M %p").replace(" 0", " ")
-    return f"{s} ({ZONE_NAMES.get(zone, zone)})" if with_zone else s
+    lang = lang or _lang()
+    zone_label = ZONE_NAMES.get(zone, zone)
+    if lang == "en":
+        s = d.strftime("%a %d %b, %I:%M %p").replace(" 0", " ")
+    else:
+        from babel.dates import format_date, format_time
+        from nurulhuda.i18n import tr
+        s = f"{format_date(d, 'EEE d MMM', locale=lang)}، {format_time(d, 'short', locale=lang)}" if lang in ("ur", "ar") \
+            else f"{format_date(d, 'EEE d MMM', locale=lang)}, {format_time(d, 'short', locale=lang)}"
+        zone_label = tr(zone_label, lang)
+    return f"{s} ({zone_label})" if with_zone else s
 
 
 def parse_local(date_str, time_str, zone):

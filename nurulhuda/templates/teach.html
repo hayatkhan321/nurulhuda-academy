@@ -1,5 +1,5 @@
 {% extends "base.html" %}
-{% from "_form.html" import field, select, hidden with context %}
+{% from "_form.html" import field, select, hidden, language_block with context %}
 {% block main %}
 {% with head="Teach Quran and Arabic with us", sub="Teach children in Canada, the US, the UK and the Gulf from your home, and be paid every week for every class." %}{% include "_page_head.html" %}{% endwith %}
 <section class="section white">
@@ -38,7 +38,7 @@
         </div>
         {% if errors.get('levels') %}<span class="error">{{ errors.levels }}</span>{% endif %}
       </fieldset>
-      {{ field('languages', 'Languages you teach in', hint='e.g. English, Urdu, Arabic') }}
+      {{ language_block("Languages you speak", teacher=True) }}
       {{ field('hours', 'Hours you can teach', hint='Your local time, e.g. 2 am to 8 am Karachi time') }}
       {{ field('recitation_link', 'Link to a recitation recording', type='url', hint='2 to 3 minutes of any surah, on Google Drive, YouTube or similar. You can also send it later.') }}
       <div class="field">

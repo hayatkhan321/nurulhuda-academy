@@ -8,6 +8,7 @@ from nurulhuda import auth, db, ledger, mail, video
 from nurulhuda.ledger import STATUS_LABELS, aware, now
 from nurulhuda.models import ClassSession, CreditEntry, Student, TeacherEarning
 from nurulhuda.routes import _check_form, _f
+from nurulhuda.i18n import tr
 from nurulhuda.timefmt import ZONE_NAMES, fmt
 
 portal_bp = Blueprint("portal", __name__)
@@ -15,7 +16,7 @@ portal_bp = Blueprint("portal", __name__)
 
 @portal_bp.app_context_processor
 def _portal_ctx():
-    return {"fmt_time": fmt, "zone_name": lambda z: ZONE_NAMES.get(z, (z or "").replace("_", " ")), "STATUS_LABELS": STATUS_LABELS, "signed_in_role": (
+    return {"fmt_time": fmt, "zone_name": lambda z: tr(ZONE_NAMES.get(z, (z or "").replace("_", " "))), "STATUS_LABELS": STATUS_LABELS, "signed_in_role": (
         "family" if auth.current_family() else "teacher" if auth.current_teacher() else None)}
 
 

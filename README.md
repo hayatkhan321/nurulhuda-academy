@@ -28,3 +28,12 @@ Upload it to YouTube, then add `{"title": "...", "youtube": "VIDEO_ID"}` to `VID
 pip install -r requirements.txt
 python app.py
 ```
+
+## Languages
+The site shows in English, Urdu, Arabic, Hindi, Malay, Indonesian, Spanish and French. It picks the visitor's
+language from their phone or browser, and anyone can switch with the globe button (the choice is remembered).
+- English lines are numbered in `nurulhuda/i18n/keys.json`; each `<code>.json` holds the translations by number.
+- After changing page text, run `python scripts/i18n_extract.py` to list lines that still need translating.
+- Anything not yet translated simply shows in English. The admin area stays in English.
+- Forms ask for first, second and third language with a level, plus English and Urdu levels (and Arabic for
+  teachers). Admin > Teachers can filter by English and Urdu level.

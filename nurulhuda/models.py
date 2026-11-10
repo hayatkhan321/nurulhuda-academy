@@ -24,6 +24,11 @@ class TrialRequest(db.Model):
     preferred_times = db.Column(db.String(200))
     notes = db.Column(db.Text)
     status = db.Column(db.String(20), default="new", nullable=False)
+    instruction_language = db.Column(db.String(40))
+    language_profile = db.Column(db.Text)                               # e.g. "Urdu (Native); English (Fluent)"
+    english_level = db.Column(db.String(20))
+    urdu_level = db.Column(db.String(20))
+    site_lang = db.Column(db.String(5))                                 # language the visitor used the site in
 
 
 class TeacherApplication(db.Model):
@@ -43,6 +48,11 @@ class TeacherApplication(db.Model):
     hours = db.Column(db.String(200))
     recitation_link = db.Column(db.String(300))
     status = db.Column(db.String(20), default="new", nullable=False)
+    language_profile = db.Column(db.Text)                               # e.g. "Urdu (Native); English (Fluent)"
+    english_level = db.Column(db.String(20))
+    urdu_level = db.Column(db.String(20))
+    arabic_level = db.Column(db.String(20))
+    site_lang = db.Column(db.String(5))
 
 
 class DawahRequest(db.Model):
@@ -58,6 +68,7 @@ class DawahRequest(db.Model):
     teacher_gender = db.Column(db.String(20))
     message = db.Column(db.Text)
     status = db.Column(db.String(20), default="new", nullable=False)
+    site_lang = db.Column(db.String(5))
 
 
 # --- Academy operations: families, teachers, classes, credits and teacher pay -------------------
@@ -74,6 +85,8 @@ class Family(db.Model):
     teacher_gender = db.Column(db.String(20))
     recording_consent = db.Column(db.Boolean, default=False, nullable=False)
     notes = db.Column(db.Text)
+    instruction_language = db.Column(db.String(40))
+    site_lang = db.Column(db.String(5), default="en")
     students = db.relationship("Student", backref="family", lazy=True, order_by="Student.id")
 
 
@@ -104,6 +117,11 @@ class Teacher(db.Model):
     rate_currency = db.Column(db.String(3), default="USD", nullable=False)
     payout_method = db.Column(db.String(200))                           # e.g. "Wise: name / IBAN" or "Payoneer: e-mail"
     active = db.Column(db.Boolean, default=False, nullable=False)
+    language_profile = db.Column(db.Text)                               # e.g. "Urdu (Native); English (Fluent)"
+    english_level = db.Column(db.String(20))
+    urdu_level = db.Column(db.String(20))
+    arabic_level = db.Column(db.String(20))
+    site_lang = db.Column(db.String(5), default="en")
     application_id = db.Column(db.Integer, db.ForeignKey("teacher_applications.id"))
 
 

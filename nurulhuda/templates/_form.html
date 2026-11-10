@@ -10,7 +10,7 @@
   <label for="{{ name }}">{{ label }}{% if not required %} <span class="hint" style="display:inline">(optional)</span>{% endif %}</label>
   <select id="{{ name }}" name="{{ name }}"{% if required %} required{% endif %}>
     <option value="">Choose</option>
-    {% for o in options %}<option{% if form.get(name) == o %} selected{% endif %}>{{ o }}</option>{% endfor %}
+    {% for o in options %}<option value="{{ o }}"{% if form.get(name) == o %} selected{% endif %}>{{ o }}</option>{% endfor %}
   </select>
   {% if errors.get(name) %}<span class="error">{{ errors[name] }}</span>{% endif %}
 </div>
@@ -18,4 +18,40 @@
 {% macro hidden() -%}
 <input type="hidden" name="csrf" value="{{ csrf }}">
 <div class="hp" aria-hidden="true"><label>Leave this empty <input name="website" tabindex="-1" autocomplete="off"></label></div>
+{%- endmacro %}
+
+{% macro language_block(intro, teacher=False) -%}
+<fieldset class="field langs-block">
+  <legend>{{ intro }}</legend>
+  <p class="hint">Start with the language you know best.</p>
+  {% for n, label in [(1, 'First language'), (2, 'Second language'), (3, 'Third language')] %}
+  <div class="lang-row">
+    <div class="field">
+      <label for="lang{{ n }}">{{ label }}{% if n > 1 %} <span class="hint" style="display:inline">(optional)</span>{% endif %}</label>
+      <select id="lang{{ n }}" name="lang{{ n }}">
+        <option value="">Choose</option>
+        {% for o in C.LANGUAGE_CHOICES %}<option value="{{ o }}"{% if form.get('lang' ~ n) == o %} selected{% endif %}>{{ o }}</option>{% endfor %}
+      </select>
+    </div>
+    <div class="field">
+      <label for="lang{{ n }}_level">How well</label>
+      <select id="lang{{ n }}_level" name="lang{{ n }}_level">
+        {% if n > 1 %}<option value="">Choose</option>{% endif %}
+        {% for o in C.LEVELS %}<option value="{{ o }}"{% if form.get('lang' ~ n ~ '_level', 'Native' if n == 1 else '') == o %} selected{% endif %}>{{ o }}</option>{% endfor %}
+      </select>
+    </div>
+  </div>
+  {% endfor %}
+  <div class="grid2">
+    {% for key, label in ([('english_level', 'English'), ('urdu_level', 'Urdu')] + ([('arabic_level', 'Arabic (speaking and understanding)')] if teacher else [])) %}
+    <div class="field">
+      <label for="{{ key }}">{{ label }}: how well?</label>
+      <select id="{{ key }}" name="{{ key }}">
+        <option value="">Choose</option>
+        {% for o in C.LEVELS_WITH_NONE %}<option value="{{ o }}"{% if form.get(key) == o %} selected{% endif %}>{{ o }}</option>{% endfor %}
+      </select>
+    </div>
+    {% endfor %}
+  </div>
+</fieldset>
 {%- endmacro %}

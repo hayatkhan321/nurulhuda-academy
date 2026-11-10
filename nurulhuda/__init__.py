@@ -18,6 +18,9 @@ def create_app(config_class=Config):
     from nurulhuda.portal import portal_bp
     from nurulhuda.routes import site_bp
 
+    from nurulhuda import i18n
+    i18n.init_app(app)
+
     app.register_blueprint(site_bp)
     app.register_blueprint(portal_bp)
     app.register_blueprint(admin_bp)

@@ -2,6 +2,12 @@
 @font-face { font-family: "Bricolage Grotesque"; src: url("https://cdn.jsdelivr.net/npm/@fontsource-variable/bricolage-grotesque@5.3.0/files/bricolage-grotesque-latin-opsz-normal.woff2") format("woff2-variations"); font-weight: 200 800; font-stretch: 75% 100%; font-display: swap; }
 @font-face { font-family: "Amiri"; src: url("https://cdn.jsdelivr.net/npm/@fontsource/amiri@5.3.0/files/amiri-arabic-400-normal.woff2") format("woff2"); font-weight: 400; font-display: swap; }
 @font-face { font-family: "Amiri"; src: url("https://cdn.jsdelivr.net/npm/@fontsource/amiri@5.3.0/files/amiri-arabic-700-normal.woff2") format("woff2"); font-weight: 700; font-display: swap; }
+@font-face { font-family: "Noto Nastaliq Urdu"; src: url("https://cdn.jsdelivr.net/npm/@fontsource/noto-nastaliq-urdu@5.3.0/files/noto-nastaliq-urdu-arabic-400-normal.woff2") format("woff2"); font-weight: 400; font-display: swap; }
+@font-face { font-family: "Noto Nastaliq Urdu"; src: url("https://cdn.jsdelivr.net/npm/@fontsource/noto-nastaliq-urdu@5.3.0/files/noto-nastaliq-urdu-arabic-700-normal.woff2") format("woff2"); font-weight: 700; font-display: swap; }
+@font-face { font-family: "Noto Naskh Arabic"; src: url("https://cdn.jsdelivr.net/npm/@fontsource/noto-naskh-arabic@5.3.0/files/noto-naskh-arabic-arabic-400-normal.woff2") format("woff2"); font-weight: 400; font-display: swap; }
+@font-face { font-family: "Noto Naskh Arabic"; src: url("https://cdn.jsdelivr.net/npm/@fontsource/noto-naskh-arabic@5.3.0/files/noto-naskh-arabic-arabic-700-normal.woff2") format("woff2"); font-weight: 700; font-display: swap; }
+@font-face { font-family: "Noto Sans Devanagari"; src: url("https://cdn.jsdelivr.net/npm/@fontsource/noto-sans-devanagari@5.3.0/files/noto-sans-devanagari-devanagari-400-normal.woff2") format("woff2"); font-weight: 400; font-display: swap; }
+@font-face { font-family: "Noto Sans Devanagari"; src: url("https://cdn.jsdelivr.net/npm/@fontsource/noto-sans-devanagari@5.3.0/files/noto-sans-devanagari-devanagari-700-normal.woff2") format("woff2"); font-weight: 700; font-display: swap; }
 :root {
   --emerald: #0b5d45;
   --emerald-deep: #073d2e;
@@ -34,8 +40,8 @@ a:hover { color: var(--emerald-deep); }
 .ar { font-family: var(--arabic); direction: rtl; unicode-bidi: isolate; }
 .wrap { width: min(1160px, 100% - 32px); margin-inline: auto; }
 .prose { max-width: 66ch; }
-.skip { position: absolute; left: -999px; }
-.skip:focus { left: 16px; top: 12px; z-index: 10; background: var(--white); padding: 8px 12px; }
+.skip { position: absolute; top: -200px; inset-inline-start: 16px; }
+.skip:focus { inset-inline-start: 16px; top: 12px; z-index: 10; background: var(--white); padding: 8px 12px; }
 
 h1, h2, h3 { line-height: 1.1; letter-spacing: -0.02em; margin: 0 0 .5em; }
 h1 { font-size: clamp(2.3rem, 5.4vw, 4rem); font-weight: 700; }
@@ -211,7 +217,7 @@ fieldset.field { border: 0; padding: 0; margin: 0 0 20px; }
                  border: 1.5px solid #b9cdc3; border-radius: 999px; padding: 9px 16px; cursor: pointer; }
 .choices input { width: 18px; height: 18px; min-height: 0; accent-color: var(--emerald); }
 .choices label:has(input:checked) { border-color: var(--emerald); background: #e3f1ea; }
-.hp { position: absolute; left: -5000px; }
+.hp { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
 .alert { background: #fdecea; color: var(--danger); border-radius: var(--r-sm); padding: 12px 16px; margin-bottom: 22px; }
 
 /* videos */
@@ -370,3 +376,68 @@ td.actions select { min-height: 36px; border: 1.5px solid #b9cdc3; border-radius
 .classroom-bar { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 12px 0; color: #d9ede4; }
 .classroom-bar p { margin: 0; }
 .classroom-frame { width: min(1200px, 100% - 16px); height: calc(100vh - 170px); min-height: 420px; margin: 0 auto; }
+
+/* ---- languages ---- */
+html[lang="ur"] { --display: "Bricolage Grotesque", "Noto Nastaliq Urdu", serif; }
+html[lang="ur"] body { line-height: 2.1; }
+html[lang="ur"] h1, html[lang="ur"] h2, html[lang="ur"] h3 { line-height: 1.9; letter-spacing: 0; }
+html[lang="ar"] { --display: "Bricolage Grotesque", "Noto Naskh Arabic", serif; }
+html[lang="ar"] body { line-height: 1.85; }
+html[lang="ar"] h1, html[lang="ar"] h2, html[lang="ar"] h3 { line-height: 1.5; letter-spacing: 0; }
+html[lang="hi"] { --display: "Bricolage Grotesque", "Noto Sans Devanagari", system-ui, sans-serif; }
+html[lang="hi"] body { line-height: 1.75; }
+html[lang="hi"] h1, html[lang="hi"] h2, html[lang="hi"] h3 { line-height: 1.4; letter-spacing: 0; }
+
+.langs { position: relative; }
+.langs summary { list-style: none; cursor: pointer; display: flex; align-items: center; gap: 6px; color: #d7ebe2;
+  padding: 8px 10px; border-radius: 8px; border: 1px solid rgba(255,255,255,.25); font-weight: 500; white-space: nowrap; }
+.langs summary::-webkit-details-marker { display: none; }
+.langs summary:hover { color: var(--white); border-color: rgba(255,255,255,.5); }
+.langs ul { position: absolute; inset-inline-end: 0; top: 48px; z-index: 6; list-style: none; margin: 0; padding: 8px;
+  background: var(--white); border-radius: var(--r-sm); box-shadow: 0 12px 30px rgba(7,61,46,.25); min-width: 200px; }
+.langs li a { display: block; padding: 9px 12px; color: var(--ink); text-decoration: none; border-radius: 6px; line-height: 1.6; }
+.langs li a[lang="ur"] { font-family: "Noto Nastaliq Urdu", serif; line-height: 2.2; }
+.langs li a[lang="ar"] { font-family: "Noto Naskh Arabic", serif; }
+.langs li a[lang="hi"] { font-family: "Noto Sans Devanagari", sans-serif; }
+.langs li a:hover { background: var(--paper); }
+.langs li a[aria-current] { background: var(--paper); font-weight: 700; }
+@media (max-width: 860px) { .langs summary span { display: none; } }
+
+/* Longer words in other languages: switch to the menu earlier so the header never crowds */
+@media (max-width: 1240px) {
+  html:not([lang="en"]) .nav, html:not([lang="en"]) .site-header .header-cta, html:not([lang="en"]) .nav-signin { display: none; }
+  html:not([lang="en"]) .menu { display: block; position: relative; }
+  html:not([lang="en"]) .menu summary { list-style: none; cursor: pointer; padding: 10px; border-radius: 8px; border: 1px solid rgba(255,255,255,.3); }
+  html:not([lang="en"]) .menu summary::-webkit-details-marker { display: none; }
+  html:not([lang="en"]) .menu ul { position: absolute; inset-inline-end: 0; top: 52px; z-index: 5; list-style: none; margin: 0; padding: 8px;
+    background: var(--white); border-radius: var(--r-sm); box-shadow: 0 12px 30px rgba(7,61,46,.25); min-width: 220px; }
+  html:not([lang="en"]) .menu li a { display: block; padding: 10px 12px; color: var(--ink); text-decoration: none; border-radius: 6px; }
+  html:not([lang="en"]) .menu li a:hover { background: var(--paper); }
+}
+
+/* right-to-left pages (Urdu, Arabic) */
+[dir="rtl"] .brand { margin-right: 0; margin-left: auto; }
+[dir="rtl"] .menu ul { right: auto; left: 0; }
+[dir="rtl"] .door ul, [dir="rtl"] .platform ol { padding-left: 0; padding-right: 1.1em; }
+[dir="rtl"] table.data th, [dir="rtl"] table.data td { text-align: right; }
+[dir="rtl"] .brand .ar, [dir="rtl"] .path .ar, [dir="rtl"] .alongside .ar, [dir="rtl"] .site-footer .ar { text-align: right; }
+[dir="rtl"] .path li { padding: 0 0 0 22px; }
+[dir="rtl"] .path li:not(:last-child)::after { left: 0; right: 46px; }
+[dir="rtl"] .door::before { left: 34px; right: 34px; }
+[dir="rtl"] .promises > div::before { left: auto; right: 0; }
+[dir="rtl"] td.actions form { margin-left: 0; margin-right: 6px; }
+[dir="rtl"] input[type="email"], [dir="rtl"] input[type="tel"], [dir="rtl"] input[type="url"] { direction: ltr; text-align: right; }
+@media (max-width: 860px) {
+  [dir="rtl"] .path li { padding: 0 64px 0 0; }
+  [dir="rtl"] .path li::before { left: auto; right: 0; }
+  [dir="rtl"] .path li:not(:last-child)::after { left: auto; right: 22px; border-left: 0; border-right: 2px dashed var(--line); }
+}
+
+fieldset.langs-block { border: 1px solid var(--line); border-radius: var(--r-sm); padding: 16px 18px 4px; margin: 6px 0 18px; }
+.langs-block legend { padding: 0 6px; font-weight: 600; }
+.langs-block > .hint { margin: 0 0 10px; }
+.lang-row { display: grid; grid-template-columns: 1.4fr 1fr; gap: 14px; }
+@media (max-width: 520px) { .lang-row { grid-template-columns: 1fr 1fr; gap: 10px; } }
+
+.founder .monogram { font-family: var(--display); font-size: 2.6rem; letter-spacing: .04em; }
+.byline { margin-top: -.3em; }

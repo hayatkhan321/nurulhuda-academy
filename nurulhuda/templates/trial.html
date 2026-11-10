@@ -1,5 +1,5 @@
 {% extends "base.html" %}
-{% from "_form.html" import field, select, hidden with context %}
+{% from "_form.html" import field, select, hidden, language_block with context %}
 {% block main %}
 {% with head="Book a free trial class", sub="Takes two minutes. We reply within one working day to agree a time." %}{% include "_page_head.html" %}{% endwith %}
 <section class="section">
@@ -22,6 +22,8 @@
         {{ select('course', 'What would you like to learn?', C.COURSE_CHOICES) }}
         {{ select('teacher_gender', 'Teacher', ['Female teacher', 'Male teacher', 'No preference']) }}
       </div>
+      {{ select('instruction_language', 'Which language should the teacher explain in?', C.INSTRUCTION_LANGS) }}
+      {{ language_block("Languages your child speaks") }}
       {{ field('preferred_times', 'Days and times that suit you', hint='e.g. weekdays after 5 pm Toronto time') }}
       <div class="field">
         <label for="notes">Anything else we should know? <span class="hint" style="display:inline">(optional)</span></label>

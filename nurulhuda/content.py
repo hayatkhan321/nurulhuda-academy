@@ -66,3 +66,11 @@ VIDEOS: list[dict] = []
 
 DAWAH_INTERESTS = ["I am curious about Islam", "I am thinking of becoming Muslim", "I would like to say the Shahada",
                    "I am a new Muslim", "I am asking for someone else"]
+
+# Languages people speak. Asked of families and teachers so we can match them and sort our records.
+LANGUAGE_CHOICES = ["English", "Urdu", "Arabic", "Hindi", "Punjabi", "Pashto", "Sindhi", "Bengali", "Malay", "Indonesian",
+                    "Turkish", "Persian (Farsi)", "Somali", "Swahili", "French", "Spanish", "Other"]
+LEVELS = ["Native", "Fluent", "Good", "Basic"]
+LEVELS_WITH_NONE = LEVELS + ["None"]
+# The language a teacher uses to explain the lesson
+INSTRUCTION_LANGS = ["English", "Urdu", "Arabic", "Hindi", "Malay", "Indonesian", "French", "Spanish", "Any"]

@@ -16,6 +16,10 @@
       <div class="field"><label for="levels">Levels</label><input id="levels" name="levels" value="{{ src.levels if src else '' }}"></div>
       <div class="field"><label for="rate">Pay per class</label><input id="rate" name="rate" inputmode="decimal" required value="{{ t.rate if t else '' }}"></div>
       <div class="field"><label for="rate_currency">Pay currency</label><select id="rate_currency" name="rate_currency">{% for c in CURRENCIES %}<option{% if t and t.rate_currency == c %} selected{% endif %}>{{ c }}</option>{% endfor %}</select></div>
+      <div class="field"><label for="language_profile">Languages<span class="hint">e.g. Urdu (Native); English (Fluent)</span></label><input id="language_profile" name="language_profile" value="{{ (src.language_profile or '') if src else '' }}"></div>
+      {% for key, label in [('english_level', 'English'), ('urdu_level', 'Urdu'), ('arabic_level', 'Arabic')] %}
+      <div class="field"><label for="{{ key }}">{{ label }} level</label><select id="{{ key }}" name="{{ key }}"><option value="">Not known</option>{% for o in C.LEVELS_WITH_NONE %}<option{% if src and src[key] == o %} selected{% endif %}>{{ o }}</option>{% endfor %}</select></div>
+      {% endfor %}
       <div class="field"><label for="payout_method">Payout details<span class="hint">e.g. Wise: account name and IBAN, or Payoneer: e-mail</span></label><input id="payout_method" name="payout_method" value="{{ t.payout_method if t else '' }}"></div>
     </div>
     <button class="btn green" type="submit">Save teacher</button>

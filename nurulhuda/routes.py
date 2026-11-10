@@ -1,7 +1,7 @@
 import hmac
 import secrets
 
-from flask import (Blueprint, Response, abort, current_app, redirect, render_template, request, send_from_directory,
+from flask import (Blueprint, g, Response, abort, current_app, redirect, render_template, request, send_from_directory,
                    session, url_for)
 
 from nurulhuda import content as C
@@ -59,6 +59,23 @@ def courses():
     return render_template("courses.html", page="courses", title="Courses")
 
 
+def _languages(with_arabic=False):
+    """The language questions on the forms, as stored on the record."""
+    from flask import g
+    parts = []
+    for n in (1, 2, 3):
+        name, level = _f(f"lang{n}", 40), _f(f"lang{n}_level", 20)
+        if name and name in C.LANGUAGE_CHOICES and f"{name} (" not in "; ".join(parts):
+            parts.append(f"{name} ({level if level in C.LEVELS else 'Native'})")
+    out = {"language_profile": "; ".join(parts)[:500] or None,
+           "english_level": _f("english_level", 20) if _f("english_level") in C.LEVELS_WITH_NONE else None,
+           "urdu_level": _f("urdu_level", 20) if _f("urdu_level") in C.LEVELS_WITH_NONE else None,
+           "site_lang": getattr(g, "lang", "en")}
+    if with_arabic:
+        out["arabic_level"] = _f("arabic_level", 20) if _f("arabic_level") in C.LEVELS_WITH_NONE else None
+    return out
+
+
 @site_bp.route("/families")
 def families():
     return render_template("families.html", page="families", title="For families")
@@ -81,7 +98,8 @@ def trial():
                              country=_f("country", 60), city=_f("city", 80), student_name=_f("student_name", 120),
                              student_age=_f("student_age", 20), course=_f("course", 60),
                              teacher_gender=_f("teacher_gender", 20), preferred_times=_f("preferred_times"),
-                             notes=_f("notes", 2000))
+                             notes=_f("notes", 2000), instruction_language=_f("instruction_language", 40),
+                             **_languages())
             if not _save(t):
                 return _save_failed("trial.html", "families", "Book a free trial class", form)
             mail.trial_emails(t)
@@ -108,8 +126,9 @@ def teach():
                                    country=_f("country", 60), gender=_f("gender", 20),
                                    levels=", ".join(request.form.getlist("levels"))[:200],
                                    qualifications=_f("qualifications", 3000),
-                                   experience_years=_f("experience_years", 20), languages=_f("languages", 120),
-                                   hours=_f("hours"), recitation_link=_f("recitation_link", 300))
+                                   experience_years=_f("experience_years", 20),
+                                   hours=_f("hours"), recitation_link=_f("recitation_link", 300),
+                                   **_languages(with_arabic=True))
             if not _save(a):
                 return _save_failed("teach.html", "teach", "Teach with us", form)
             mail.teacher_emails(a)
@@ -149,7 +168,7 @@ def islam():
         if not errors:
             d = DawahRequest(name=_f("name", 120), email=_f("email"), phone=_f("phone", 40), country=_f("country", 60),
                              interest=_f("interest", 80), teacher_gender=_f("teacher_gender", 20),
-                             message=_f("message", 3000))
+                             message=_f("message", 3000), site_lang=getattr(g, "lang", "en"))
             if not _save(d):
                 return _save_failed("islam.html", "islam", "Discover Islam", form)
             mail.dawah_emails(d)

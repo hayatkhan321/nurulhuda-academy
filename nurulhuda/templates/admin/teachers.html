@@ -11,12 +11,18 @@
     <button class="btn green sm" type="submit">Update limit</button>
   </form>
   <p style="margin-top:24px"><a class="btn green" href="{{ url_for('admin.teacher') }}">Add a teacher</a> <span class="small">or approve an application from Sign-ups.</span></p>
+  <form method="get" class="inline-form" style="margin-top:18px">
+    {% for key, label in [('english', 'English at least'), ('urdu', 'Urdu at least')] %}
+    <label for="f-{{ key }}">{{ label }}</label><select id="f-{{ key }}" name="{{ key }}"><option value="">Any</option>{% for o in C.LEVELS %}<option{% if request.args.get(key) == o %} selected{% endif %}>{{ o }}</option>{% endfor %}</select>
+    {% endfor %}
+    <button class="btn sm outline-dark" type="submit">Filter</button>
+  </form>
   {% if rows %}
   <div class="table-wrap"><table class="data">
-    <tr><th>Teacher</th><th>Country</th><th>Levels</th><th>Pay per class</th><th>Status</th><th></th></tr>
+    <tr><th>Teacher</th><th>Country</th><th>Levels</th><th>Languages</th><th>Pay per class</th><th>Status</th><th></th></tr>
     {% for t in rows %}<tr>
       <td><a href="{{ url_for('admin.teacher', tid=t.id) }}">{{ t.full_name }}</a><br><span class="small">{{ t.email }} · {{ t.gender or '' }}</span></td>
-      <td>{{ t.country or '' }}</td><td>{{ t.levels or '' }}</td><td>{{ t.rate }} {{ t.rate_currency }}</td>
+      <td>{{ t.country or '' }}</td><td>{{ t.levels or '' }}</td><td>{{ t.language_profile or '' }}{% if t.english_level or t.urdu_level %}<br><span class="small">English: {{ t.english_level or '?' }} · Urdu: {{ t.urdu_level or '?' }}</span>{% endif %}</td><td>{{ t.rate }} {{ t.rate_currency }}</td>
       <td>{{ 'Active' if t.active else 'Paused' }}</td>
       <td><form method="post"><input type="hidden" name="csrf" value="{{ csrf }}"><input type="hidden" name="action" value="toggle"><input type="hidden" name="teacher_id" value="{{ t.id }}">
         <button class="btn sm {{ 'outline-dark' if t.active else 'green' }}" type="submit">{{ 'Pause' if t.active else 'Activate' }}</button></form></td>
