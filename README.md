@@ -10,7 +10,8 @@ Sign-ups are listed at `/admin` (password from `ADMIN_PASSWORD`).
 ## Settings (Vercel environment variables)
 | Name | What it is |
 | --- | --- |
-| `DATABASE_URL` | Supabase Postgres connection string. Without it, sign-ups are kept only briefly. |
+| `DATABASE_URL` | Supabase pooler address without the password: `postgresql://postgres.paqpdnpnhrkcvxyrwofi@aws-1-us-east-1.pooler.supabase.com:6543/postgres` |
+| `DB_PASSWORD` | The Supabase database password on its own (symbols are fine). |
 | `SECRET_KEY` | Any long random text. |
 | `ADMIN_PASSWORD` | Password for `/admin`. |
 | `RESEND_API_KEY` | Resend key, so confirmation and notification e-mails are sent. |
