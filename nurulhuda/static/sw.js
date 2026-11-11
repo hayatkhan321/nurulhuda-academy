@@ -1,5 +1,5 @@
 // Nurul Huda Academy service worker: makes the site installable and keeps a basic offline page.
-const VERSION = "nh-v2";
+const VERSION = "nh-v3";
 const OFFLINE_URL = "/offline";
 const PRECACHE = [OFFLINE_URL, "/static/site.css", "/static/icons/icon-192.png"];
 

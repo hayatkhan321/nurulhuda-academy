@@ -57,52 +57,99 @@ def star_path(cx, cy, r_out, r_in, rot):
     return "M" + "L".join(f"{x:.2f} {y:.2f}" for x, y in pts) + "Z"
 
 
+def kite(cx, cy, r_in, r_mid, r_out, a, half, lift=0.0, edge="#4a2c04"):
+    """A rosette petal: two facets either side of its centre line."""
+    i = pt(cx, cy, r_in, a)
+    o = pt(cx, cy, r_out, a)
+    l = pt(cx, cy, r_mid, a - half)
+    r = pt(cx, cy, r_mid, a + half)
+    out = []
+    for side, s in ((l, -1), (r, 1)):
+        out.append(f'<path d="M{i[0]:.2f} {i[1]:.2f}L{side[0]:.2f} {side[1]:.2f}L{o[0]:.2f} {o[1]:.2f}Z" fill="{gold(shade(a + s * 60, lift))}"/>')
+    out.append(f'<path d="M{i[0]:.2f} {i[1]:.2f}L{l[0]:.2f} {l[1]:.2f}L{o[0]:.2f} {o[1]:.2f}L{r[0]:.2f} {r[1]:.2f}Z" fill="none" stroke="{edge}" stroke-width=".7" stroke-opacity=".6" stroke-linejoin="round"/>')
+    return "".join(out)
+
+
+def octagram(cx, cy, r, rot):
+    """The {8/3} star polygon: the interlacing lines of classic girih strapwork."""
+    pts = [pt(cx, cy, r, rot + k * 45) for k in range(8)]
+    order = [(k * 3) % 8 for k in range(8)]
+    return "M" + "L".join(f"{pts[k][0]:.2f} {pts[k][1]:.2f}" for k in order) + "Z"
+
+
 def mark(uid="nh", shadow=True, simple=False):
     """The logo on a 200x200 canvas, transparent background."""
     c = 100
     f = []
     f.append(f'''<defs>
 <radialGradient id="{uid}-em" cx="42%" cy="36%" r="70%"><stop offset="0" stop-color="#1f9a73"/><stop offset=".55" stop-color="#0b5d45"/><stop offset="1" stop-color="#032a1f"/></radialGradient>
+<radialGradient id="{uid}-em2" cx="40%" cy="34%" r="75%"><stop offset="0" stop-color="#14805f"/><stop offset=".6" stop-color="#084836"/><stop offset="1" stop-color="#021c15"/></radialGradient>
 <linearGradient id="{uid}-ring" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#fff3c4"/><stop offset=".3" stop-color="#e6b04c"/><stop offset=".62" stop-color="#9c6516"/><stop offset=".85" stop-color="#e9bd5e"/><stop offset="1" stop-color="#7a4b0c"/></linearGradient>
 <linearGradient id="{uid}-ring2" x1="1" y1="1" x2="0" y2="0"><stop offset="0" stop-color="#fff3c4"/><stop offset=".45" stop-color="#d49a36"/><stop offset="1" stop-color="#6b420a"/></linearGradient>
+<linearGradient id="{uid}-strap" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#fff0b0"/><stop offset=".5" stop-color="#d9a441"/><stop offset="1" stop-color="#8a5a12"/></linearGradient>
 <linearGradient id="{uid}-book" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#fff6d2"/><stop offset=".55" stop-color="#f1c863"/><stop offset="1" stop-color="#b5781f"/></linearGradient>
 <radialGradient id="{uid}-noor" cx="50%" cy="50%" r="50%"><stop offset="0" stop-color="#ffffff"/><stop offset=".35" stop-color="#fff2b8"/><stop offset="1" stop-color="#ffd76a" stop-opacity="0"/></radialGradient>
-<radialGradient id="{uid}-spec" cx="28%" cy="18%" r="45%"><stop offset="0" stop-color="#ffffff" stop-opacity=".28"/><stop offset="1" stop-color="#ffffff" stop-opacity="0"/></radialGradient>
+<radialGradient id="{uid}-spec" cx="28%" cy="18%" r="45%"><stop offset="0" stop-color="#ffffff" stop-opacity=".26"/><stop offset="1" stop-color="#ffffff" stop-opacity="0"/></radialGradient>
 <filter id="{uid}-sh" x="-20%" y="-20%" width="140%" height="150%"><feDropShadow dx="0" dy="4" stdDeviation="4" flood-color="#000" flood-opacity=".45"/></filter>
+<filter id="{uid}-lift" x="-10%" y="-10%" width="120%" height="120%"><feDropShadow dx="0" dy="1.6" stdDeviation="1.4" flood-color="#000" flood-opacity=".55"/></filter>
 <filter id="{uid}-in" x="-10%" y="-10%" width="120%" height="120%"><feOffset dx="0" dy="3"/><feGaussianBlur stdDeviation="3" result="o"/><feComposite in="SourceGraphic" in2="o" operator="arithmetic" k2="-1" k3="1" result="s"/><feFlood flood-color="#000" flood-opacity=".55"/><feComposite in2="s" operator="in"/><feComposite in2="SourceGraphic" operator="over"/></filter>
 </defs>''')
-    g_open = f'<g filter="url(#{uid}-sh)">' if shadow else "<g>"
-    f.append(g_open)
-    # Outer bevelled ring
-    f.append(f'<circle cx="{c}" cy="{c}" r="96" fill="url(#{uid}-ring)"/>')
-    f.append(f'<circle cx="{c}" cy="{c}" r="89" fill="url(#{uid}-ring2)"/>')
-    f.append(f'<circle cx="{c}" cy="{c}" r="85" fill="url(#{uid}-em)"/>')
-    # Eight small gold studs between the points, on the emerald field
-    for k in ([] if simple else range(8)):
-        x, y = pt(c, c, 72, -90 + 22.5 + k * 45)
-        f.append(f'<circle cx="{x:.2f}" cy="{y:.2f}" r="3.2" fill="{gold(shade(-90 + 22.5 + k * 45, 0.1))}" stroke="#5a3606" stroke-width=".6" stroke-opacity=".5"/>')
-    # The Rub el Hizb: two squares at 45 degrees, faceted so each point has a lit and a shaded side
-    r_out = 84
+    f.append(f'<g filter="url(#{uid}-sh)">' if shadow else "<g>")
+    # 1. Polished outer rim with a channel of gold beads, then the inner rim
+    f.append(f'<circle cx="{c}" cy="{c}" r="97" fill="url(#{uid}-ring)"/>')
+    if not simple:
+        f.append(f'<circle cx="{c}" cy="{c}" r="92.4" fill="#2a1903"/>')
+        f.append(f'<circle cx="{c}" cy="{c}" r="91.6" fill="url(#{uid}-em2)"/>')
+        for k in range(40):
+            a = -90 + k * 9
+            x, y = pt(c, c, 89, a)
+            hx, hy = pt(x, y, .7, -135)
+            f.append(f'<circle cx="{x:.2f}" cy="{y:.2f}" r="1.75" fill="{gold(shade(a, 0.05))}"/>'
+                     f'<circle cx="{hx:.2f}" cy="{hy:.2f}" r=".6" fill="#fffbe8" opacity=".8"/>')
+    f.append(f'<circle cx="{c}" cy="{c}" r="86.3" fill="url(#{uid}-ring2)"/>')
+    f.append(f'<circle cx="{c}" cy="{c}" r="82.5" fill="url(#{uid}-em2)"/>')
+    # 2. Fine gold lacework on the emerald field: a sixteen-point star and a ring of small arches
+    if not simple:
+        pts16 = [pt(c, c, 80, -90 + 11.25 + k * 22.5) for k in range(16)]
+        d16 = "M" + "L".join(f"{pts16[(k * 5) % 16][0]:.2f} {pts16[(k * 5) % 16][1]:.2f}" for k in range(16)) + "Z"
+        f.append(f'<path d="{d16}" fill="none" stroke="#e8b955" stroke-width=".9" stroke-opacity=".55"/>')
+        for k in range(16):
+            a = -90 + 11.25 + k * 22.5
+            x, y = pt(c, c, 76.5, a)
+            f.append(f'<circle cx="{x:.2f}" cy="{y:.2f}" r="1.5" fill="#f7d983" opacity=".8"/>')
+    # 3. Interlaced strapwork: two {8/3} star polygons, drawn as bands with dark edges
+    if not simple:
+        for rot in (-90, -90 + 22.5):
+            d = octagram(c, c, 80.5, rot)
+            f.append(f'<path d="{d}" fill="none" stroke="#2d1a02" stroke-width="4.4" stroke-linejoin="miter" stroke-opacity=".55"/>')
+            f.append(f'<path d="{d}" fill="none" stroke="url(#{uid}-strap)" stroke-width="3" stroke-linejoin="miter"/>')
+            f.append(f'<path d="{d}" fill="none" stroke="#fff6d2" stroke-width=".6" stroke-linejoin="miter" stroke-opacity=".55"/>')
+    # 4. The Rub el Hizb, faceted and lifted off the strapwork
+    r_out = 68 if not simple else 84
     r_in = r_out * math.cos(math.radians(45)) / math.cos(math.radians(22.5))
-    f.append(facets(c, c, r_out, r_in, -90, lift=0.02))
-    f.append(f'<path d="{star_path(c, c, r_out, r_in, -90)}" fill="none" stroke="#4a2c04" stroke-width="1.4" stroke-opacity=".6" stroke-linejoin="round"/>')
-    # Inner bevel line along the star, a thin bright edge
+    f.append(f'<g filter="url(#{uid}-lift)">')
+    f.append(facets(c, c, r_out, r_in, -90, lift=0.04))
+    f.append(f'<path d="{star_path(c, c, r_out, r_in, -90)}" fill="none" stroke="#4a2c04" stroke-width="1.3" stroke-opacity=".65" stroke-linejoin="round"/>')
+    f.append("</g>")
+    # 5. Inner rosette: eight touching petals form a second, smaller star around the centre
     if not simple:
-        f.append(f'<path d="{star_path(c, c, r_out - 6, r_in - 5, -90)}" fill="none" stroke="#fff4c8" stroke-width=".8" stroke-opacity=".45" stroke-linejoin="round"/>')
-    # Emerald centre, sunk into the star
-    f.append(f'<circle cx="{c}" cy="{c}" r="40" fill="url(#{uid}-ring)"/>')
-    f.append(f'<circle cx="{c}" cy="{c}" r="36" fill="url(#{uid}-em)" filter="url(#{uid}-in)"/>')
+        f.append(f'<circle cx="{c}" cy="{c}" r="51" fill="url(#{uid}-em)" stroke="#4a2c04" stroke-width="1" stroke-opacity=".6"/>')
+        for k in range(8):
+            f.append(kite(c, c, 35, 42.5, 51, -90 + 22.5 + k * 45, 22.5, lift=0.1))
+        f.append(f'<circle cx="{c}" cy="{c}" r="51" fill="none" stroke="#fff0b0" stroke-width=".7" stroke-opacity=".5"/>')
+    # 6. Emerald centre, sunk into the rosette, with the open Quran and its light
+    rc = 36 if not simple else 40
+    f.append(f'<circle cx="{c}" cy="{c}" r="{rc}" fill="url(#{uid}-ring)"/>')
+    f.append(f'<circle cx="{c}" cy="{c}" r="{rc - 3.5}" fill="url(#{uid}-em)" filter="url(#{uid}-in)"/>')
     if not simple:
-        # Open Quran
-        f.append(f'<path d="M72 108 Q86 99 100 108 Q114 99 128 108 L128 128 Q114 119 100 128 Q86 119 72 128 Z" fill="url(#{uid}-book)" stroke="#6b420a" stroke-width="1.1"/>')
-        f.append('<path d="M100 108 V128" stroke="#6b420a" stroke-width="1.6"/>')
-        f.append('<path d="M77 113 Q87 107 96 112 M77 118 Q87 112 96 117 M104 112 Q113 107 123 113 M104 117 Q113 112 123 118" fill="none" stroke="#9c6516" stroke-width=".9" opacity=".7"/>')
-    # Light (Noor) rising from the book
-    ny, nr = (100, 13) if simple else (86, 5.2)
+        f.append(f'<path d="M75 107 Q87.5 99 100 107 Q112.5 99 125 107 L125 125 Q112.5 117 100 125 Q87.5 117 75 125 Z" fill="url(#{uid}-book)" stroke="#6b420a" stroke-width="1.1"/>')
+        f.append('<path d="M100 107 V125" stroke="#6b420a" stroke-width="1.5"/>')
+        f.append('<path d="M79 112 Q88 106.5 96 111 M79 116.5 Q88 111 96 115.5 M104 111 Q112 106.5 121 112 M104 115.5 Q112 111 121 116.5" fill="none" stroke="#9c6516" stroke-width=".85" opacity=".7"/>')
+    ny, nr = (100, 13) if simple else (87, 4.8)
     f.append(f'<circle cx="{c}" cy="{ny}" r="{nr * 3.3:.1f}" fill="url(#{uid}-noor)"/>')
     f.append(f'<circle cx="{c}" cy="{ny}" r="{nr}" fill="#fffbe8"/>')
-    # Specular highlight across the whole medallion
-    f.append(f'<circle cx="{c}" cy="{c}" r="96" fill="url(#{uid}-spec)"/>')
+    # 7. Specular highlight across the whole medallion
+    f.append(f'<circle cx="{c}" cy="{c}" r="97" fill="url(#{uid}-spec)"/>')
     f.append("</g>")
     return "".join(f)
 
