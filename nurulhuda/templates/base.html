@@ -35,7 +35,7 @@
 <a class="skip" href="#main">Skip to content</a>
 <header class="site-header">
   <div class="wrap">
-    <a class="brand" href="{{ url_for('site.home') }}">{% with cls='', color='#f2a93b', sw=8, op=1 %}{% include "_star.html" %}{% endwith %}<span><b>Nurul Huda Academy</b><span class="ar" lang="ar">نور الهدى</span></span></a>
+    <a class="brand" href="{{ url_for('site.home') }}">{% include "_logo.html" %}<span><b>Nurul Huda Academy</b><span class="ar" lang="ar">نور الهدى</span></span></a>
     <nav class="nav" aria-label="Main">
       <a href="{{ url_for('site.courses') }}" {% if page == 'courses' %}aria-current="page"{% endif %}>Courses</a>
       <a href="{{ url_for('site.families') }}" {% if page == 'families' %}aria-current="page"{% endif %}>For families</a>

@@ -69,8 +69,9 @@ p { margin: 0 0 1em; }
 .site-header .wrap { display: flex; align-items: center; gap: 24px; min-height: 72px; }
 .brand { display: flex; align-items: center; gap: 12px; color: var(--white); text-decoration: none; margin-right: auto; }
 .brand:hover { color: var(--white); }
-.brand svg { width: 38px; height: 38px; flex: none; }
-.brand b { display: block; font-size: 1.12rem; line-height: 1.1; }
+.brand svg { width: 46px; height: 46px; flex: none; transition: filter .3s, transform .3s; }
+.brand:hover svg { filter: brightness(1.1); transform: translateY(-1px); }
+.brand b { display: block; font-size: 1.12rem; line-height: 1.1; white-space: nowrap; }
 .brand .ar { display: block; color: var(--saffron); font-size: 1.05rem; line-height: 1.2; }
 .nav { display: flex; gap: 22px; }
 .nav a { color: #d7ebe2; text-decoration: none; font-weight: 500; padding: 6px 0; border-bottom: 2px solid transparent; }
@@ -404,7 +405,7 @@ html[lang="hi"] h1, html[lang="hi"] h2, html[lang="hi"] h3 { line-height: 1.4; l
 @media (max-width: 860px) { .langs summary span { display: none; } }
 
 /* Longer words in other languages: switch to the menu earlier so the header never crowds */
-@media (max-width: 1240px) {
+@media (max-width: 1920px) {
   html:not([lang="en"]) .nav, html:not([lang="en"]) .site-header .header-cta, html:not([lang="en"]) .nav-signin { display: none; }
   html:not([lang="en"]) .menu { display: block; position: relative; }
   html:not([lang="en"]) .menu summary { list-style: none; cursor: pointer; padding: 10px; border-radius: 8px; border: 1px solid rgba(255,255,255,.3); }
@@ -460,8 +461,8 @@ fieldset.langs-block { border: 1px solid var(--line); border-radius: var(--r-sm)
 
 /* keep the header on one line */
 .nav a, .nav-signin, .header-cta { white-space: nowrap; }
-@media (max-width: 1360px) { .langs summary span { display: none; } }
-@media (max-width: 1100px) {
+@media (max-width: 1560px) { .langs summary span { display: none; } }
+@media (max-width: 1340px) {
   .nav, .site-header .header-cta, .nav-signin { display: none; }
   .menu { display: block; position: relative; }
   .menu summary { list-style: none; cursor: pointer; padding: 10px; border-radius: 8px; border: 1px solid rgba(255,255,255,.3); }
