@@ -159,7 +159,8 @@ def collect_strings(page: str) -> list[str]:
 def init_app(app):
     @app.before_request
     def _choose_language():
-        g.lang = pick_lang()
+        # The admin area is for the founders and stays in English, left to right.
+        g.lang = "en" if request.path.startswith(SKIP_PREFIXES) else pick_lang()
 
     @app.after_request
     def _apply_language(resp):
