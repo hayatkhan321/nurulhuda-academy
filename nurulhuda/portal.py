@@ -165,6 +165,11 @@ def room(cid):
         return render_template("room.html", title="Classroom", cs=cs, role=role, state="closed")
     if not video.configured():
         return render_template("room.html", title="Classroom", cs=cs, role=role, state="not_configured")
+    if not cs.room_name:
+        # Every class needs one fixed room name so the teacher and the family meet in the same room.
+        import secrets
+        cs.room_name = "nh-" + secrets.token_hex(8)
+        db.session.commit()
     try:
         url = video.room_url(cs)
         tok = video.token(cs, name, owner=(role == "teacher"), observer=(role == "observer"))

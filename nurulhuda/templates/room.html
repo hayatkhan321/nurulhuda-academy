@@ -6,6 +6,10 @@
     <p><b>{{ cs.student.first_name }}</b> with <b>{{ cs.teacher.full_name }}</b> · {{ cs.minutes }} minutes{% if role == 'observer' %} · <span class="status s-flag">Observing quietly</span>{% endif %}</p>
     <a class="btn outline sm" href="{{ url_for('portal.teacher_home' if role == 'teacher' else 'portal.family_home' if role == 'student' else 'admin.classes') }}">Leave</a>
   </div>
+  <div id="call-error" class="call-error wrap" role="alert" hidden>
+    <p><b>The video could not start.</b> <span id="call-error-text"></span></p>
+    <p>Please try again in a moment. If it keeps happening, write to <a href="mailto:{{ contact_email }}">{{ contact_email }}</a>.</p>
+  </div>
   <div id="call" class="classroom-frame"></div>
   <p class="small wrap" style="color:#b9d8cb;padding:10px 0">If the camera or microphone does not start, allow them when your browser asks, or tap the lock icon by the address and allow camera and microphone.</p>
 </section>
@@ -30,8 +34,19 @@
   frame.on("joined-meeting", function () {
     fetch("{{ url_for('portal.joined', cid=cs.id) }}", { method: "POST", headers: { "X-CSRF": "{{ csrf }}" } });
   });
-  frame.on("left-meeting", function () { window.location = "{{ url_for('portal.teacher_home' if role == 'teacher' else 'portal.family_home' if role == 'student' else 'admin.classes') }}"; });
-  frame.join({ url: {{ url|tojson }}, token: {{ token|tojson }} });
+  var failed = false;
+  function showError(msg) {
+    // Keep the message on screen instead of leaving the page, so it can be read and reported.
+    failed = true;
+    document.getElementById("call-error-text").textContent = msg ? "(" + msg + ")" : "";
+    document.getElementById("call-error").hidden = false;
+  }
+  frame.on("error", function (e) { showError(e && (e.errorMsg || (e.error && e.error.msg))); });
+  frame.on("left-meeting", function () {
+    if (failed) { return; }
+    window.location = "{{ url_for('portal.teacher_home' if role == 'teacher' else 'portal.family_home' if role == 'student' else 'admin.classes') }}";
+  });
+  frame.join({ url: {{ url|tojson }}, token: {{ token|tojson }} }).catch(function (err) { showError(err && (err.errorMsg || err.message)); });
 })();
 </script>
 {% endif %}
