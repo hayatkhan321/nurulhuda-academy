@@ -44,7 +44,7 @@ with app.app_context():
     db.session.commit()
     fid, tid, cid = fam.id, te.id, ClassSession.query.filter_by(status="scheduled").first().id
 
-pages = ["/", "/courses", "/families", "/free-trial", "/teach", "/about", "/vision", "/discover-islam", "/videos",
+pages = ["/resources", "/why-quran", "/", "/courses", "/families", "/free-trial", "/teach", "/about", "/vision", "/discover-islam", "/videos",
          "/contact", "/terms", "/app", "/offline", "/thanks/trial", "/thanks/teacher", "/thanks/islam", "/login",
          "/no-such-page"]
 c = app.test_client()

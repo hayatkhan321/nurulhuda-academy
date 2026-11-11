@@ -1,9 +1,13 @@
 {% extends "base.html" %}
-{% block desc %}Free Quran with translation to download or read online, in English, Urdu, Hindi, Malay, Indonesian, French and Spanish, from trusted publishers.{% endblock %}
+{% block desc %}Free resources for students and teachers: the Quran with translation, the Quran by juz (para) in IndoPak and Madinah script, Noorani Qaida, tajweed and daily duas.{% endblock %}
 {% block main %}
-{% with head="Free Quran downloads", sub="The Quran with translation in your language, free to download or read online. Every file comes from its publisher, so you always get the latest corrected edition." %}{% include "_page_head.html" %}{% endwith %}
-<section class="section white">
+{% with head="Resources", sub="Free books for students and teachers, to open in class or at home. Every file comes from its publisher, so you always get the latest corrected edition." %}{% include "_page_head.html" %}{% endwith %}
+<nav class="wrap res-jump" aria-label="On this page">
+  <a href="#quran">The Quran with translation</a><a href="#juz">The Quran by juz (para)</a><a href="#early">Early learning</a><a href="#medium">Tajweed</a><a href="#duas">Daily duas</a>
+</nav>
+<section class="section white" id="quran">
   <div class="wrap">
+    <h2>The Quran with translation</h2>
     <div class="res-grid">
       {% for r in C.QURAN_RESOURCES %}
       <article class="res">
@@ -18,6 +22,45 @@
       </article>
       {% endfor %}
     </div>
+  </div>
+</section>
+<section class="section" id="juz">
+  <div class="wrap">
+    <h2>The Quran by juz (para)</h2>
+    <p class="lead-dark">Open just the para you are reading in class. Teachers can share it on screen during the lesson.</p>
+    <div class="juz-wrap">
+      <div>
+        <h3>IndoPak script</h3>
+        <p class="small">The style used in Pakistan, India and Bangladesh.</p>
+        <div class="juz-grid">{% for n in range(1, 31) %}<a href="{{ C.JUZ_SOURCE.indopak.format(n=n) }}" rel="noopener" target="_blank" aria-label="Juz {{ n }}, IndoPak script">{{ n }}</a>{% endfor %}</div>
+      </div>
+      <div>
+        <h3>Madinah script</h3>
+        <p class="small">The style used in the Gulf, Egypt and most other countries.</p>
+        <div class="juz-grid">{% for n in range(1, 31) %}<a href="{{ C.JUZ_SOURCE.madinah.format(n=n) }}" rel="noopener" target="_blank" aria-label="Juz {{ n }}, Madinah script">{{ n }}</a>{% endfor %}</div>
+      </div>
+    </div>
+    <p class="small">Source: {{ C.JUZ_SOURCE.source }}</p>
+  </div>
+</section>
+<section class="section white" id="early">
+  <div class="wrap">
+    <h2>Early learning</h2>
+    <div class="res-grid">{% for r in C.EARLY_RESOURCES %}<article class="res"><h3>{{ r.title }}</h3><p>{{ r.note }}</p><p class="res-actions"><a class="btn green sm" href="{{ r.url }}" rel="noopener" target="_blank">Open</a></p><p class="small">Source: {{ r.source }}</p></article>{% endfor %}</div>
+  </div>
+</section>
+<section class="section" id="medium">
+  <div class="wrap">
+    <h2>Tajweed</h2>
+    <div class="res-grid">{% for r in C.MEDIUM_RESOURCES %}<article class="res"><h3>{{ r.title }}</h3><p>{{ r.note }}</p><p class="res-actions"><a class="btn green sm" href="{{ r.url }}" rel="noopener" target="_blank">Open</a></p><p class="small">Source: {{ r.source }}</p></article>{% endfor %}</div>
+  </div>
+</section>
+<section class="section white" id="duas">
+  <div class="wrap">
+    <h2>Daily duas: Fortress of the Muslim (Hisn al-Muslim)</h2>
+    <p class="lead-dark">Duas from the Quran and Sunnah for every part of the day: waking, eating, travelling, sleeping.</p>
+    <p class="res-actions">{% for d in C.DUA_RESOURCES %}<a class="btn sm outline-dark" href="{{ d.url }}" rel="noopener" target="_blank"><!--nt-->{{ d.lang }}<!--/nt--></a>{% endfor %}</p>
+    <p class="small">Source: IslamHouse.com</p>
   </div>
 </section>
 <section class="section">

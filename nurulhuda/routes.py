@@ -239,9 +239,14 @@ def sitemap():
                     f"{rows}</urlset>", mimetype="application/xml")
 
 
-@site_bp.route("/quran-downloads")
+@site_bp.route("/resources")
 def resources():
-    return render_template("resources.html", page="resources", title="Free Quran downloads")
+    return render_template("resources.html", page="resources", title="Resources")
+
+
+@site_bp.route("/quran-downloads")
+def quran_downloads():
+    return redirect(url_for("site.resources"), code=301)
 
 
 @site_bp.route("/why-quran")

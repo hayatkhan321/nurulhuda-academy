@@ -4,7 +4,10 @@
 <section class="classroom">
   <div class="classroom-bar wrap">
     <p><b>{{ cs.student.first_name }}</b> with <b>{{ cs.teacher.full_name }}</b> · {{ cs.minutes }} minutes{% if role == 'observer' %} · <span class="status s-flag">Observing quietly</span>{% endif %}</p>
-    <a class="btn outline sm" href="{{ url_for('portal.teacher_home' if role == 'teacher' else 'portal.family_home' if role == 'student' else 'admin.classes') }}">Leave</a>
+    <span class="classroom-actions">
+      <a class="btn gold sm" href="{{ url_for('site.resources') }}#juz" target="_blank" rel="noopener">Resources</a>
+      <a class="btn outline sm" href="{{ url_for('portal.teacher_home' if role == 'teacher' else 'portal.family_home' if role == 'student' else 'admin.classes') }}">Leave</a>
+    </span>
   </div>
   <div id="call-error" class="call-error wrap" role="alert" hidden>
     <p><b>The video could not start.</b> <span id="call-error-text"></span></p>
@@ -12,6 +15,7 @@
   </div>
   <div id="call" class="classroom-frame"></div>
   <p class="small wrap" style="color:#b9d8cb;padding:10px 0">If the camera or microphone does not start, allow them when your browser asks, or tap the lock icon by the address and allow camera and microphone.</p>
+  <p class="small wrap" style="color:#b9d8cb;padding:0 0 10px">Resources opens in a new tab, so the class keeps running. To show a page to your student, use Share screen in the call.</p>
 </section>
 {% else %}
 {% with head="Classroom" %}{% include "_page_head.html" %}{% endwith %}

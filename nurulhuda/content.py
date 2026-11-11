@@ -136,3 +136,31 @@ FAMILY_TEXTS = [
     {"text": "May Allah have mercy on a man who gets up at night to pray and wakes his wife, and may Allah have mercy on a woman who gets up at night to pray and wakes her husband.", "ref": "Sunan Abi Dawud 1308, Sunan an-Nasa'i 1610"},
     {"text": "The Quran will meet its companion on the Day of Resurrection, and his parents will be clothed in two garments that the whole world cannot match. They will ask: Why have we been given these? It will be said: Because your child carried the Quran.", "ref": "Musnad Ahmad and Sunan Ibn Majah, from Buraydah; Ibn Kathir graded its chain hasan (Tafsir Ibn Kathir, virtues of Surah al-Baqarah). Narration abridged."},
 ]
+
+# The Quran one juz (para) at a time, for class. Opens in the publisher's own viewer.
+JUZ_SOURCE = {"indopak": "https://islamicstudies.info/viewer/web/viewer.html?file=/quran/juz/{n}.pdf",
+              "madinah": "https://islamicstudies.info/viewer/web/viewer.html?file=/quran/mushaf/Quran-Al-Madina-Juz-{n}.pdf",
+              "source": "IslamicStudies.info", "page": "https://www.islamicstudies.info/quran/juz"}
+
+# Learning material, linked from the publishers' own pages.
+EARLY_RESOURCES = [
+    {"title": "Noorani Qaida (English)", "note": "The first book: Arabic letters, joining and harakat. Read online, page by page.",
+     "url": "https://kidsquranreading.com/noorani-qaida-in-english.htm", "source": "KidsQuranReading.com"},
+    {"title": "Noorani Qaida (Urdu)", "note": "The same Qaida with Urdu explanations, as used in Pakistan and India.",
+     "url": "https://www.kidsquranreading.com/noorani-qaida-in-urdu.htm", "source": "KidsQuranReading.com"},
+    {"title": "Quran.com word by word", "note": "Tap any word to hear it and see its meaning. Good for practice at home.",
+     "url": "https://quran.com", "source": "Quran.com"},
+]
+MEDIUM_RESOURCES = [
+    {"title": "Tajweed Rules of the Qur'an", "note": "A clear English guide to the rules of recitation, for students who already read fluently.",
+     "url": "https://islamhouse.com/en/books/396784", "source": "IslamHouse.com"},
+    {"title": "Murshid al-Qari: simplifying the rules of tajweed (Part 1)", "note": "A short tajweed workbook from a South African Darul Uloom.",
+     "url": "https://duai.org.za/wp-content/uploads/2023/02/Murshid-al-Qari-Part-1-Simplifying-the-rules-of-Tajweed.pdf", "source": "Darul Uloom Abubakr (duai.org.za)"},
+]
+DUA_RESOURCES = [
+    {"lang": "English", "url": "https://old.islamhouse.com/39062/en/en/books/[_Hisn_Almuslim_]_Fortress_of_the_Muslim,_Invocations_from_the_Quran_and_Sunnah"},
+    {"lang": "اردو", "url": "https://old.islamhouse.com/40077/en/ur/books/(Hisn_Almuslim)_Fortress_of_the_Muslim,_Invocations_from_the_Quran_and_Sunnah"},
+    {"lang": "हिन्दी", "url": "https://old.islamhouse.com/30454/en/hi/books/(Hisn_Almuslim)_Fortress_of_the_Muslim,_Invocations_from_the_Quran_and_Sunnah"},
+    {"lang": "Bahasa Indonesia", "url": "https://old.islamhouse.com/39092/en/id/books/(Hisn_Almuslim)_Fortress_of_the_Muslim,_Invocations_from_the_Quran_and_Sunnah"},
+    {"lang": "Español", "url": "https://old.islamhouse.com/39034/en/es/books/(Hisn_Almuslim)_Fortress_of_the_Muslim,_Invocations_from_the_Quran_and_Sunnah"},
+]
