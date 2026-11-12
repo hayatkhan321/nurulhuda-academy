@@ -4,10 +4,10 @@ from datetime import timedelta
 
 from flask import Blueprint, abort, current_app, jsonify, redirect, render_template, request, url_for
 
-from nurulhuda import auth, db, ledger, mail, video
+from nurulhuda import auth, db, ledger, mail, pricing, video
 from nurulhuda.ledger import STATUS_LABELS, aware, now
-from nurulhuda.models import ClassSession, CreditEntry, Student, TeacherEarning
-from nurulhuda.routes import _check_form, _f
+from nurulhuda.models import ClassSession, CreditEntry, Invoice, Student, TeacherEarning
+from nurulhuda.routes import _check_form, _f, calculator_input, guess_currency
 from nurulhuda.i18n import tr
 from nurulhuda.timefmt import ZONE_NAMES, fmt
 
@@ -82,9 +82,71 @@ def family_home(family):
     upcoming = q.filter(ClassSession.status == "scheduled", ClassSession.starts_at >= soon).order_by(ClassSession.starts_at).limit(20).all()
     past = q.filter(ClassSession.status != "scheduled").order_by(ClassSession.starts_at.desc()).limit(30).all()
     entries = CreditEntry.query.filter_by(family_id=family.id).order_by(CreditEntry.created_at.desc()).limit(20).all()
+    invoices = (Invoice.query.filter(Invoice.family_id == family.id, Invoice.status != "cancelled")
+                .order_by(Invoice.created_at.desc()).limit(10).all())
     return render_template("family.html", title="My classes", family=family, upcoming=upcoming, past=past,
                            balance=ledger.balance(family.id), entries=entries, can_flag=ledger.can_flag,
-                           joinable=_joinable)
+                           joinable=_joinable, invoices=invoices, P=pricing)
+
+
+# --- paying for classes --------------------------------------------------------------------------
+STATUS_WORDS = {"pending": "Waiting for payment", "reported": "Payment being checked", "paid": "Paid",
+                "cancelled": "Cancelled"}
+
+
+@portal_bp.route("/my/pay", methods=["GET", "POST"])
+@auth.login_required("family")
+def pay(family):
+    cur = guess_currency()
+    kids = [k for k in family.students if k.active] or family.students
+    choices, months, code = calculator_input(max_children=max(4, len(kids)))
+    q = pricing.quote(cur, choices, months, code) if choices else None
+    if request.method == "POST":
+        _check_form()
+        if request.form.get("action") == "create" and q and q.lines and not q.error:
+            inv = pricing.make_invoice(family, q)
+            db.session.commit()
+            link = url_for("portal.invoice", number=inv.number, _external=True)
+            mail.send_email(family.email, f"Your invoice {inv.number}: {pricing.money(inv.total, inv.currency)}",
+                            f"<p>Assalamu alaikum {html.escape(family.parent_name)},</p><p>Thank you for choosing "
+                            f"Nurul Huda Academy. Your invoice <b>{inv.number}</b> is for "
+                            f"<b>{pricing.money(inv.total, inv.currency)}</b> ({inv.classes} classes).</p>"
+                            f"<p>Please write <b>{inv.number}</b> as the reference when you pay. The ways to pay are "
+                            f'on your invoice page: <a href="{link}">{link}</a></p><p>JazakAllahu khairan,<br>Nurul Huda Academy</p>')
+            return redirect(url_for("portal.invoice", number=inv.number))
+    return render_template("pay.html", title="Pay for classes", family=family, kids=kids, P=pricing, cur=cur,
+                           plans=pricing.price_list(cur), q=q, months=months, code=code, choices=choices)
+
+
+@portal_bp.route("/my/invoice/<number>", methods=["GET", "POST"])
+@auth.login_required("family")
+def invoice(family, number):
+    inv = Invoice.query.filter_by(number=number).first() or abort(404)
+    if inv.family_id != family.id:
+        abort(404)
+    if request.method == "POST":
+        _check_form()
+        action = request.form.get("action")
+        if action == "reported" and inv.status in ("pending", "reported"):
+            method = request.form.get("method", "")
+            inv.method = method if method in pricing.METHODS else "other"
+            inv.payer_reference = _f("reference", 200)
+            inv.status, inv.reported_at = "reported", now()
+            db.session.commit()
+            mail.send_email(current_app.config.get("NOTIFY_EMAIL"),
+                            f"Payment to check: {inv.number}, {pricing.money(inv.total, inv.currency)}",
+                            f"<p>{html.escape(family.parent_name)} says they paid invoice <b>{inv.number}</b> "
+                            f"({pricing.money(inv.total, inv.currency)}) by {html.escape(pricing.METHODS.get(inv.method, {}).get('name', 'other'))}.</p>"
+                            f"<p>Their reference: {html.escape(inv.payer_reference or '-')}</p>"
+                            "<p>Check your account, then confirm it in the admin area (Payments). The classes are added "
+                            "to the family when you confirm.</p>")
+        elif action == "cancel" and inv.status == "pending":
+            inv.status = "cancelled"
+            db.session.commit()
+            return redirect(url_for("portal.family_home"))
+        return redirect(url_for("portal.invoice", number=inv.number))
+    return render_template("invoice.html", title=f"Invoice {inv.number}", family=family, inv=inv, P=pricing,
+                           lines=pricing.invoice_lines(inv), methods=pricing.methods_on(), STATUS_WORDS=STATUS_WORDS)
 
 
 @portal_bp.route("/my/class/<int:cid>/report", methods=["POST"])

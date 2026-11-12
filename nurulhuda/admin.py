@@ -9,15 +9,15 @@ from decimal import Decimal, InvalidOperation
 from flask import Blueprint, Response, abort, redirect, render_template, request, url_for
 
 from nurulhuda import content as C
-from nurulhuda import auth, db, ledger, mail
+from nurulhuda import auth, db, ledger, mail, pricing
 from nurulhuda.ledger import now
-from nurulhuda.models import (ClassSession, CreditEntry, Family, Package, Payout, Student, Teacher,
+from nurulhuda.models import (ClassSession, CreditEntry, Family, Invoice, Package, Payout, PromoCode, Student, Teacher,
                               TeacherApplication, TeacherEarning, TrialRequest)
 from nurulhuda.routes import _check_form, _f
 from nurulhuda.timefmt import ZONES, fmt, parse_local, tz
 
 admin_bp = Blueprint("admin", __name__, url_prefix="/admin")
-CURRENCIES = ["USD", "CAD", "GBP", "AED", "PKR", "EGP"]
+CURRENCIES = ["USD", "GBP", "EUR", "CAD", "AED", "PKR", "EGP"]
 
 
 @admin_bp.app_context_processor
@@ -204,27 +204,170 @@ def teacher(tid=None):
     return render_template("admin/teacher_form.html", title="Teacher", tab="teachers", t=t, app=app)
 
 
-# --- packages -------------------------------------------------------------------------------------
+# --- packages, pricing rules and discount codes ------------------------------------------------------
+RULE_KEYS = ("price_currencies", "sibling_2", "sibling_3", "upfront_3", "upfront_6", "upfront_12", "max_discount",
+             "floor_prices")
+
+
 @admin_bp.route("/packages", methods=["GET", "POST"])
 @auth.admin_required
 def packages():
+    error = None
     if request.method == "POST":
         _check_form()
+        action = request.form.get("action")
         pid = _int("package_id")
         p = db.session.get(Package, pid) if pid else None
-        if request.form.get("action") == "toggle" and p:
+        if action == "toggle" and p:
             p.active = not p.active
+        elif action == "price" and p:
+            price = _money("price")
+            if price is not None and price > 0:
+                p.price = price
+            p.public = bool(request.form.get("public"))
+        elif action == "standard":
+            pricing.load_standard_prices()
+        elif action == "rules":
+            for key in RULE_KEYS:
+                val = _f(key, 300)
+                if key not in ("price_currencies", "floor_prices"):
+                    try:
+                        val = str(max(Decimal("0"), min(Decimal("100"), Decimal(val))))
+                    except InvalidOperation:
+                        error = "Discounts must be numbers between 0 and 100."
+                        continue
+                if val:
+                    ledger.set_setting(key, val)
+        elif action == "code":
+            code = _f("code", 30).upper().replace(" ", "")
+            percent = _money("percent")
+            if not code or percent is None or not (0 < percent <= 100):
+                error = "A code needs letters or numbers and a discount between 1 and 100%."
+            elif PromoCode.query.filter(db.func.upper(PromoCode.code) == code).first():
+                error = "That code already exists."
+            else:
+                from datetime import date
+                try:
+                    expires = date.fromisoformat(_f("expires_on", 10)) if _f("expires_on") else None
+                except ValueError:
+                    expires = None
+                db.session.add(PromoCode(code=code, percent=percent, kind=_f("kind", 20) or "offer",
+                                         beyond_cap=bool(request.form.get("beyond_cap")), expires_on=expires,
+                                         max_uses=_int("max_uses") or None, note=_f("note", 200)))
+        elif action == "code_toggle":
+            c = db.session.get(PromoCode, _int("code_id")) or abort(404)
+            c.active = not c.active
         else:
             price = _money("price")
             if _f("name") and _int("classes") > 0 and price is not None:
                 p = p or Package()
                 p.name, p.classes, p.minutes = _f("name", 80), _int("classes"), _int("minutes", 30)
                 p.price, p.currency = price, _f("currency", 3) or "USD"
+                p.plan = (_f("plan", 40) or p.name).lower().replace(" ", "-")[:40]
+                p.blurb, p.sort, p.public = _f("blurb", 200), _int("sort", 100), bool(request.form.get("public"))
                 db.session.add(p)
-        db.session.commit()
-        return redirect(url_for("admin.packages"))
-    rows = Package.query.order_by(Package.active.desc(), Package.currency, Package.classes).all()
-    return render_template("admin/packages.html", title="Packages", tab="packages", rows=rows)
+        if not error:
+            db.session.commit()
+            return redirect(url_for("admin.packages"))
+        db.session.rollback()
+    rows = Package.query.order_by(Package.currency, Package.sort, Package.classes).all()
+    codes = PromoCode.query.order_by(PromoCode.active.desc(), PromoCode.created_at.desc()).all()
+    used = {c.code: Invoice.query.filter(Invoice.promo_code == c.code, Invoice.status == "paid").count() for c in codes}
+    return render_template("admin/packages.html", title="Packages and prices", tab="packages", rows=rows, codes=codes,
+                           used=used, rules={k: pricing.setting(k) for k in RULE_KEYS}, error=error, P=pricing,
+                           floors=pricing.floors())
+
+
+# --- payments -------------------------------------------------------------------------------------
+@admin_bp.route("/payments", methods=["GET", "POST"])
+@auth.admin_required
+def payments():
+    error = None
+    if request.method == "POST":
+        _check_form()
+        action = request.form.get("action")
+        if action == "methods":
+            order = []
+            for key in pricing.METHODS:
+                ledger.set_setting(f"pay_{key}_on", "1" if request.form.get(f"{key}_on") else "0")
+                ledger.set_setting(f"pay_{key}_link", _f(f"{key}_link", 300))
+                ledger.set_setting(f"pay_{key}_details", (request.form.get(f"{key}_details") or "").strip()[:500])
+                order.append((_int(f"{key}_order", 9), key))
+            ledger.set_setting("pay_order", ",".join(k for _, k in sorted(order)))
+        elif action in ("confirm", "cancel", "reopen"):
+            inv = db.session.get(Invoice, _int("invoice_id")) or abort(404)
+            if action == "confirm" and inv.status in ("pending", "reported"):
+                received = _money("amount_received")
+                if received is None or received <= 0:
+                    error = f"Enter the amount you received for {inv.number}."
+                else:
+                    method = _f("method", 20) or inv.method or "bank"
+                    inv.status, inv.paid_at, inv.amount_received = "paid", now(), received
+                    inv.method, inv.admin_note = method, _f("note", 300)
+                    lines = pricing.invoice_lines(inv)
+                    db.session.add(CreditEntry(
+                        family_id=inv.family_id, classes=inv.classes, kind="purchase", amount=received,
+                        currency=inv.currency, method=pricing.METHODS.get(method, {}).get("name", method),
+                        reference=f"{inv.number} {inv.payer_reference or ''}".strip()[:200],
+                        package_id=lines[0].get("package_id") if len(lines) == 1 else None,
+                        note=f"Invoice {inv.number}: " + ", ".join(f"{l['child']} {l['plan']}" for l in lines)[:250]))
+                    db.session.commit()
+                    fam = inv.family
+                    mail.send_email(fam.email, f"Payment received: {inv.number}",
+                                    f"<p>Assalamu alaikum {html.escape(fam.parent_name)},</p><p>We have received "
+                                    f"<b>{pricing.money(received, inv.currency)}</b> for invoice {inv.number}. "
+                                    f"<b>{inv.classes} classes</b> have been added to your family's balance.</p>"
+                                    "<p>JazakAllahu khairan,<br>Nurul Huda Academy</p>")
+            elif action == "cancel" and inv.status in ("pending", "reported"):
+                inv.status, inv.admin_note = "cancelled", _f("note", 300) or inv.admin_note
+            elif action == "reopen" and inv.status == "cancelled":
+                inv.status = "pending"
+        elif action == "new_invoice":
+            fam = db.session.get(Family, _int("family_id"))
+            if fam:
+                return redirect(url_for("admin.invoice_new", fid=fam.id))
+        if not error:
+            db.session.commit()
+            return redirect(url_for("admin.payments"))
+    waiting = (Invoice.query.filter(Invoice.status.in_(("reported", "pending")))
+               .order_by(Invoice.status.desc(), Invoice.created_at.desc()).all())
+    done = (Invoice.query.filter(Invoice.status.in_(("paid", "cancelled")))
+            .order_by(Invoice.created_at.desc()).limit(50).all())
+    methods = {k: {"on": ledger.get_setting(f"pay_{k}_on", "0") == "1", "link": ledger.get_setting(f"pay_{k}_link", ""),
+                   "details": ledger.get_setting(f"pay_{k}_details", "")} for k in pricing.METHODS}
+    order = (ledger.get_setting("pay_order", "bank,wise,paypal")).split(",")
+    return render_template("admin/payments.html", title="Payments", tab="payments", waiting=waiting, done=done,
+                           methods=methods, order=order, P=pricing, error=error,
+                           families=Family.query.order_by(Family.parent_name).all())
+
+
+@admin_bp.route("/payments/new/<int:fid>", methods=["GET", "POST"])
+@auth.admin_required
+def invoice_new(fid):
+    """Make an invoice for a family (e.g. after a call), with the same prices and discount rules they would see."""
+    from nurulhuda.routes import calculator_input
+    fam = db.session.get(Family, fid) or abort(404)
+    cur = (request.values.get("cur") or pricing.currencies()[0]).upper()
+    kids = fam.students
+    choices, months, code = calculator_input(max_children=max(4, len(kids)))
+    q = pricing.quote(cur, choices, months, code) if choices else None
+    if request.method == "POST":
+        _check_form()
+        if request.form.get("action") == "create" and q and q.lines and not q.error:
+            inv = pricing.make_invoice(fam, q)
+            db.session.commit()
+            link = url_for("portal.invoice", number=inv.number, _external=True)
+            if request.form.get("notify"):
+                mail.send_email(fam.email, f"Your invoice {inv.number}: {pricing.money(inv.total, inv.currency)}",
+                                f"<p>Assalamu alaikum {html.escape(fam.parent_name)},</p><p>Your invoice <b>{inv.number}</b> "
+                                f"is for <b>{pricing.money(inv.total, inv.currency)}</b> ({inv.classes} classes). Please "
+                                f"write <b>{inv.number}</b> as the reference when you pay.</p><p>Sign in to see the ways to "
+                                f'pay: <a href="{link}">{link}</a></p><p>JazakAllahu khairan,<br>Nurul Huda Academy</p>')
+            return redirect(url_for("admin.payments"))
+    return render_template("admin/invoice_new.html", title=f"Invoice for {fam.parent_name}", tab="payments", fam=fam,
+                           kids=kids, P=pricing, cur=cur, plans=pricing.price_list(cur) or
+                           Package.query.filter_by(currency=cur, active=True).all(),
+                           q=q, months=months, code=code, choices=choices)
 
 
 # --- classes --------------------------------------------------------------------------------------

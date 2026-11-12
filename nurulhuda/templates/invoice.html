@@ -1,0 +1,58 @@
+{% extends "base.html" %}
+{% block main %}
+<section class="page-head lattice"><div class="wrap">
+  <h1>Invoice <!--nt-->{{ inv.number }}<!--/nt--></h1>
+  <p>{{ STATUS_WORDS[inv.status] }}. <a href="{{ url_for('portal.family_home') }}" style="color:var(--gold-1)">Back to my classes</a></p>
+</div></section>
+<section class="section white"><div class="wrap">
+  <div class="stats">
+    <div class="stat"><b><!--nt-->{{ P.money(inv.total, inv.currency) }}<!--/nt--></b><span>to pay</span></div>
+    <div class="stat"><b class="ref-box"><!--nt-->{{ inv.number }}<!--/nt--></b><span>write this as the payment reference</span></div>
+    <div class="stat"><b>{{ inv.classes }}</b><span>classes added when paid</span></div>
+  </div>
+
+  <div class="table-wrap" style="margin-top:24px"><table class="data">
+    <tr><th>Student</th><th>Plan</th><th>Classes</th><th>Discount</th><th>Amount</th></tr>
+    {% for l in lines %}<tr><td>{{ l.child }}</td><td>{{ l.plan }}</td><td>{{ l.classes }} × {{ l.minutes }} min</td><td>{% if l.percent|float > 0 %}{{ P.pnum(l.percent) }}%<br><span class="small">{{ l.parts|join(', ') }}</span>{% else %}–{% endif %}</td><td><!--nt-->{{ P.money(l.total, inv.currency) }}<!--/nt--></td></tr>{% endfor %}
+    <tr><td colspan="4"><b>Total</b>{% if inv.months > 1 %} for {{ inv.months }} months{% endif %}{% if inv.discount > 0 %}<br><span class="small">You save <!--nt-->{{ P.money(inv.discount, inv.currency) }}<!--/nt--></span>{% endif %}</td><td><b><!--nt-->{{ P.money(inv.total, inv.currency) }}<!--/nt--></b></td></tr>
+  </table></div>
+
+  {% if inv.status == 'paid' %}
+    <p class="alert" style="background:#e6f4ee;color:var(--ink)">Paid, JazakAllahu khairan. Your {{ inv.classes }} classes have been added.</p>
+  {% elif inv.status == 'reported' %}
+    <p class="alert" style="background:#fff4df;color:var(--ink)">Thank you. We are checking your payment and will add your classes as soon as it arrives, usually the same day.</p>
+  {% endif %}
+
+  {% if inv.status in ('pending', 'reported') %}
+  <h2 style="margin-top:36px">Ways to pay</h2>
+  {% if methods %}
+  <p>Please pay exactly <b><!--nt-->{{ P.money(inv.total, inv.currency) }}<!--/nt--></b> and write <b><!--nt-->{{ inv.number }}<!--/nt--></b> as the reference, so we can match your payment.</p>
+  <div class="pay-methods">
+    {% for m in methods %}
+    <div class="pay-method">
+      <h3>{{ m.name }}</h3>
+      {% if m.details %}<!--nt--><pre>{{ m.details }}</pre><!--/nt-->{% endif %}
+      {% if m.link %}<p><a class="btn green sm" href="{{ P.paypal_link(m.link, inv.total, inv.currency) if m.key == 'paypal' else m.link }}" target="_blank" rel="noopener">Pay with {{ m.name }}</a></p>{% endif %}
+      {% if m.key == 'paypal' %}<p class="small">If PayPal asks, choose "Paying for goods or services".</p>{% endif %}
+    </div>
+    {% endfor %}
+  </div>
+  {% else %}
+  <p class="alert" style="background:#fff4df;color:var(--ink)">Our payment details are being set up. We will e-mail them to you; or write to <a href="mailto:{{ contact_email }}">{{ contact_email }}</a>.</p>
+  {% endif %}
+
+  <form class="form-card" method="post" style="margin-top:28px">
+    <input type="hidden" name="csrf" value="{{ csrf }}"><input type="hidden" name="action" value="reported">
+    <h2>{% if inv.status == 'reported' %}Update your payment details{% else %}I have paid{% endif %}</h2>
+    <div class="grid2">
+      <div class="field"><label for="method">How did you pay?</label><select id="method" name="method">{% for k, m in P.METHODS.items() %}<option value="{{ k }}"{% if inv.method == k %} selected{% endif %}>{{ m.name }}</option>{% endfor %}<option value="other">Other</option></select></div>
+      <div class="field"><label for="reference">Transaction number or sender name</label><input id="reference" name="reference" value="{{ inv.payer_reference or '' }}"></div>
+    </div>
+    <button class="btn green" type="submit">Tell the academy</button>
+  </form>
+  {% if inv.status == 'pending' %}
+  <form method="post" style="margin-top:16px"><input type="hidden" name="csrf" value="{{ csrf }}"><input type="hidden" name="action" value="cancel"><button class="btn sm outline-dark" type="submit">Cancel this invoice</button></form>
+  {% endif %}
+  {% endif %}
+</div></section>
+{% endblock %}

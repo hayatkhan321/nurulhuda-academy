@@ -1,0 +1,22 @@
+{% extends "base.html" %}
+{% block main %}
+<section class="page-head lattice"><div class="wrap">
+  <h1>Pay for classes</h1>
+  <p>Choose a plan for each child, then get your invoice. <a href="{{ url_for('portal.family_home') }}" style="color:var(--gold-1)">Back to my classes</a></p>
+</div></section>
+<section class="section white"><div class="wrap">
+  <p class="cur-switch">Currency: <!--nt-->{% for c in P.currencies() %}<a href="?cur={{ c }}"{% if c == cur %} aria-current="true"{% endif %}>{{ c }}</a>{% endfor %}<!--/nt--></p>
+  {% if not plans %}<p class="alert">Prices are not set up yet. Please write to <a href="mailto:{{ contact_email }}">{{ contact_email }}</a>.</p>{% endif %}
+  {% set form_method = 'post' %}{% set calc_title = 'Your plan' %}
+  {% include "_calc.html" %}
+  {% if q and q.lines and not q.error %}
+  <form method="post" style="margin-top:20px">
+    <input type="hidden" name="csrf" value="{{ csrf }}"><input type="hidden" name="action" value="create">
+    <input type="hidden" name="cur" value="{{ cur }}"><input type="hidden" name="months" value="{{ months }}"><input type="hidden" name="code" value="{{ code }}">
+    {% for child, plan in choices %}<input type="hidden" name="child{{ loop.index }}" value="{{ child }}"><input type="hidden" name="plan{{ loop.index }}" value="{{ plan }}">{% endfor %}
+    <button class="btn green" type="submit">Get my invoice for <!--nt-->{{ P.money(q.total, q.currency) }}<!--/nt--></button>
+    <p class="small">Nothing is charged now. Your invoice shows the ways to pay, and your classes are added when your payment arrives.</p>
+  </form>
+  {% endif %}
+</div></section>
+{% endblock %}

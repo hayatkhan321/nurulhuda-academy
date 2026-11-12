@@ -14,7 +14,7 @@
 </section>
 <section class="section">
   <div class="wrap">
-    <div class="section-head"><h2>Class packages</h2><p>Pick the rhythm that fits your family. We confirm the fee for your package after the free trial class.</p></div>
+    <div class="section-head"><h2>Class packages</h2><p>Pick the rhythm that fits your family. See <a href="{{ url_for('site.pricing') }}">prices and family discounts</a>.</p></div>
     <div class="packages">
       {% for p in C.PACKAGES %}<div class="package"><b>{{ p.name }}</b><span>{{ p.rhythm }}</span><span>Best for: {{ p.best }}</span></div>{% endfor %}
     </div>

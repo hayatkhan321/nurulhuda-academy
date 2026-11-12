@@ -39,6 +39,7 @@
     <nav class="nav" aria-label="Main">
       <a href="{{ url_for('site.courses') }}" {% if page == 'courses' %}aria-current="page"{% endif %}>Courses</a>
       <a href="{{ url_for('site.families') }}" {% if page == 'families' %}aria-current="page"{% endif %}>For families</a>
+      <a href="{{ url_for('site.pricing') }}" {% if page == 'pricing' %}aria-current="page"{% endif %}>Prices</a>
       <a href="{{ url_for('site.teach') }}" {% if page == 'teach' %}aria-current="page"{% endif %}>Teach with us</a>
       <a href="{{ url_for('site.islam') }}" {% if page == 'islam' %}aria-current="page"{% endif %}>Discover Islam</a>
       <a href="{{ url_for('site.resources') }}" {% if page == 'resources' %}aria-current="page"{% endif %}>Resources</a>
@@ -56,6 +57,7 @@
         <li><a href="{{ url_for('site.trial') }}"><b>Book a free trial</b></a></li>
         <li><a href="{{ url_for('site.courses') }}">Courses</a></li>
         <li><a href="{{ url_for('site.families') }}">For families</a></li>
+        <li><a href="{{ url_for('site.pricing') }}">Prices</a></li>
         <li><a href="{{ url_for('site.teach') }}">Teach with us</a></li>
         <li><a href="{{ url_for('site.islam') }}">Discover Islam</a></li>
         <li><a href="{{ url_for('site.vision') }}">Our vision</a></li>
@@ -86,6 +88,7 @@
           <li><a href="{{ url_for('site.trial') }}">Book a free trial</a></li>
           <li><a href="{{ url_for('site.courses') }}">Courses</a></li>
           <li><a href="{{ url_for('site.families') }}">How it works for families</a></li>
+          <li><a href="{{ url_for('site.pricing') }}">Prices</a></li>
           <li><a href="{{ url_for('site.resources') }}">Resources</a></li>
           <li><a href="{{ url_for('site.why_quran') }}">Why we learn the Quran</a></li>
           <li><a href="{{ url_for('site.videos') }}">Short videos</a></li>

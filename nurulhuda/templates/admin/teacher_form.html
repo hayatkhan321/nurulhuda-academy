@@ -14,7 +14,7 @@
       <div class="field"><label for="timezone">Teacher's time zone</label>{% with zsel=(t.timezone if t else 'Asia/Karachi') %}{% include "admin/_zone_select.html" %}{% endwith %}</div>
       <div class="field"><label for="gender">Gender</label><select id="gender" name="gender">{% for g in ['Female', 'Male'] %}<option{% if src and src.gender == g %} selected{% endif %}>{{ g }}</option>{% endfor %}</select></div>
       <div class="field"><label for="levels">Levels</label><input id="levels" name="levels" value="{{ src.levels if src else '' }}"></div>
-      <div class="field"><label for="rate">Pay per class</label><input id="rate" name="rate" inputmode="decimal" required value="{{ t.rate if t else '' }}"></div>
+      <div class="field"><label for="rate">Pay per 30 minutes</label><input id="rate" name="rate" inputmode="decimal" required value="{{ t.rate if t else '' }}"></div>
       <div class="field"><label for="rate_currency">Pay currency</label><select id="rate_currency" name="rate_currency">{% for c in CURRENCIES %}<option{% if t and t.rate_currency == c %} selected{% endif %}>{{ c }}</option>{% endfor %}</select></div>
       <div class="field"><label for="language_profile">Languages<span class="hint">e.g. Urdu (Native); English (Fluent)</span></label><input id="language_profile" name="language_profile" value="{{ (src.language_profile or '') if src else '' }}"></div>
       {% for key, label in [('english_level', 'English'), ('urdu_level', 'Urdu'), ('arabic_level', 'Arabic')] %}

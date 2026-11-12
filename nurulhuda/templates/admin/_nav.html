@@ -7,7 +7,8 @@
     <a href="{{ url_for('admin.classes') }}" {% if tab == 'classes' %}aria-current="page"{% endif %}>Classes</a>
     <a href="{{ url_for('admin.problems') }}" {% if tab == 'problems' %}aria-current="page"{% endif %}>Problems</a>
     <a href="{{ url_for('admin.payouts') }}" {% if tab == 'payouts' %}aria-current="page"{% endif %}>Payouts</a>
-    <a href="{{ url_for('admin.packages') }}" {% if tab == 'packages' %}aria-current="page"{% endif %}>Packages</a>
+    <a href="{{ url_for('admin.payments') }}" {% if tab == 'payments' %}aria-current="page"{% endif %}>Payments</a>
+    <a href="{{ url_for('admin.packages') }}" {% if tab == 'packages' %}aria-current="page"{% endif %}>Prices</a>
     <a href="{{ url_for('site.admin_sign_out') }}">Sign out</a>
   </nav>
 </div></section>

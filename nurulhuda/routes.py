@@ -13,7 +13,7 @@ site_bp = Blueprint("site", __name__)
 
 PAGES = ["site.home", "site.courses", "site.families", "site.trial", "site.teach", "site.about", "site.videos",
          "site.contact", "site.terms", "site.vision", "site.islam", "site.app",
-         "site.resources", "site.why_quran"]
+         "site.resources", "site.why_quran", "site.pricing"]
 
 
 @site_bp.app_context_processor
@@ -81,6 +81,51 @@ def _languages(with_arabic=False):
 @site_bp.route("/families")
 def families():
     return render_template("families.html", page="families", title="For families")
+
+
+# --- prices ---------------------------------------------------------------------------------------
+EURO = {"AT", "BE", "CY", "DE", "EE", "ES", "FI", "FR", "GR", "HR", "IE", "IT", "LT", "LU", "LV", "MT", "NL", "PT",
+        "SI", "SK"}
+GULF = {"AE", "SA", "QA", "KW", "BH", "OM"}
+
+
+def guess_currency() -> str:
+    """The visitor's currency from the country Vercel sees; they can always switch."""
+    from nurulhuda import pricing
+    offered = pricing.currencies()
+    asked = (request.args.get("cur") or request.form.get("cur") or session.get("cur") or "").upper()
+    if asked in offered:
+        session["cur"] = asked
+        return asked
+    country = (request.headers.get("X-Vercel-IP-Country") or "").upper()
+    cur = ("GBP" if country == "GB" else "CAD" if country == "CA" else "AED" if country in GULF
+           else "EUR" if country in EURO else "USD")
+    return cur if cur in offered else offered[0]
+
+
+def calculator_input(max_children=4):
+    """Read the calculator from the address (GET) or the form (POST)."""
+    src = request.form if request.method == "POST" else request.args
+    choices = []
+    for i in range(1, max_children + 1):
+        plan = (src.get(f"plan{i}") or "").strip()[:40]
+        if plan:
+            choices.append(((src.get(f"child{i}") or f"Child {i}").strip()[:80], plan))
+    try:
+        months = int(src.get("months") or 1)
+    except ValueError:
+        months = 1
+    return choices, months, (src.get("code") or "").strip()[:30]
+
+
+@site_bp.route("/pricing")
+def pricing():
+    from nurulhuda import pricing as P
+    cur = guess_currency()
+    choices, months, code = calculator_input()
+    q = P.quote(cur, choices, months, code) if choices else None
+    return render_template("pricing.html", page="pricing", title="Prices", P=P, cur=cur, plans=P.price_list(cur),
+                           q=q, months=months, code=code, choices=choices)
 
 
 @site_bp.route("/free-trial", methods=["GET", "POST"])

@@ -10,7 +10,14 @@
     <div class="stat"><b>{{ balance }}</b><span>classes remaining</span></div>
     {% for s in family.students %}<div class="stat"><b>{{ s.first_name }}</b><span>{{ s.course or 'Course to be set' }}{% if s.level %}, {{ s.level }}{% endif %}</span></div>{% endfor %}
   </div>
-  {% if balance <= 2 %}<p class="alert" style="background:#fff4df;color:var(--ink)">{% if balance <= 0 %}You have no classes left.{% else %}Only {{ balance }} class{{ 'es' if balance != 1 }} left.{% endif %} Reply to any academy e-mail or write to <a href="mailto:{{ contact_email }}">{{ contact_email }}</a> to continue.</p>{% endif %}
+  {% if balance <= 2 %}<p class="alert" style="background:#fff4df;color:var(--ink)">{% if balance <= 0 %}You have no classes left.{% else %}Only {{ balance }} class{{ 'es' if balance != 1 }} left.{% endif %} <a href="{{ url_for('portal.pay') }}">Pay for more classes</a> to continue.</p>{% endif %}
+  <p style="margin-top:16px"><a class="btn green sm" href="{{ url_for('portal.pay') }}">Pay for classes</a></p>
+  {% if invoices %}
+  <h2 style="margin-top:36px">Invoices</h2>
+  <div class="table-wrap"><table class="data"><tr><th>Invoice</th><th>Date</th><th>Amount</th><th>Status</th></tr>
+  {% for i in invoices %}<tr><td><a href="{{ url_for('portal.invoice', number=i.number) }}"><!--nt-->{{ i.number }}<!--/nt--></a></td><td>{{ fmt_time(i.created_at, family.timezone, False) }}</td><td><!--nt-->{{ P.money(i.total, i.currency) }}<!--/nt--></td><td>{% if i.status == 'pending' %}<a href="{{ url_for('portal.invoice', number=i.number) }}">Waiting for payment: how to pay</a>{% elif i.status == 'reported' %}Payment being checked{% else %}Paid{% endif %}</td></tr>{% endfor %}
+  </table></div>
+  {% endif %}
 
   <h2 style="margin-top:36px">Upcoming classes</h2>
   {% if upcoming %}

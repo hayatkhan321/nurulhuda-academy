@@ -1,25 +1,85 @@
 {% extends "base.html" %}
 {% block main %}{% include "admin/_nav.html" %}
 <section class="section"><div class="wrap">
-  <p class="lead" style="color:var(--muted)">Packages are what families buy. Prices here are private; they are only used when you record a payment (and later for online payment).</p>
+  {% if error %}<p class="alert">{{ error }}</p>{% endif %}
+  <p class="lead" style="color:var(--muted)">Plans families can buy, in each currency. Plans marked public are shown on the <a href="{{ url_for('site.pricing') }}" target="_blank">Prices page</a>. A month is 4 weeks of classes.</p>
+  <form method="post" style="margin:12px 0 24px"><input type="hidden" name="csrf" value="{{ csrf }}"><input type="hidden" name="action" value="standard">
+    <button class="btn sm outline-dark" type="submit">Load the standard price list</button> <span class="small">Adds any standard plan that is missing. It never changes a price you have set.</span></form>
   {% if rows %}
   <div class="table-wrap"><table class="data">
-    <tr><th>Package</th><th>Classes</th><th>Minutes</th><th>Price</th><th>Status</th><th></th></tr>
-    {% for p in rows %}<tr><td>{{ p.name }}</td><td>{{ p.classes }}</td><td>{{ p.minutes }}</td><td>{{ p.price }} {{ p.currency }}</td><td>{{ 'On sale' if p.active else 'Hidden' }}</td>
+    <tr><th>Plan</th><th>Classes</th><th>Price</th><th>Per 30 min</th><th>Lowest after max discount</th><th>Public</th><th>Status</th><th></th></tr>
+    {% for p in rows %}
+    {% set per30 = p.price / p.classes * 30 / p.minutes %}
+    {% set low = per30 * (100 - P.pct('max_discount')) / 100 %}
+    {% set floor = floors.get(p.currency) %}
+    <tr><td><b>{{ p.name }}</b><br><span class="small">{{ p.currency }} · {{ p.plan or '' }}</span></td><td>{{ p.classes }} × {{ p.minutes }} min</td>
+      <td><form method="post" class="inline-form"><input type="hidden" name="csrf" value="{{ csrf }}"><input type="hidden" name="action" value="price"><input type="hidden" name="package_id" value="{{ p.id }}">
+        <input name="price" value="{{ p.price }}" size="7" inputmode="decimal" aria-label="Price"> {{ p.currency }}
+        <label class="small"><input type="checkbox" name="public"{% if p.public %} checked{% endif %}> public</label>
+        <button class="btn sm outline-dark" type="submit">Save</button></form></td>
+      <td>{{ P.money(per30, p.currency) }}</td>
+      <td>{{ P.money(low, p.currency) }}{% if floor and low < floor %}<br><span class="small" style="color:var(--danger)">below floor {{ P.money(floor, p.currency) }}: the floor applies</span>{% endif %}</td>
+      <td>{{ 'Yes' if p.public else 'No' }}</td><td>{{ 'On sale' if p.active else 'Hidden' }}</td>
       <td><form method="post"><input type="hidden" name="csrf" value="{{ csrf }}"><input type="hidden" name="action" value="toggle"><input type="hidden" name="package_id" value="{{ p.id }}"><button class="btn sm outline-dark" type="submit">{{ 'Hide' if p.active else 'Show' }}</button></form></td></tr>{% endfor %}
   </table></div>
   {% endif %}
-  <form class="form-card" method="post" style="margin-top:24px">
+
+  <div class="admin-grid">
+    <form class="form-card" method="post">
+      <input type="hidden" name="csrf" value="{{ csrf }}"><input type="hidden" name="action" value="rules">
+      <h2>Pricing rules</h2>
+      <p class="small">Discounts add together, then the cap applies. No class is ever sold below the floor price per 30 minutes (teacher pay + payment fees + margin).</p>
+      <div class="grid2">
+        <div class="field"><label for="sibling_2">2nd child, % off</label><input id="sibling_2" name="sibling_2" value="{{ rules.sibling_2 }}"></div>
+        <div class="field"><label for="sibling_3">3rd child and after, % off</label><input id="sibling_3" name="sibling_3" value="{{ rules.sibling_3 }}"></div>
+        <div class="field"><label for="upfront_3">3 months upfront, % off</label><input id="upfront_3" name="upfront_3" value="{{ rules.upfront_3 }}"></div>
+        <div class="field"><label for="upfront_6">6 months upfront, % off</label><input id="upfront_6" name="upfront_6" value="{{ rules.upfront_6 }}"></div>
+        <div class="field"><label for="upfront_12">12 months upfront, % off</label><input id="upfront_12" name="upfront_12" value="{{ rules.upfront_12 }}"></div>
+        <div class="field"><label for="max_discount">Most off in total, %</label><input id="max_discount" name="max_discount" value="{{ rules.max_discount }}"></div>
+      </div>
+      <div class="field"><label for="price_currencies">Currencies on the Prices page</label><input id="price_currencies" name="price_currencies" value="{{ rules.price_currencies }}"></div>
+      <div class="field"><label for="floor_prices">Floor price per 30 minutes</label><input id="floor_prices" name="floor_prices" value="{{ rules.floor_prices }}"><span class="small">Format: USD:3.25,GBP:2.60. Keep it above your highest teacher pay per 30 minutes plus about 10%.</span></div>
+      <button class="btn green" type="submit">Save rules</button>
+    </form>
+    <form class="form-card" method="post">
+      <input type="hidden" name="csrf" value="{{ csrf }}"><input type="hidden" name="action" value="code">
+      <h2>New discount code</h2>
+      <div class="grid2">
+        <div class="field"><label for="code">Code</label><input id="code" name="code" required placeholder="e.g. FOUNDING"></div>
+        <div class="field"><label for="percent">% off</label><input id="percent" name="percent" required inputmode="decimal"></div>
+        <div class="field"><label for="kind">Type</label><select id="kind" name="kind"><option value="offer">Offer</option><option value="partner">Partner (mosque, school)</option><option value="referral">Referral</option><option value="community">Community rate</option></select></div>
+        <div class="field"><label for="expires_on">Ends on</label><input id="expires_on" name="expires_on" type="date"></div>
+        <div class="field"><label for="max_uses">Most uses</label><input id="max_uses" name="max_uses" type="number" min="1"></div>
+        <div class="field"><label for="cnote">Note</label><input id="cnote" name="note"></div>
+      </div>
+      <label class="small"><input type="checkbox" name="beyond_cap"> May go past the discount cap (community or hardship rate; the floor still applies)</label>
+      <p><button class="btn green" type="submit">Add code</button></p>
+    </form>
+  </div>
+
+  <h2 style="margin-top:30px">Discount codes</h2>
+  {% if codes %}
+  <div class="table-wrap"><table class="data"><tr><th>Code</th><th>% off</th><th>Type</th><th>Ends</th><th>Paid uses</th><th>Note</th><th></th></tr>
+  {% for c in codes %}<tr><td><b>{{ c.code }}</b>{% if not c.active %} (off){% endif %}</td><td>{{ P.pnum(c.percent) }}%{% if c.beyond_cap %}<br><span class="small">past the cap</span>{% endif %}</td><td>{{ c.kind }}</td><td>{{ c.expires_on.strftime('%d %b %Y') if c.expires_on else '' }}</td><td>{{ used[c.code] }}{% if c.max_uses %} / {{ c.max_uses }}{% endif %}</td><td>{{ c.note or '' }}</td>
+    <td><form method="post"><input type="hidden" name="csrf" value="{{ csrf }}"><input type="hidden" name="action" value="code_toggle"><input type="hidden" name="code_id" value="{{ c.id }}"><button class="btn sm outline-dark" type="submit">{{ 'Switch off' if c.active else 'Switch on' }}</button></form></td></tr>{% endfor %}
+  </table></div>
+  {% else %}<p>No codes yet.</p>{% endif %}
+
+  <form class="form-card" method="post" style="margin-top:30px">
     <input type="hidden" name="csrf" value="{{ csrf }}">
-    <h2>Add a package</h2>
+    <h2>Add a plan</h2>
     <div class="grid2">
-      <div class="field"><label for="name">Name</label><input id="name" name="name" required placeholder="e.g. Weekly, 3 days, 1 month"></div>
+      <div class="field"><label for="name">Name</label><input id="name" name="name" required placeholder="e.g. 4 days a week"></div>
+      <div class="field"><label for="plan">Plan key (same for every currency)</label><input id="plan" name="plan" placeholder="e.g. 4-days"></div>
       <div class="field"><label for="classes">Number of classes</label><input id="classes" name="classes" type="number" min="1" required></div>
       <div class="field"><label for="minutes">Minutes per class</label><input id="minutes" name="minutes" type="number" value="30"></div>
       <div class="field"><label for="price">Price</label><input id="price" name="price" inputmode="decimal" required></div>
       <div class="field"><label for="currency">Currency</label><select id="currency" name="currency">{% for c in CURRENCIES %}<option>{{ c }}</option>{% endfor %}</select></div>
+      <div class="field"><label for="blurb">One line for families</label><input id="blurb" name="blurb"></div>
+      <div class="field"><label for="sort">Order on the page</label><input id="sort" name="sort" type="number" value="100"></div>
     </div>
-    <button class="btn green" type="submit">Add package</button>
+    <label class="small"><input type="checkbox" name="public" checked> Show on the Prices page</label>
+    <p><button class="btn green" type="submit">Add plan</button></p>
   </form>
 </div></section>
 {% endblock %}

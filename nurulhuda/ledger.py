@@ -1,7 +1,8 @@
 """The academy's money rules, in one place.
 
 - A family's balance is the sum of their credit entries.
-- A class that took place, or that the student missed, uses one class and earns the teacher their rate.
+- A class that took place, or that the student missed, uses one class and earns the teacher their rate
+  (the rate is per 30 minutes, so a 60-minute class earns twice the rate).
 - A class the teacher missed, or that was cancelled, uses nothing and earns nothing.
 - If a family reports a problem, the teacher's pay for that class is held until a supervisor decides.
 """
@@ -72,7 +73,7 @@ def set_status(cs: ClassSession, status: str, note: str | None = None) -> None:
             db.session.add(CreditEntry(family_id=family_id, classes=-1, kind="used", class_id=cs.id,
                                        note=f"Class on {cs.starts_at:%d %b %Y}"))
         if not earning:
-            db.session.add(TeacherEarning(teacher_id=cs.teacher_id, class_id=cs.id, amount=cs.teacher.rate or 0,
+            db.session.add(TeacherEarning(teacher_id=cs.teacher_id, class_id=cs.id, amount=class_pay(cs),
                                           currency=cs.teacher.rate_currency,
                                           status="held" if cs.flagged_at and not cs.flag_resolution else "owed"))
         elif earning.status == "void":
@@ -85,6 +86,13 @@ def set_status(cs: ClassSession, status: str, note: str | None = None) -> None:
                                            note="Class not charged"))
         if earning and earning.status in ("owed", "held"):
             earning.status = "void"
+
+
+def class_pay(cs: ClassSession):
+    """A teacher's rate is per 30 minutes, so a 60-minute hifz class pays double."""
+    from decimal import Decimal
+    rate = Decimal(cs.teacher.rate or 0)
+    return (rate * Decimal(cs.minutes or 30) / 30).quantize(Decimal("0.01"))
 
 
 def flag(cs: ClassSession, reason: str) -> None:

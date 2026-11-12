@@ -19,7 +19,7 @@
   </form>
   {% if rows %}
   <div class="table-wrap"><table class="data">
-    <tr><th>Teacher</th><th>Country</th><th>Levels</th><th>Languages</th><th>Pay per class</th><th>Status</th><th></th></tr>
+    <tr><th>Teacher</th><th>Country</th><th>Levels</th><th>Languages</th><th>Pay per 30 minutes</th><th>Status</th><th></th></tr>
     {% for t in rows %}<tr>
       <td><a href="{{ url_for('admin.teacher', tid=t.id) }}">{{ t.full_name }}</a><br><span class="small">{{ t.email }} · {{ t.gender or '' }}</span></td>
       <td>{{ t.country or '' }}</td><td>{{ t.levels or '' }}</td><td>{{ t.language_profile or '' }}{% if t.english_level or t.urdu_level %}<br><span class="small">English: {{ t.english_level or '?' }} · Urdu: {{ t.urdu_level or '?' }}</span>{% endif %}</td><td>{{ t.rate }} {{ t.rate_currency }}</td>

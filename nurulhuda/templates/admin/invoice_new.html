@@ -1,0 +1,18 @@
+{% extends "base.html" %}
+{% block main %}{% include "admin/_nav.html" %}
+<section class="section"><div class="wrap">
+  <p class="cur-switch">Currency: {% for c in P.currencies() %}<a href="?cur={{ c }}"{% if c == cur %} aria-current="true"{% endif %}>{{ c }}</a>{% endfor %}</p>
+  {% set form_method = 'post' %}{% set calc_title = 'Plans for ' ~ fam.parent_name ~ "'s family" %}
+  {% if not kids %}<p class="alert">Add the children on the family's page first.</p>{% endif %}
+  {% include "_calc.html" %}
+  {% if q and q.lines and not q.error %}
+  <form method="post" style="margin-top:20px">
+    <input type="hidden" name="csrf" value="{{ csrf }}"><input type="hidden" name="action" value="create">
+    <input type="hidden" name="cur" value="{{ cur }}"><input type="hidden" name="months" value="{{ months }}"><input type="hidden" name="code" value="{{ code }}">
+    {% for child, plan in choices %}<input type="hidden" name="child{{ loop.index }}" value="{{ child }}"><input type="hidden" name="plan{{ loop.index }}" value="{{ plan }}">{% endfor %}
+    <label style="display:block;margin-bottom:12px"><input type="checkbox" name="notify" checked> E-mail the invoice to {{ fam.email }}</label>
+    <button class="btn green" type="submit">Make invoice for {{ P.money(q.total, q.currency) }}</button>
+  </form>
+  {% endif %}
+</div></section>
+{% endblock %}

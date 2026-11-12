@@ -137,6 +137,53 @@ class Package(db.Model):
     price = db.Column(db.Numeric(10, 2), nullable=False)
     currency = db.Column(db.String(3), default="USD", nullable=False)
     active = db.Column(db.Boolean, default=True, nullable=False)
+    # The same plan is sold in several currencies; `plan` ties those rows together (e.g. "3-days").
+    plan = db.Column(db.String(40))
+    blurb = db.Column(db.String(200))                                   # e.g. "3 days a week, 4 weeks"
+    sort = db.Column(db.Integer, default=0, nullable=False)
+    public = db.Column(db.Boolean, default=True, nullable=False)        # shown on the public price list
+
+
+class PromoCode(db.Model):
+    """A discount code: the founding-family offer, a mosque partner, a referral or a community rate."""
+    __tablename__ = "promo_codes"
+    id = db.Column(db.Integer, primary_key=True)
+    created_at = db.Column(db.DateTime(timezone=True), default=_now, nullable=False)
+    code = db.Column(db.String(30), nullable=False, unique=True)
+    percent = db.Column(db.Numeric(5, 2), nullable=False)
+    kind = db.Column(db.String(20), default="offer", nullable=False)   # offer / partner / referral / community
+    # A community or hardship rate may go past the usual discount cap (never below the floor price).
+    beyond_cap = db.Column(db.Boolean, default=False, nullable=False)
+    expires_on = db.Column(db.Date)
+    max_uses = db.Column(db.Integer)
+    active = db.Column(db.Boolean, default=True, nullable=False)
+    note = db.Column(db.String(200))
+
+
+class Invoice(db.Model):
+    """What a family has been asked to pay. Classes are added only when the academy confirms the money arrived."""
+    __tablename__ = "invoices"
+    id = db.Column(db.Integer, primary_key=True)
+    created_at = db.Column(db.DateTime(timezone=True), default=_now, nullable=False)
+    number = db.Column(db.String(20), nullable=False, unique=True)     # NH-260001, also the payment reference
+    family_id = db.Column(db.Integer, db.ForeignKey("families.id"), nullable=False, index=True)
+    currency = db.Column(db.String(3), nullable=False)
+    months = db.Column(db.Integer, default=1, nullable=False)
+    classes = db.Column(db.Integer, nullable=False)                     # added to the balance when paid
+    subtotal = db.Column(db.Numeric(10, 2), nullable=False)
+    discount = db.Column(db.Numeric(10, 2), default=0, nullable=False)
+    total = db.Column(db.Numeric(10, 2), nullable=False)
+    promo_code = db.Column(db.String(30))
+    lines = db.Column(db.Text, nullable=False)                          # JSON: one line per child
+    # pending (not paid yet) / reported (family says they paid) / paid / cancelled
+    status = db.Column(db.String(12), default="pending", nullable=False)
+    method = db.Column(db.String(20))                                   # paypal / wise / bank / card / cash
+    payer_reference = db.Column(db.String(200))
+    reported_at = db.Column(db.DateTime(timezone=True))
+    paid_at = db.Column(db.DateTime(timezone=True))
+    amount_received = db.Column(db.Numeric(10, 2))
+    admin_note = db.Column(db.String(300))
+    family = db.relationship("Family", lazy="joined")
 
 
 class CreditEntry(db.Model):

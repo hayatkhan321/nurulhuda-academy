@@ -11,7 +11,16 @@
   <h2>Deleting your details</h2>
   <p>Write to <a href="mailto:{{ contact_email }}">{{ contact_email }}</a> and we will delete them.</p>
   <h2>Classes and payments</h2>
-  <p>Fees, packages, cancellation and refund terms are confirmed in writing before your first paid class.</p>
-  <p class="small">Last updated 10 November 2026.</p>
+  <p>Current prices and family discounts are on our <a href="{{ url_for('site.pricing') }}">Prices page</a>. Your first trial class is free.</p>
+  <ul>
+    <li>You pay in advance for a plan of classes. Each invoice has its own number; please use it as the payment reference. Classes are added to your family's balance when your payment reaches us.</li>
+    <li>The price on your invoice is fixed once it is issued. If we change our prices, we tell current families at least 30 days before the change applies to them.</li>
+    <li>A class uses one class from your balance when it takes place, or when the student does not come without telling us at least 12 hours before.</li>
+    <li>A class the teacher misses, or that you cancel at least 12 hours before, is not charged.</li>
+    <li>Paid classes stay in your balance for 12 months.</li>
+    <li>You may ask for a refund of classes you have paid for and not used. We refund the unused classes at the price you paid, less any fee your bank, PayPal or Wise charged us, to the way you paid, within 14 days.</li>
+    <li>If you report a problem with a class within 48 hours, we look into it, and if the class did not go as it should, we give the class back.</li>
+  </ul>
+  <p class="small">Last updated 12 November 2026.</p>
 </div></section>
 {% endblock %}

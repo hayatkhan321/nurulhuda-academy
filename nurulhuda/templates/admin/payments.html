@@ -1,0 +1,60 @@
+{% extends "base.html" %}
+{% block main %}{% include "admin/_nav.html" %}
+<section class="section"><div class="wrap">
+  {% if error %}<p class="alert">{{ error }}</p>{% endif %}
+  <h2>Waiting for money</h2>
+  <p class="small">Check your bank, Wise or PayPal for the invoice number, then confirm. Confirming adds the classes to the family and e-mails them a receipt.</p>
+  {% if waiting %}
+  <div class="table-wrap"><table class="data">
+    <tr><th>Invoice</th><th>Family</th><th>Amount</th><th>Status</th><th>Confirm payment</th></tr>
+    {% for i in waiting %}<tr>
+      <td><b>{{ i.number }}</b><br><span class="small">{{ i.created_at.strftime('%d %b %Y') }} · {{ i.classes }} classes{% if i.months > 1 %} · {{ i.months }} months{% endif %}{% if i.promo_code %} · code {{ i.promo_code }}{% endif %}</span></td>
+      <td><a href="{{ url_for('admin.family', fid=i.family_id) }}">{{ i.family.parent_name }}</a></td>
+      <td>{{ P.money(i.total, i.currency) }}</td>
+      <td>{% if i.status == 'reported' %}<b>Family says paid</b><br><span class="small">{{ P.METHODS.get(i.method, {}).get('name', i.method or '') }}: {{ i.payer_reference or 'no reference' }}</span>{% else %}Not paid yet{% endif %}</td>
+      <td><form method="post" class="inline-form"><input type="hidden" name="csrf" value="{{ csrf }}"><input type="hidden" name="invoice_id" value="{{ i.id }}">
+        <input name="amount_received" inputmode="decimal" value="{{ i.total }}" size="8" aria-label="Amount received">
+        <select name="method" aria-label="Method">{% for k, m in P.METHODS.items() %}<option value="{{ k }}"{% if i.method == k %} selected{% endif %}>{{ m.name }}</option>{% endfor %}<option value="cash">Cash</option><option value="other">Other</option></select>
+        <input name="note" placeholder="Note (optional)" size="14">
+        <button class="btn green sm" name="action" value="confirm" type="submit">Received</button>
+        <button class="btn sm outline-dark" name="action" value="cancel" type="submit">Cancel invoice</button></form></td>
+    </tr>{% endfor %}
+  </table></div>
+  {% else %}<p>Nothing waiting.</p>{% endif %}
+
+  <form class="form-card" method="post" style="margin-top:24px">
+    <input type="hidden" name="csrf" value="{{ csrf }}"><input type="hidden" name="action" value="new_invoice">
+    <h2>Make an invoice for a family</h2>
+    <div class="field"><label for="family_id">Family</label><select id="family_id" name="family_id">{% for f in families %}<option value="{{ f.id }}">{{ f.parent_name }} ({{ f.email }})</option>{% endfor %}</select></div>
+    <button class="btn green" type="submit">Next: choose plans</button>
+  </form>
+
+  <form class="form-card" method="post" style="margin-top:24px;max-width:none">
+    <input type="hidden" name="csrf" value="{{ csrf }}"><input type="hidden" name="action" value="methods">
+    <h2>How families can pay</h2>
+    <p class="small">Families see the methods you switch on, in this order, on every invoice. Their invoice number is the payment reference. Each details box holds up to 500 characters.</p>
+    {% for k, m in P.METHODS.items() %}
+    <fieldset class="pay-method" style="margin-top:16px">
+      <legend><b>{{ m.name }}</b></legend>
+      <div class="grid2">
+        <label><input type="checkbox" name="{{ k }}_on"{% if methods[k].on %} checked{% endif %}> Show to families</label>
+        <div class="field"><label for="{{ k }}_order">Order</label><input id="{{ k }}_order" name="{{ k }}_order" type="number" min="1" max="9" value="{{ order.index(k) + 1 if k in order else 9 }}"></div>
+      </div>
+      {% if 'link' in m.fields %}<div class="field"><label for="{{ k }}_link">Payment link</label><input id="{{ k }}_link" name="{{ k }}_link" value="{{ methods[k].link }}" placeholder="https://"></div>{% endif %}
+      <div class="field"><label for="{{ k }}_details">Details shown to the family</label><textarea id="{{ k }}_details" name="{{ k }}_details" rows="5" maxlength="500" placeholder="{{ m.hint }}">{{ methods[k].details }}</textarea><span class="small">{{ m.hint }}</span></div>
+    </fieldset>
+    {% endfor %}
+    <button class="btn green" type="submit" style="margin-top:16px">Save payment methods</button>
+  </form>
+
+  <h2 style="margin-top:36px">Paid and cancelled</h2>
+  {% if done %}
+  <div class="table-wrap"><table class="data"><tr><th>Invoice</th><th>Family</th><th>Invoiced</th><th>Received</th><th>Status</th><th></th></tr>
+  {% for i in done %}<tr><td>{{ i.number }}<br><span class="small">{{ i.created_at.strftime('%d %b %Y') }}</span></td><td>{{ i.family.parent_name }}</td><td>{{ P.money(i.total, i.currency) }}</td>
+    <td>{% if i.amount_received %}{{ P.money(i.amount_received, i.currency) }} by {{ P.METHODS.get(i.method, {}).get('name', i.method) }}{% endif %}</td>
+    <td>{{ 'Paid ' ~ i.paid_at.strftime('%d %b') if i.status == 'paid' and i.paid_at else i.status|capitalize }}{% if i.admin_note %}<br><span class="small">{{ i.admin_note }}</span>{% endif %}</td>
+    <td>{% if i.status == 'cancelled' %}<form method="post"><input type="hidden" name="csrf" value="{{ csrf }}"><input type="hidden" name="invoice_id" value="{{ i.id }}"><button class="btn sm outline-dark" name="action" value="reopen">Reopen</button></form>{% endif %}</td></tr>{% endfor %}
+  </table></div>
+  {% else %}<p>None yet.</p>{% endif %}
+</div></section>
+{% endblock %}

@@ -1,0 +1,52 @@
+{# Price calculator. Needs: P, cur, plans, months, code, choices, q; optional kids (family's children), form_method #}
+{% set chosen = dict(choices) if choices else {} %}
+<form class="form-card calc" method="{{ form_method or 'get' }}" action="{{ calc_action or '' }}">
+  {% if form_method == 'post' %}<input type="hidden" name="csrf" value="{{ csrf }}">{% endif %}
+  <input type="hidden" name="cur" value="{{ cur }}">
+  <h2>{{ calc_title or 'Work out your price' }}</h2>
+  {% if kids %}
+    {% for k in kids %}
+    <div class="field"><label for="plan{{ loop.index }}">Plan for {{ k.first_name }}</label>
+      <input type="hidden" name="child{{ loop.index }}" value="{{ k.first_name }}">
+      <select id="plan{{ loop.index }}" name="plan{{ loop.index }}">
+        <option value="">No classes for {{ k.first_name }} this time</option>
+        {% for p in plans %}<option value="{{ p.plan }}"{% if chosen.get(k.first_name) == p.plan %} selected{% endif %}>{{ p.name }}: {{ P.money(p.price, cur) }}</option>{% endfor %}
+      </select></div>
+    {% endfor %}
+  {% else %}
+    <div class="grid2">
+    {% for i in range(1, 5) %}
+      {% set sel = choices[i-1][1] if choices and choices|length >= i else '' %}
+      <div class="field"><label for="plan{{ i }}">{% if i == 1 %}First child or adult{% elif i == 2 %}Second child{% elif i == 3 %}Third child{% else %}Fourth child{% endif %}</label>
+        <input type="hidden" name="child{{ i }}" value="{% if i == 1 %}First student{% elif i == 2 %}Second child{% elif i == 3 %}Third child{% else %}Fourth child{% endif %}">
+        <select id="plan{{ i }}" name="plan{{ i }}">
+          <option value="">{% if i == 1 %}Choose a plan{% else %}None{% endif %}</option>
+          {% for p in plans %}<option value="{{ p.plan }}"{% if sel == p.plan %} selected{% endif %}>{{ p.name }}: {{ P.money(p.price, cur) }}</option>{% endfor %}
+        </select></div>
+    {% endfor %}
+    </div>
+  {% endif %}
+  <div class="grid2">
+    <div class="field"><label for="months">Pay for</label>
+      <select id="months" name="months">{% for m in P.MONTH_CHOICES %}<option value="{{ m }}"{% if m == months %} selected{% endif %}>{% if m == 1 %}1 month{% else %}{{ m }} months upfront ({{ P.pnum(P.upfront_pct(m)) }}% off){% endif %}</option>{% endfor %}</select></div>
+    <div class="field"><label for="code">Discount code (if you have one)</label><input id="code" name="code" value="{{ code or '' }}" autocapitalize="characters"></div>
+  </div>
+  {% if form_method == 'post' %}<input type="hidden" name="action" value="quote">{% endif %}
+  <button class="btn {{ 'outline-dark' if form_method == 'post' else 'green' }}" type="submit">Work out the price</button>
+</form>
+
+{% if q %}
+<div class="quote" id="quote">
+  {% if q.error %}<p class="alert">{{ q.error }}</p>{% endif %}
+  {% if q.lines %}
+  <div class="table-wrap"><table class="data">
+    <tr><th>Student</th><th>Plan</th><th>Classes</th><th>Price</th><th>Discount</th><th>You pay</th></tr>
+    {% for l in q.lines %}<tr><td>{{ l.child }}</td><td>{{ l.package.name }}</td><td>{{ l.package.classes * q.months }} × {{ l.package.minutes }} min</td>
+      <td>{{ P.money(l.base, q.currency) }}</td>
+      <td>{% if l.percent > 0 %}{{ P.pnum(l.percent) }}%<br><span class="small">{{ l.parts|join(', ') }}{% if l.floored %} (limited to our maximum){% endif %}</span>{% else %}–{% endif %}</td>
+      <td><b>{{ P.money(l.total, q.currency) }}</b></td></tr>{% endfor %}
+    <tr><td colspan="5"><b>Total for {{ q.months }} month{{ 's' if q.months > 1 }}</b>{% if q.discount > 0 %}<br><span class="small">You save {{ P.money(q.discount, q.currency) }}</span>{% endif %}</td><td><b>{{ P.money(q.total, q.currency) }}</b></td></tr>
+  </table></div>
+  {% else %}<p>Choose a plan for at least one student.</p>{% endif %}
+</div>
+{% endif %}
