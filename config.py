@@ -40,6 +40,8 @@ class Config:
     SQLALCHEMY_DATABASE_URI = _database_url()
     SQLALCHEMY_TRACK_MODIFICATIONS = False
     SQLALCHEMY_ENGINE_OPTIONS = {"pool_pre_ping": True, "pool_recycle": 300}
+    # Two upload boxes of 2 MB each, plus the form itself. Vercel refuses anything over 4.5 MB.
+    MAX_CONTENT_LENGTH = int(4.4 * 1024 * 1024)
     SESSION_COOKIE_HTTPONLY = True
     SESSION_COOKIE_SAMESITE = "Lax"
     SESSION_COOKIE_SECURE = IS_PRODUCTION

@@ -1,13 +1,13 @@
 {% macro field(name, label, type='text', hint='', required=False, auto='') -%}
 <div class="field{% if errors.get(name) %} has-error{% endif %}">
-  <label for="{{ name }}">{{ label }}{% if not required %} <span class="hint" style="display:inline">(optional)</span>{% endif %}{% if hint %}<span class="hint">{{ hint }}</span>{% endif %}</label>
+  <label for="{{ name }}">{{ label }}{% if hint %}<span class="hint">{{ hint }}</span>{% endif %}</label>
   <input id="{{ name }}" name="{{ name }}" type="{{ type }}" value="{{ form.get(name, '') }}"{% if required %} required{% endif %}{% if auto %} autocomplete="{{ auto }}"{% endif %}{% if errors.get(name) %} aria-invalid="true" aria-describedby="{{ name }}-err"{% endif %}>
   {% if errors.get(name) %}<span class="error" id="{{ name }}-err">{{ errors[name] }}</span>{% endif %}
 </div>
 {%- endmacro %}
 {% macro select(name, label, options, required=False) -%}
 <div class="field{% if errors.get(name) %} has-error{% endif %}">
-  <label for="{{ name }}">{{ label }}{% if not required %} <span class="hint" style="display:inline">(optional)</span>{% endif %}</label>
+  <label for="{{ name }}">{{ label }}</label>
   <select id="{{ name }}" name="{{ name }}"{% if required %} required{% endif %}>
     <option value="">Choose</option>
     {% for o in options %}<option value="{{ o }}"{% if form.get(name) == o %} selected{% endif %}>{{ o }}</option>{% endfor %}
@@ -20,22 +20,22 @@
 <div class="hp" aria-hidden="true"><label>Leave this empty <input name="website" tabindex="-1" autocomplete="off"></label></div>
 {%- endmacro %}
 
-{% macro language_block(intro, teacher=False) -%}
-<fieldset class="field langs-block">
+{% macro language_block(intro, teacher=False, required=False) -%}
+<fieldset class="field langs-block{% if errors.get('languages') %} has-error{% endif %}">
   <legend>{{ intro }}</legend>
   <p class="hint">Start with the language you know best.</p>
   {% for n, label in [(1, 'First language'), (2, 'Second language'), (3, 'Third language')] %}
   <div class="lang-row">
     <div class="field">
-      <label for="lang{{ n }}">{{ label }}{% if n > 1 %} <span class="hint" style="display:inline">(optional)</span>{% endif %}</label>
-      <select id="lang{{ n }}" name="lang{{ n }}">
+      <label for="lang{{ n }}">{{ label }}</label>
+      <select id="lang{{ n }}" name="lang{{ n }}"{% if required %} required{% endif %}{% if errors.get('lang' ~ n) %} aria-invalid="true"{% endif %}>
         <option value="">Choose</option>
         {% for o in C.LANGUAGE_CHOICES %}<option value="{{ o }}"{% if form.get('lang' ~ n) == o %} selected{% endif %}>{{ o }}</option>{% endfor %}
       </select>
     </div>
     <div class="field">
       <label for="lang{{ n }}_level">How well</label>
-      <select id="lang{{ n }}_level" name="lang{{ n }}_level">
+      <select id="lang{{ n }}_level" name="lang{{ n }}_level"{% if required %} required{% endif %}{% if errors.get('lang' ~ n ~ '_level') %} aria-invalid="true"{% endif %}>
         {% if n > 1 %}<option value="">Choose</option>{% endif %}
         {% for o in C.LEVELS %}<option value="{{ o }}"{% if form.get('lang' ~ n ~ '_level', 'Native' if n == 1 else '') == o %} selected{% endif %}>{{ o }}</option>{% endfor %}
       </select>
@@ -46,12 +46,13 @@
     {% for key, label in ([('english_level', 'English'), ('urdu_level', 'Urdu')] + ([('arabic_level', 'Arabic (speaking and understanding)')] if teacher else [])) %}
     <div class="field">
       <label for="{{ key }}">{{ label }}: how well?</label>
-      <select id="{{ key }}" name="{{ key }}">
+      <select id="{{ key }}" name="{{ key }}"{% if required %} required{% endif %}{% if errors.get(key) %} aria-invalid="true"{% endif %}>
         <option value="">Choose</option>
         {% for o in C.LEVELS_WITH_NONE %}<option value="{{ o }}"{% if form.get(key) == o %} selected{% endif %}>{{ o }}</option>{% endfor %}
       </select>
     </div>
     {% endfor %}
   </div>
+  {% if errors.get('languages') %}<span class="error">{{ errors.languages }}</span>{% endif %}
 </fieldset>
 {%- endmacro %}

@@ -25,6 +25,13 @@ def create_app(config_class=Config):
     app.register_blueprint(portal_bp)
     app.register_blueprint(admin_bp)
 
+    @app.errorhandler(413)
+    def _too_large(_e):
+        from flask import render_template
+        return render_template("teach.html", page="teach", title="Teach with us", form={},
+                               errors={"_save": "Your files were too large to send. Each upload box takes up to 2 MB. "
+                                                "Please choose smaller files and fill in the form again."}), 413
+
     # Phase 1 has two simple tables, so create them on start-up (Vercel has no release step).
     # Never raise here: a database hiccup must not take the public site down.
     with app.app_context():

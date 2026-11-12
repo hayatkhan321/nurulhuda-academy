@@ -83,7 +83,7 @@
         {{ select('teacher_gender', 'Teacher', ['Female teacher', 'Male teacher', 'No preference']) }}
       </div>
       <div class="field">
-        <label for="message">Your questions, or what you would like to learn <span class="hint" style="display:inline">(optional)</span></label>
+        <label for="message">Your questions, or what you would like to learn</label>
         <textarea id="message" name="message">{{ form.get('message', '') }}</textarea>
       </div>
       <button class="btn green" type="submit">Request my free class</button>

@@ -53,6 +53,8 @@ class TeacherApplication(db.Model):
     urdu_level = db.Column(db.String(20))
     arabic_level = db.Column(db.String(20))
     site_lang = db.Column(db.String(5))
+    uploads = db.relationship("Upload", lazy="select", order_by="Upload.id",
+                              primaryjoin="TeacherApplication.id == Upload.application_id")
 
 
 class DawahRequest(db.Model):
@@ -214,3 +216,16 @@ class LoginToken(db.Model):
     user_id = db.Column(db.Integer, nullable=False)
     expires_at = db.Column(db.DateTime(timezone=True), nullable=False)
     used_at = db.Column(db.DateTime(timezone=True))
+
+
+class Upload(db.Model):
+    """A file sent with a teacher application (certificates or CV). Kept in the database, at most 2 MB each."""
+    __tablename__ = "uploads"
+    id = db.Column(db.Integer, primary_key=True)
+    created_at = db.Column(db.DateTime(timezone=True), default=_now, nullable=False)
+    application_id = db.Column(db.Integer, db.ForeignKey("teacher_applications.id"), nullable=False, index=True)
+    kind = db.Column(db.String(20), nullable=False)                     # certificate / cv
+    filename = db.Column(db.String(200), nullable=False)
+    content_type = db.Column(db.String(100), nullable=False)
+    size = db.Column(db.Integer, nullable=False)
+    data = db.deferred(db.Column(db.LargeBinary, nullable=False))   # only loaded when the file is downloaded

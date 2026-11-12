@@ -1,12 +1,13 @@
 import hmac
+import re
 import secrets
 
 from flask import (Blueprint, g, Response, abort, current_app, redirect, render_template, request, send_from_directory,
                    session, url_for)
 
 from nurulhuda import content as C
-from nurulhuda import db, mail
-from nurulhuda.models import DawahRequest, TeacherApplication, TrialRequest
+from nurulhuda import db, mail, uploads
+from nurulhuda.models import DawahRequest, TeacherApplication, TrialRequest, Upload
 
 site_bp = Blueprint("site", __name__)
 
@@ -122,17 +123,40 @@ def teach():
             errors["email"] = "Enter an e-mail address like name@example.com."
         if not request.form.getlist("levels"):
             errors["levels"] = "Choose at least one level you can teach."
+        for key, msg in [("phone", "Enter your phone or WhatsApp number."), ("gender", "Choose one."),
+                         ("experience_years", "Choose one."), ("hours", "Tell us the hours you can teach."),
+                         ("recitation_link", "Add a link to your recitation."),
+                         ("qualifications", "Tell us about your ijazah, certificates and experience.")]:
+            if not _f(key):
+                errors[key] = msg
+        link = _f("recitation_link", 300)
+        if link and not re.match(r"^https?://\S+\.\S+", link):
+            errors["recitation_link"] = "Enter the full link, starting with https://"
+        langs = [_f(f"lang{n}") for n in (1, 2, 3)]
+        if (not all(l in C.LANGUAGE_CHOICES for l in langs)
+                or not all(_f(f"lang{n}_level") in C.LEVELS for n in (1, 2, 3))
+                or not all(_f(k) in C.LEVELS_WITH_NONE for k in ("english_level", "urdu_level", "arabic_level"))):
+            errors["languages"] = "Choose three languages, how well you speak each, and your English, Urdu and Arabic levels."
+        elif len(set(langs)) < 3 and "Other" not in langs:
+            errors["languages"] = "Choose three different languages."
+        files = []
+        for box, allow_word in (("certificates", False), ("cv", True)):
+            got, err = uploads.read_files(request.files.getlist(box), "certificate" if box == "certificates" else "cv", allow_word)
+            if err:
+                errors[box] = err
+            files += got
         if not errors:
             a = TeacherApplication(full_name=_f("full_name", 120), email=_f("email"), phone=_f("phone", 40),
                                    country=_f("country", 60), gender=_f("gender", 20),
                                    levels=", ".join(request.form.getlist("levels"))[:200],
                                    qualifications=_f("qualifications", 3000),
                                    experience_years=_f("experience_years", 20),
-                                   hours=_f("hours"), recitation_link=_f("recitation_link", 300),
+                                   hours=_f("hours"), recitation_link=link,
                                    **_languages(with_arabic=True))
+            a.uploads = [Upload(**f) for f in files]
             if not _save(a):
                 return _save_failed("teach.html", "teach", "Teach with us", form)
-            mail.teacher_emails(a)
+            mail.teacher_emails(a, files)
             return redirect(url_for("site.thanks", kind="teacher"))
     return render_template("teach.html", page="teach", title="Teach with us", errors=errors, form=form)
 
@@ -209,6 +233,19 @@ def admin():
     teachers = TeacherApplication.query.order_by(TeacherApplication.created_at.desc()).limit(500).all()
     dawah = DawahRequest.query.order_by(DawahRequest.created_at.desc()).limit(500).all()
     return render_template("admin.html", title="Sign-ups", tab="signups", trials=trials, teachers=teachers, dawah=dawah)
+
+
+@site_bp.route("/admin/file/<int:file_id>")
+def admin_file(file_id):
+    """A teacher's uploaded certificate or CV, for the founders only. Always downloaded, never shown in the page."""
+    if not session.get("admin"):
+        abort(404)
+    f = db.session.get(Upload, file_id) or abort(404)
+    resp = Response(f.data, mimetype=f.content_type)
+    resp.headers["Content-Disposition"] = f'attachment; filename="{f.filename}"'
+    resp.headers["X-Content-Type-Options"] = "nosniff"
+    resp.headers["Cache-Control"] = "private, no-store"
+    return resp
 
 
 @site_bp.route("/admin/sign-out")

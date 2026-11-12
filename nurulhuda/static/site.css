@@ -497,3 +497,6 @@ fieldset.langs-block { border: 1px solid var(--line); border-radius: var(--r-sm)
 .res-home-links { display: flex; flex-wrap: wrap; gap: 10px; }
 
 .classroom-actions { display: flex; gap: 8px; flex-wrap: wrap; }
+
+.res-size { align-self: center; color: var(--muted); }
+.res h2[lang="ur"] { font-family: "Noto Nastaliq Urdu", serif; line-height: 2.1; font-weight: 400; }

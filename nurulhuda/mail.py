@@ -7,7 +7,7 @@ import urllib.request
 from flask import current_app
 
 
-def send_email(to: str, subject: str, inner_html: str, reply_to: str | None = None) -> bool:
+def send_email(to: str, subject: str, inner_html: str, reply_to: str | None = None, attachments=None) -> bool:
     key = current_app.config.get("RESEND_API_KEY")
     if not key or not to:
         current_app.logger.info("E-mail not sent (RESEND_API_KEY or recipient missing): %s", subject)
@@ -15,6 +15,9 @@ def send_email(to: str, subject: str, inner_html: str, reply_to: str | None = No
     payload = {"from": current_app.config["MAIL_FROM"], "to": [to], "subject": subject, "html": _wrap(inner_html)}
     if reply_to or current_app.config.get("MAIL_REPLY_TO"):
         payload["reply_to"] = reply_to or current_app.config["MAIL_REPLY_TO"]
+    if attachments:
+        import base64
+        payload["attachments"] = [{"filename": a["filename"], "content": base64.b64encode(a["data"]).decode()} for a in attachments]
     req = urllib.request.Request(
         "https://api.resend.com/emails", data=json.dumps(payload).encode(), method="POST",
         headers={"Authorization": f"Bearer {key}", "Content-Type": "application/json", "User-Agent": "nurulhuda/1.0"},
@@ -63,20 +66,25 @@ def trial_emails(t) -> None:
     )
 
 
-def teacher_emails(a) -> None:
+def teacher_emails(a, files=None) -> None:
+    files = files or []
+    levels = f"English: {a.english_level or '?'}, Urdu: {a.urdu_level or '?'}, Arabic: {a.arabic_level or '?'}"
     send_email(
         current_app.config.get("NOTIFY_EMAIL"), f"New teacher application: {a.full_name} ({a.country or 'country not given'})",
         "<p>A teacher has applied to teach.</p>" + _rows([
             ("Name", a.full_name), ("E-mail", a.email), ("Phone / WhatsApp", a.phone), ("Country", a.country),
             ("Gender", a.gender), ("Levels", a.levels), ("Years teaching", a.experience_years),
-            ("Languages", a.languages), ("Available hours", a.hours), ("Recitation link", a.recitation_link),
-            ("Qualifications", a.qualifications)]),
+            ("Languages", a.language_profile or a.languages), ("Language levels", levels),
+            ("Available hours", a.hours), ("Recitation link", a.recitation_link),
+            ("Qualifications", a.qualifications),
+            ("Files", ", ".join(f["filename"] for f in files) or "None uploaded")]),
+        attachments=files,
     )
     send_email(
         a.email, "We have your teacher application",
         f"<p>Assalamu alaikum {html.escape(a.full_name)},</p>"
-        "<p>Thank you for applying to teach with Nurul Huda Academy. Our Head of Academics reviews every application personally. "
-        "If you have not yet sent a recitation recording, please reply to this e-mail with a link to one (2 to 3 minutes of any surah).</p>"
+        "<p>Thank you for applying to teach with Nurul Huda Academy. Our Head of Academics reviews every application personally, "
+        "including your recitation recording and any certificates you sent.</p>"
         "<p>We aim to reply within five working days.</p><p>JazakAllahu khairan,<br>Nurul Huda Academy</p>",
         reply_to=current_app.config.get("ADMIN_EMAIL"),
     )
