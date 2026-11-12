@@ -97,7 +97,7 @@ QURAN_RESOURCES = [
     {"lang": "Malay", "native": "Bahasa Melayu", "title": "Terjemahan Makna Al-Quran Al-Karim ke Bahasa Melayu",
      "note": "The King Fahd Complex edition. A large file: best downloaded on Wi-Fi.", "source": "King Fahd Complex, via Internet Archive",
      "pdf": "https://archive.org/download/quranmelayu/Terjemahan%20Makna%20Al%20Quran%20Al%20Karim%20Ke%20Bahasa%20Melayu_text.pdf", "size": "125 MB",
-     "page": "https://quranenc.com/ms/browse/malay_basumayyah"},
+     "page": "https://quranenc.com/en/browse/malay_basumayyah"},
     {"lang": "Indonesian", "native": "Bahasa Indonesia", "title": "Al-Qur'an dan Terjemahnya",
      "note": "The King Fahd Complex edition. A large file: best downloaded on Wi-Fi.", "source": "King Fahd Complex, via Internet Archive",
      "pdf": "https://archive.org/download/quran_indonesian/Terjemah%20Makna%20Al%20Qur%27an%20Bahasa%20Indonesia.pdf", "size": "300 MB",
