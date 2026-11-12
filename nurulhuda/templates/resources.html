@@ -47,7 +47,7 @@
 <section class="section white" id="early">
   <div class="wrap">
     <h2>Early learning</h2>
-    <div class="res-grid">{% for r in C.EARLY_RESOURCES %}<article class="res"><h3>{{ r.title }}</h3><p>{{ r.note }}</p><p class="res-actions"><a class="btn green sm" href="{{ r.url }}" rel="noopener" target="_blank">Open</a></p><p class="small">Source: {{ r.source }}</p></article>{% endfor %}</div>
+    <div class="res-grid">{% for r in C.EARLY_RESOURCES %}<article class="res"><h3>{{ r.title }}</h3><p>{{ r.note }}</p><p class="res-actions"><a class="btn green sm" href="{{ r.url }}" rel="noopener" target="_blank">{{ 'Download PDF' if r.size else 'Open' }}</a>{% if r.size %}<span class="small res-size">{{ r.size }}</span>{% endif %}</p><p class="small">Source: {{ r.source }}</p></article>{% endfor %}</div>
   </div>
 </section>
 <section class="section" id="medium">

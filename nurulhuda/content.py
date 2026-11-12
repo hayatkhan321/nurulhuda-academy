@@ -152,6 +152,8 @@ EARLY_RESOURCES = [
      "url": "https://kidsquranreading.com/noorani-qaida-in-english.htm", "source": "KidsQuranReading.com"},
     {"title": "Noorani Qaida (Urdu)", "note": "The same Qaida with Urdu explanations, as used in Pakistan and India.",
      "url": "https://www.kidsquranreading.com/noorani-qaida-in-urdu.htm", "source": "KidsQuranReading.com"},
+    {"title": "Yassarnal Quran (Urdu)", "note": "The simple first-lessons primer used across Pakistan and India, from the letters to reading whole verses. Qudratullah Company edition.",
+     "url": "https://archive.org/download/yassernal-quran/Yassernal%20Quran.pdf", "source": "Qudratullah Company, via Internet Archive", "size": "17 MB"},
     {"title": "Quran.com word by word", "note": "Tap any word to hear it and see its meaning. Good for practice at home.",
      "url": "https://quran.com", "source": "Quran.com"},
 ]
