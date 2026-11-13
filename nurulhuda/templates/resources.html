@@ -1,7 +1,7 @@
 {% extends "base.html" %}
 {% block desc %}Free resources for students and teachers: the Quran with translation, the Quran by juz (para) in IndoPak and Madinah script, Noorani Qaida, tajweed and daily duas.{% endblock %}
 {% block main %}
-{% with head="Resources", sub="Free books for students and teachers, to open in class or at home. Every file comes from its publisher, so you always get the latest corrected edition." %}{% include "_page_head.html" %}{% endwith %}
+{% with head="Resources", sub="Free books for students and teachers, to open in class or at home." %}{% include "_page_head.html" %}{% endwith %}
 <nav class="wrap res-jump" aria-label="On this page">
   <a href="#quran">The Quran with translation</a><a href="#juz">The Quran by juz (para)</a><a href="#early">Early learning</a><a href="#medium">Tajweed</a><a href="#duas">Daily duas</a>
 </nav>
@@ -16,7 +16,7 @@
         <h2 dir="auto" lang="{{ rl }}"><!--nt-->{{ r.title }}<!--/nt--></h2>
         <p>{{ r.note }}</p>
         <p class="res-actions">
-          {% if r.pdf %}<a class="btn green sm" href="{{ r.pdf }}" rel="noopener" target="_blank">Download PDF</a>{% if r.size %}<span class="small res-size">{{ r.size }}</span>{% endif %}{% endif %}
+          {% if r.pdf %}{% set dl = C.download_link(r.pdf) %}<a class="btn green sm" href="{{ dl[0] }}" rel="noopener" target="_blank" data-dl="{{ 'here' if dl[1] else 'away' }}" data-name="{{ r.pdf.rsplit('/', 1)[-1] }}" data-title="{{ r.title }}" data-source="{{ r.source }}" data-size="{{ r.size }}">Download PDF</a>{% if r.size %}<span class="small res-size">{{ r.size }}</span>{% endif %}{% endif %}
           <a class="btn sm outline-dark" href="{{ r.page }}" rel="noopener" target="_blank">Read online</a>
         </p>
         <p class="small">Source: {{ r.source }}</p>
@@ -47,7 +47,7 @@
 <section class="section white" id="early">
   <div class="wrap">
     <h2>Early learning</h2>
-    <div class="res-grid">{% for r in C.EARLY_RESOURCES %}<article class="res"><h3>{{ r.title }}</h3><p>{{ r.note }}</p><p class="res-actions"><a class="btn green sm" href="{{ r.url }}" rel="noopener" target="_blank">{{ 'Download PDF' if r.size else 'Open' }}</a>{% if r.size %}<span class="small res-size">{{ r.size }}</span>{% endif %}</p><p class="small">Source: {{ r.source }}</p></article>{% endfor %}</div>
+    <div class="res-grid">{% for r in C.EARLY_RESOURCES %}<article class="res"><h3>{{ r.title }}</h3><p>{{ r.note }}</p><p class="res-actions">{% set dl = C.download_link(r.url) %}<a class="btn green sm" href="{{ dl[0] }}" rel="noopener" target="_blank"{% if r.size %} data-dl="{{ 'here' if dl[1] and dl[0].endswith('.pdf') else 'away' }}" data-name="{{ r.url.rsplit('/', 1)[-1] }}" data-title="{{ r.title }}" data-source="{{ r.source }}" data-size="{{ r.size }}"{% endif %}>{{ 'Download PDF' if r.size else 'Open' }}</a>{% if r.size %}<span class="small res-size">{{ r.size }}</span>{% endif %}</p><p class="small">Source: {{ r.source }}</p></article>{% endfor %}</div>
   </div>
 </section>
 <section class="section" id="medium">
@@ -60,7 +60,7 @@
   <div class="wrap">
     <h2>Daily duas: Fortress of the Muslim (Hisn al-Muslim)</h2>
     <p class="lead-dark">Duas from the Quran and Sunnah for every part of the day: waking, eating, travelling, sleeping.</p>
-    <p class="res-actions">{% for d in C.DUA_RESOURCES %}<a class="btn sm outline-dark" href="{{ d.url }}" rel="noopener" target="_blank"><!--nt-->{{ d.lang }}<!--/nt--> <span class="small">PDF, {{ d.size }}</span></a>{% endfor %}</p>
+    <p class="res-actions">{% for d in C.DUA_RESOURCES %}{% set dl = C.download_link(d.url) %}<a class="btn sm outline-dark" href="{{ dl[0] }}" rel="noopener" target="_blank" data-dl="{{ 'here' if dl[1] else 'away' }}" data-name="{{ d.url.rsplit('/', 1)[-1] }}" data-title="Fortress of the Muslim ({{ d.lang }})" data-source="IslamHouse.com" data-size="{{ d.size }}"><!--nt-->{{ d.lang }}<!--/nt--> <span class="small">PDF, {{ d.size }}</span></a>{% endfor %}</p>
     <p class="small">Source: IslamHouse.com</p>
   </div>
 </section>
@@ -68,9 +68,10 @@
   <div class="wrap prose">
     <h2>Read and listen online</h2>
     <ul>{% for o in C.QURAN_ONLINE %}<li><a href="{{ o.url }}" rel="noopener" target="_blank">{{ o.name }}</a>: {{ o.text }}</li>{% endfor %}</ul>
-    <p class="small">These are free publications of their publishers. Nurul Huda Academy links to them and does not change them. Please keep printed copies clean and treat the mushaf with respect.</p>
+    <p class="small">These are free publications of their publishers; Nurul Huda Academy links to them and does not change them. Our own Urdu and Hindi editions use the King Fahd Complex Arabic text and the translations named on each. Please keep printed copies clean and treat the mushaf with respect.</p>
     <p>Reading is the first step; reading correctly needs a teacher. <a href="{{ url_for('site.why_quran') }}">Why we learn the Quran</a></p>
     <p><a class="btn green" href="{{ url_for('site.trial') }}">Book a free trial class</a></p>
   </div>
 </section>
 {% endblock %}
+{% block scripts %}<script src="{{ url_for('static', filename='download.js') }}" defer></script>{% endblock %}

@@ -5,7 +5,8 @@
   <div class="classroom-bar wrap">
     <p><b>{{ cs.student.first_name }}</b> with <b>{{ cs.teacher.full_name }}</b> · {{ cs.minutes }} minutes{% if role == 'observer' %} · <span class="status s-flag">Observing quietly</span>{% endif %}</p>
     <span class="classroom-actions">
-      <a class="btn gold sm" href="{{ url_for('site.resources') }}#juz" target="_blank" rel="noopener">Resources</a>
+      <button class="btn gold sm" type="button" id="board-toggle" aria-pressed="true">Hide board</button>
+      <a class="btn outline sm" href="{{ url_for('site.resources') }}#juz" target="_blank" rel="noopener">Resources</a>
       <a class="btn outline sm" href="{{ url_for('portal.teacher_home' if role == 'teacher' else 'portal.family_home' if role == 'student' else 'admin.classes') }}">Leave</a>
     </span>
   </div>
@@ -13,9 +14,12 @@
     <p><b>The video could not start.</b> <span id="call-error-text"></span></p>
     <p>Please try again in a moment. If it keeps happening, write to <a href="mailto:{{ contact_email }}">{{ contact_email }}</a>.</p>
   </div>
-  <div id="call" class="classroom-frame"></div>
+  <div class="classroom-split" id="split">
+    <div id="call" class="classroom-frame"></div>
+    <div class="board-panel" aria-label="Lesson board"><div id="board"></div></div>
+  </div>
   <p class="small wrap" style="color:#b9d8cb;padding:10px 0">If the camera or microphone does not start, allow them when your browser asks, or tap the lock icon by the address and allow camera and microphone.</p>
-  <p class="small wrap" style="color:#b9d8cb;padding:0 0 10px">Resources opens in a new tab, so the class keeps running. To show a page to your student, use Share screen in the call.</p>
+  <p class="small wrap" style="color:#b9d8cb;padding:0 0 10px">{% if role == 'teacher' %}The lesson board shows the page you choose to your student. Highlight or write with the colours; your student sees every mark. Tick "Student can mark" to let them point or underline too.{% else %}The lesson board shows the page your teacher has chosen, with their highlights and corrections.{% endif %}</p>
 </section>
 {% else %}
 {% with head="Classroom" %}{% include "_page_head.html" %}{% endwith %}
@@ -30,13 +34,29 @@
 {% block scripts %}
 {% if state == 'open' %}
 <script src="https://unpkg.com/@daily-co/daily-js@0.94.0/dist/daily-iframe.js"></script>
+<script src="{{ url_for('static', filename='board.js') }}"></script>
 <script>
 (function () {
   var frame = window.DailyIframe.createFrame(document.getElementById("call"), {
     showLeaveButton: true, iframeStyle: { width: "100%", height: "100%", border: "0", borderRadius: "14px" }
   });
+  // Lesson board: marks travel as app messages over this call. Messages wait until we have joined.
+  var joined = false, queue = [];
+  function send(m) { if (joined) { frame.sendAppMessage({ nhb: m }, "*"); } else { queue.push(m); } }
+  var board = window.NHBoard.start(document.getElementById("board"), { role: {{ role|tojson }}, send: send, dataUrl: "/quran/hafs-v18.json" });
+  frame.on("app-message", function (e) { if (e && e.data && e.data.nhb) { board.receive(e.data.nhb); } });
+  frame.on("participant-joined", function () { if ({{ (role == 'teacher')|tojson }}) { board.sendState(); } });
+  var toggle = document.getElementById("board-toggle");
+  toggle.onclick = function () {
+    var split = document.getElementById("split"), hide = !split.classList.contains("no-board");
+    split.classList.toggle("no-board", hide);
+    toggle.textContent = hide ? "Show board" : "Hide board"; toggle.setAttribute("aria-pressed", String(!hide));
+    if (!hide) { board.refit(); }
+  };
   frame.on("joined-meeting", function () {
     fetch("{{ url_for('portal.joined', cid=cs.id) }}", { method: "POST", headers: { "X-CSRF": "{{ csrf }}" } });
+    joined = true; queue.splice(0).forEach(send);
+    if ({{ (role != 'teacher')|tojson }}) { send({ k: "hello" }); }
   });
   var failed = false;
   function showError(msg) {

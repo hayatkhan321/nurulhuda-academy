@@ -1,0 +1,23 @@
+{% extends "base.html" %}
+{% block main %}
+{% with head="Lesson board practice", sub="Try the classroom board before a class. Open a second window as the student to see what they see." %}{% include "_page_head.html" %}{% endwith %}
+<section class="section"><div class="wrap">
+  <p>{% if role == 'teacher' %}You are the <b>teacher</b>. <a href="{{ url_for('site.board_practice', **{'as': 'student'}) }}" target="_blank" rel="noopener">Open the student's view in a new window</a> and place the two side by side.{% else %}You are the <b>student</b>. Marks from the teacher's window appear here.{% endif %}</p>
+  <div class="board-panel" style="border:1px solid var(--line)"><div id="board"></div></div>
+  <p class="small" style="margin-top:12px">In a real class the board sits next to the video and works the same way. Arabic text and font: King Fahd Glorious Quran Printing Complex (Uthmanic Hafs v18).</p>
+</div></section>
+{% endblock %}
+{% block scripts %}
+<script src="{{ url_for('static', filename='board.js') }}"></script>
+<script>
+(function () {
+  // On this practice page the teacher's and student's windows talk through the browser itself.
+  var ch = "BroadcastChannel" in window ? new BroadcastChannel("nh-board-practice") : null;
+  var board = window.NHBoard.start(document.getElementById("board"), {
+    role: {{ role|tojson }}, dataUrl: "/quran/hafs-v18.json",
+    send: function (m) { if (ch) { ch.postMessage(m); } }
+  });
+  if (ch) { ch.onmessage = function (e) { board.receive(e.data); }; }
+})();
+</script>
+{% endblock %}

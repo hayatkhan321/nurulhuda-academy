@@ -1,0 +1,6 @@
+{
+  "rewrites": [
+    { "source": "/dl/quranenc/:file", "destination": "https://quranenc.com/downloads/pdf/:file" },
+    { "source": "/dl/islamhouse/:path*", "destination": "https://d1.islamhouse.com/data/:path*" }
+  ]
+}

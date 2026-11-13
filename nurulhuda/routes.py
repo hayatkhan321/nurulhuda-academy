@@ -326,6 +326,31 @@ def resources():
     return render_template("resources.html", page="resources", title="Resources")
 
 
+@site_bp.route("/board")
+def board_practice():
+    """A practice copy of the classroom's lesson board. Two windows (teacher and student) mark the same page."""
+    role = "student" if request.args.get("as") == "student" else "teacher"
+    return render_template("board_practice.html", page="board", title="Lesson board practice", role=role)
+
+
+@site_bp.route("/quran/<path:name>")
+def public_quran(name):
+    """On Vercel, files in public/quran are served straight from the CDN; this only answers in local development."""
+    import os
+    folder = os.path.join(os.path.dirname(current_app.root_path), "public", "quran")
+    return send_from_directory(folder, name, max_age=86400)
+
+
+@site_bp.route("/dl/<site>/<path:rest>")
+def download_fallback(site, rest):
+    """vercel.json proxies these to the publisher. If a request ever reaches the app, send it to the original file."""
+    from nurulhuda.content import DOWNLOAD_PROXY
+    for prefix, local in DOWNLOAD_PROXY.items():
+        if local == f"/dl/{site}/":
+            return redirect(prefix + rest)
+    abort(404)
+
+
 @site_bp.route("/quran-downloads")
 def quran_downloads():
     return redirect(url_for("site.resources"), code=301)

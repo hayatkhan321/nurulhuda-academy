@@ -3,7 +3,7 @@
 <section class="page-head lattice"><div class="wrap">
   <h1>Assalamu alaikum, {{ teacher.full_name.split(' ')[0] }}</h1>
   <p>Times are shown in {{ zone_name(teacher.timezone) }}. <a href="{{ url_for('portal.logout') }}" style="color:var(--gold-1)">Sign out</a></p>
-  <p><a class="btn gold sm" href="{{ url_for('site.resources') }}" target="_blank" rel="noopener">Resources: Quran by juz, Qaida, duas</a></p>
+  <p><a class="btn gold sm" href="{{ url_for('site.resources') }}" target="_blank" rel="noopener">Resources: Quran by juz, Qaida, duas</a> <a class="btn outline sm" href="{{ url_for('site.board_practice') }}" target="_blank" rel="noopener">Practise the lesson board</a></p>
 </div></section>
 <section class="section white"><div class="wrap">
   <div class="stats">

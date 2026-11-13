@@ -75,8 +75,9 @@ LEVELS_WITH_NONE = LEVELS + ["None"]
 # The language a teacher uses to explain the lesson
 INSTRUCTION_LANGS = ["English", "Urdu", "Arabic", "Hindi", "Malay", "Indonesian", "French", "Spanish", "Any"]
 
-# Free Quran downloads. We link to the publishers' own files rather than copying them, so each family always
-# gets the latest corrected edition. QuranEnc.com allows re-publishing unchanged with credit; the others we link.
+# Free Quran downloads. Most link to the publishers' own files, so each family gets the latest corrected edition.
+# The Urdu and Hindi editions are our own clear, text-based PDFs (public/quran/, built by scripts/quran_pdf/),
+# because the published scans were hard to read. "local" files are served from our own site.
 QURAN_RESOURCES = [
     {"lang": "English", "native": "English", "title": "The Noble Quran, Saheeh International",
      "note": "Clear modern English, widely used in classes.", "source": "IslamHouse.com",
@@ -86,13 +87,15 @@ QURAN_RESOURCES = [
      "note": "Arabic and English side by side. Also a version for phones.", "source": "QuranEnc.com",
      "pdf": "https://quranenc.com/downloads/pdf/english_rwwad.pdf", "size": "",
      "page": "https://quranenc.com/en/browse/english_rwwad"},
-    {"lang": "Urdu", "native": "اردو", "title": "قرآن کریم مع اردو ترجمہ و تفسیر: مولانا محمد جوناگڑھی، صلاح الدین یوسف",
-     "note": "Urdu translation with short commentary, from the King Fahd Complex.", "source": "IslamHouse.com",
-     "pdf": "https://d1.islamhouse.com/data/ur/ih_books/single/ur_translation_of_the_meaning_of_the_Holy_Quran_in_Urdu.pdf", "size": "36 MB",
-     "page": "https://islamhouse.com/en/books/93/"},
-    {"lang": "Hindi", "native": "हिन्दी", "title": "क़ुरआन मजीद, हिन्दी अनुवाद",
-     "note": "The King Fahd Complex edition. A large file: best downloaded on Wi-Fi.", "source": "King Fahd Complex, via Internet Archive",
-     "pdf": "https://archive.org/download/QuranInTheHindi-KingFahadComplex/Translation%20of%20the%20meanings%20of%20the%20Noble%20Quran%20in%20the%20Hindi%20-%20King%20Fahad%20Complex.pdf", "size": "164 MB",
+    {"lang": "Urdu", "native": "اردو", "title": "قرآن مجید مع اردو ترجمہ: مولانا محمد جوناگڑھی",
+     "note": "Every verse in the Madinah script with its Urdu translation underneath, in clear Nastaliq type that stays sharp at any zoom.",
+     "source": "Nurul Huda Academy edition. Arabic: King Fahd Complex (Uthmanic Hafs v18). Urdu: Tanzil.net",
+     "pdf": "/quran/quran-urdu-junagarhi.pdf", "size": "15 MB", "local": True,
+     "page": "https://quranenc.com/en/browse/urdu_junagarhi"},
+    {"lang": "Hindi", "native": "हिन्दी", "title": "क़ुरआन मजीद, हिन्दी अनुवाद: मौलाना अज़ीज़ुल हक़ उमरी",
+     "note": "Every verse in the Madinah script with its Hindi translation underneath, in clear type that stays sharp at any zoom.",
+     "source": "Nurul Huda Academy edition. Arabic: King Fahd Complex (Uthmanic Hafs v18). Hindi: QuranEnc.com",
+     "pdf": "/quran/quran-hindi-umari.pdf", "size": "10 MB", "local": True,
      "page": "https://quranenc.com/hi/browse/hindi_omari"},
     {"lang": "Malay", "native": "Bahasa Melayu", "title": "Terjemahan Makna Al-Quran Al-Karim ke Bahasa Melayu",
      "note": "The King Fahd Complex edition. A large file: best downloaded on Wi-Fi.", "source": "King Fahd Complex, via Internet Archive",
@@ -111,6 +114,22 @@ QURAN_RESOURCES = [
      "pdf": "https://quranenc.com/downloads/pdf/spanish_garcia.pdf", "size": "",
      "page": "https://quranenc.com/es/browse/spanish_garcia"},
 ]
+# Files from these sites are fetched through our own address (vercel.json rewrites), so the page can show a
+# download percentage. Everything else opens in a new tab.
+DOWNLOAD_PROXY = {"https://quranenc.com/downloads/pdf/": "/dl/quranenc/",
+                  "https://d1.islamhouse.com/data/": "/dl/islamhouse/"}
+
+
+def download_link(url: str) -> tuple[str, bool]:
+    """(address to use, whether it downloads on our page with a percentage)."""
+    if url.startswith("/"):
+        return url, True
+    for prefix, local in DOWNLOAD_PROXY.items():
+        if url.startswith(prefix):
+            return local + url[len(prefix):], True
+    return url, False
+
+
 # Every language, with audio, in one place
 QURAN_ONLINE = [
     {"name": "Quran.com", "url": "https://quran.com", "text": "Read and listen in dozens of languages, on any phone."},
