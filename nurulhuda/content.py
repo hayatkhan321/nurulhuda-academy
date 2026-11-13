@@ -114,6 +114,8 @@ QURAN_RESOURCES = [
      "pdf": "https://quranenc.com/downloads/pdf/spanish_garcia.pdf", "size": "",
      "page": "https://quranenc.com/es/browse/spanish_garcia"},
 ]
+TEACHER_PREFS = ["The same teacher where possible", "To try teachers of the same standard"]
+
 # Files from these sites are fetched through our own address (vercel.json rewrites), so the page can show a
 # download percentage. Everything else opens in a new tab.
 DOWNLOAD_PROXY = {"https://quranenc.com/downloads/pdf/": "/dl/quranenc/",

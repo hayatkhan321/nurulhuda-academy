@@ -1,0 +1,18 @@
+{% extends "base.html" %}
+{% block desc %}See the family dashboard: classes left, weekly and monthly use, attendance, and each child's progress in the Quran, updated after every class.{% endblock %}
+{% block main %}
+{% with head="Your family dashboard", sub="Every family sees this when they sign in: how many classes are left, how each child is doing, and what the teacher worked on. These are example numbers." %}{% include "_page_head.html" %}{% endwith %}
+<section class="section white"><div class="wrap">
+  <p class="demo-banner"><b>Demo.</b> This is an example family with two children. The buttons do nothing here; in your own dashboard they send your rating or your choice to the academy.</p>
+  {% include "_dashboard.html" %}
+  <div class="section-head" style="margin-top:40px"><h2>What you see, and why</h2></div>
+  <ul class="tick-list">
+    <li><b>Classes left and when they run out.</b> Worked out from your usual timetable, with a reminder when 3 classes are left. No surprise charges.</li>
+    <li><b>Classes missed by the teacher are never charged</b>, and they show here so you always know.</li>
+    <li><b>Where each child has reached</b>, in the Qaida or the Quran, written by the teacher after every class, with what they are working on.</li>
+    <li><b>Rate every class.</b> One tap after each class. Only the academy sees ratings; we use them to support and compare our teachers.</li>
+    <li><b>Teacher check-in after 6 classes.</b> Keep your teacher, or try another of the same standard at no charge. If we ever need to change a teacher, we tell you at least 48 hours before, and the new teacher sees your child's notes.</li>
+  </ul>
+  <p style="margin-top:24px"><a class="btn green" href="{{ url_for('site.trial') }}">Book a free trial class</a> <a class="btn outline-dark" href="{{ url_for('site.pricing') }}">See prices</a></p>
+</div></section>
+{% endblock %}

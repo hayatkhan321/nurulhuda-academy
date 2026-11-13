@@ -11,7 +11,7 @@ from flask import Blueprint, Response, abort, redirect, render_template, request
 from nurulhuda import content as C
 from nurulhuda import auth, db, ledger, mail, pricing
 from nurulhuda.ledger import now
-from nurulhuda.models import (ClassSession, CreditEntry, Family, Invoice, Package, Payout, PromoCode, Student, Teacher,
+from nurulhuda.models import (ClassReview, ClassSession, CreditEntry, Family, Invoice, Package, Payout, PromoCode, Student, Teacher, TeacherCheckin,
                               TeacherApplication, TeacherEarning, TrialRequest)
 from nurulhuda.routes import _check_form, _f
 from nurulhuda.timefmt import ZONES, fmt, parse_local, tz
@@ -91,6 +91,7 @@ def family_new():
         if trial:
             trial.status = "converted"
             fam.instruction_language, fam.site_lang = trial.instruction_language, trial.site_lang or "en"
+            fam.teacher_pref = trial.teacher_pref or "same"
         db.session.commit()
         return redirect(url_for("admin.family", fid=fam.id))
     return render_template("admin/family_form.html", title="New family", tab="families", trial=trial)
@@ -276,6 +277,58 @@ def packages():
     return render_template("admin/packages.html", title="Packages and prices", tab="packages", rows=rows, codes=codes,
                            used=used, rules={k: pricing.setting(k) for k in RULE_KEYS}, error=error, P=pricing,
                            floors=pricing.floors())
+
+
+# --- quality: class ratings and teacher comparison ----------------------------------------------------
+@admin_bp.route("/quality", methods=["GET", "POST"])
+@auth.admin_required
+def quality():
+    from datetime import timedelta
+    if request.method == "POST":
+        _check_form()
+        c = db.session.get(TeacherCheckin, _int("checkin_id")) or abort(404)
+        c.handled = True
+        db.session.commit()
+        return redirect(url_for("admin.quality"))
+    days = _int("days") if request.args.get("days") else 90
+    days = days if days in (30, 90, 365) else 90
+    since = now() - timedelta(days=days)
+    reviews = ClassReview.query.filter(ClassReview.created_at >= since).all()
+    classes = ClassSession.query.filter(ClassSession.starts_at >= since, ClassSession.starts_at <= now()).all()
+    checkins = TeacherCheckin.query.filter(TeacherCheckin.created_at >= since).all()
+    rows = []
+    for t in Teacher.query.order_by(Teacher.full_name).all():
+        mine = [c for c in classes if c.teacher_id == t.id]
+        rv = [r for r in reviews if r.teacher_id == t.id]
+        ck = [c for c in checkins if c.teacher_id == t.id]
+        done = sum(1 for c in mine if c.status == "completed")
+        t_missed = sum(1 for c in mine if c.status == "teacher_missed")
+        s_missed = sum(1 for c in mine if c.status == "student_missed")
+        with_progress = sum(1 for c in mine if c.status == "completed" and c.prog_book)
+        measured = [c for c in mine if c.status == "completed" and c.t_secs]
+        due = sum((c.minutes or 30) * 60 for c in measured)
+        if not mine and not rv:
+            continue
+        rows.append({"t": t, "done": done, "t_missed": t_missed, "s_missed": s_missed,
+                     "reliability": round(done / (done + t_missed) * 100) if done + t_missed else None,
+                     "avg": round(sum(r.stars for r in rv) / len(rv), 2) if rv else None, "n": len(rv),
+                     "five": round(sum(1 for r in rv if r.stars == 5) / len(rv) * 100) if rv else None,
+                     "rated": round(len(rv) / done * 100) if done else None,
+                     "keep": sum(1 for c in ck if c.choice == "keep"), "change": sum(1 for c in ck if c.choice == "change"),
+                     "reports": round(with_progress / done * 100) if done else None,
+                     "present": min(100, round(sum(c.t_secs for c in measured) / due * 100)) if due else None,
+                     "view": min(100, round(sum(c.t_view_secs for c in measured) / due * 100)) if due else None,
+                     "cam": min(100, round(sum(c.t_cam_secs for c in measured) / due * 100)) if due else None})
+    rows.sort(key=lambda r: (r["avg"] is None, -(r["avg"] or 0), -r["n"]))
+    overall = {"avg": round(sum(r.stars for r in reviews) / len(reviews), 2) if reviews else None, "n": len(reviews),
+               "happy": round(sum(1 for r in reviews if r.stars >= 4) / len(reviews) * 100) if reviews else None,
+               "dist": [sum(1 for r in reviews if r.stars == n) for n in range(5, 0, -1)],
+               "keep": sum(1 for c in checkins if c.choice == "keep"), "change": sum(1 for c in checkins if c.choice == "change")}
+    open_changes = TeacherCheckin.query.filter_by(choice="change", handled=False).order_by(TeacherCheckin.created_at).all()
+    comments = (ClassReview.query.filter(ClassReview.comment.isnot(None), ClassReview.comment != "")
+                .order_by(ClassReview.created_at.desc()).limit(30).all())
+    return render_template("admin/quality.html", title="Quality", tab="quality", rows=rows, overall=overall,
+                           open_changes=open_changes, comments=comments, days=days)
 
 
 # --- payments -------------------------------------------------------------------------------------

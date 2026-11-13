@@ -25,6 +25,7 @@ class TrialRequest(db.Model):
     notes = db.Column(db.Text)
     status = db.Column(db.String(20), default="new", nullable=False)
     instruction_language = db.Column(db.String(40))
+    teacher_pref = db.Column(db.String(10))                             # same / open
     language_profile = db.Column(db.Text)                               # e.g. "Urdu (Native); English (Fluent)"
     english_level = db.Column(db.String(20))
     urdu_level = db.Column(db.String(20))
@@ -89,6 +90,8 @@ class Family(db.Model):
     notes = db.Column(db.Text)
     instruction_language = db.Column(db.String(40))
     site_lang = db.Column(db.String(5), default="en")
+    # "same": keep the same teacher where possible; "open": happy to try teachers of the same standard
+    teacher_pref = db.Column(db.String(10), default="same")
     students = db.relationship("Student", backref="family", lazy=True, order_by="Student.id")
 
 
@@ -160,6 +163,35 @@ class PromoCode(db.Model):
     note = db.Column(db.String(200))
 
 
+class ClassReview(db.Model):
+    """The family's rating of one class, given after it ends."""
+    __tablename__ = "class_reviews"
+    id = db.Column(db.Integer, primary_key=True)
+    created_at = db.Column(db.DateTime(timezone=True), default=_now, nullable=False)
+    class_id = db.Column(db.Integer, db.ForeignKey("class_sessions.id"), nullable=False, unique=True)
+    family_id = db.Column(db.Integer, db.ForeignKey("families.id"), nullable=False, index=True)
+    teacher_id = db.Column(db.Integer, db.ForeignKey("teachers.id"), nullable=False, index=True)
+    student_id = db.Column(db.Integer, db.ForeignKey("students.id"), nullable=False)
+    stars = db.Column(db.Integer, nullable=False)              # 1 to 5
+    comment = db.Column(db.String(1000))
+    teacher = db.relationship("Teacher", lazy="joined")
+    student = db.relationship("Student", lazy="joined")
+
+
+class TeacherCheckin(db.Model):
+    """After a student's sixth class with a teacher, the family says whether to keep the teacher or try another."""
+    __tablename__ = "teacher_checkins"
+    id = db.Column(db.Integer, primary_key=True)
+    created_at = db.Column(db.DateTime(timezone=True), default=_now, nullable=False)
+    student_id = db.Column(db.Integer, db.ForeignKey("students.id"), nullable=False, index=True)
+    teacher_id = db.Column(db.Integer, db.ForeignKey("teachers.id"), nullable=False)
+    choice = db.Column(db.String(10), nullable=False)          # keep / change
+    note = db.Column(db.String(500))
+    handled = db.Column(db.Boolean, default=False, nullable=False)
+    teacher = db.relationship("Teacher", lazy="joined")
+    student = db.relationship("Student", lazy="joined")
+
+
 class Invoice(db.Model):
     """What a family has been asked to pay. Classes are added only when the academy confirms the money arrived."""
     __tablename__ = "invoices"
@@ -220,6 +252,22 @@ class ClassSession(db.Model):
     flagged_at = db.Column(db.DateTime(timezone=True))
     flag_reason = db.Column(db.Text)
     flag_resolution = db.Column(db.String(200))
+    # Progress, written by the teacher when marking the class (shown on the family's dashboard).
+    prog_book = db.Column(db.String(10))        # "qaida" or "quran"
+    prog_surah = db.Column(db.Integer)          # where the class stopped (Quran)
+    prog_verse = db.Column(db.Integer)
+    prog_lesson = db.Column(db.Integer)         # where the class stopped (Qaida lesson number)
+    prog_focus = db.Column(db.String(120))      # what the student is working on, e.g. "ikhfa, madd"
+    # Presence, counted in seconds from the classroom every 30 seconds (t_ = teacher, s_ = student's device).
+    t_secs = db.Column(db.Integer, default=0, nullable=False)        # in the call
+    t_view_secs = db.Column(db.Integer, default=0, nullable=False)   # class window in view (not another tab or app)
+    t_cam_secs = db.Column(db.Integer, default=0, nullable=False)    # camera on
+    t_marks = db.Column(db.Integer, default=0, nullable=False)       # marks made on the lesson board
+    t_beat_at = db.Column(db.DateTime(timezone=True))
+    s_secs = db.Column(db.Integer, default=0, nullable=False)
+    s_view_secs = db.Column(db.Integer, default=0, nullable=False)
+    s_cam_secs = db.Column(db.Integer, default=0, nullable=False)
+    s_beat_at = db.Column(db.DateTime(timezone=True))
     student = db.relationship("Student", lazy="joined")
     teacher = db.relationship("Teacher", lazy="joined")
 

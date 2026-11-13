@@ -23,6 +23,8 @@
         {{ select('teacher_gender', 'Teacher', ['Female teacher', 'Male teacher', 'No preference']) }}
       </div>
       {{ select('instruction_language', 'Which language should the teacher explain in?', C.INSTRUCTION_LANGS) }}
+      {{ select('teacher_pref', 'After the trial, would you like', C.TEACHER_PREFS) }}
+      <p class="small" style="margin-top:-6px">We try to keep the same teacher, but timings and time zones sometimes need a change. After 6 classes you can keep your teacher or try another of the same standard, at no charge, and we never change a teacher without telling you first.</p>
       {{ language_block("Languages your child speaks") }}
       {{ field('preferred_times', 'Days and times that suit you', hint='e.g. weekdays after 5 pm Toronto time') }}
       <div class="field">

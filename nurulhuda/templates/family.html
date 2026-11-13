@@ -6,10 +6,16 @@
   <p><a class="btn gold sm" href="{{ url_for('site.resources') }}" target="_blank" rel="noopener">Resources: Quran by juz, Qaida, duas</a></p>
 </div></section>
 <section class="section white"><div class="wrap">
-  <div class="stats">
-    <div class="stat"><b>{{ balance }}</b><span>classes remaining</span></div>
-    {% for s in family.students %}<div class="stat"><b>{{ s.first_name }}</b><span>{{ s.course or 'Course to be set' }}{% if s.level %}, {{ s.level }}{% endif %}</span></div>{% endfor %}
-  </div>
+  <div id="dashboard">{% include "_dashboard.html" %}</div>
+  <form class="small" method="post" action="{{ url_for('portal.teacher_pref') }}" style="margin-top:14px;display:flex;gap:8px;align-items:center;flex-wrap:wrap">
+    <input type="hidden" name="csrf" value="{{ csrf }}">
+    <label for="pref">Teacher preference:</label>
+    <select id="pref" name="pref" onchange="this.form.submit()">
+      <option value="same"{% if family.teacher_pref != 'open' %} selected{% endif %}>Keep the same teacher where possible</option>
+      <option value="open"{% if family.teacher_pref == 'open' %} selected{% endif %}>Happy to try teachers of the same standard</option>
+    </select>
+    <noscript><button class="btn sm outline-dark" type="submit">Save</button></noscript>
+  </form>
   {% if balance <= 2 %}<p class="alert" style="background:#fff4df;color:var(--ink)">{% if balance <= 0 %}You have no classes left.{% else %}Only {{ balance }} class{{ 'es' if balance != 1 }} left.{% endif %} <a href="{{ url_for('portal.pay') }}">Pay for more classes</a> to continue.</p>{% endif %}
   <p style="margin-top:16px"><a class="btn green sm" href="{{ url_for('portal.pay') }}">Pay for classes</a></p>
   {% if invoices %}
@@ -34,6 +40,7 @@
   <div class="class-note">
     <p><b>{{ fmt_time(c.starts_at, family.timezone) }}</b>: {{ c.student.first_name }} with {{ c.teacher.full_name }}. <span class="status s-{{ c.status }}">{{ STATUS_LABELS[c.status] }}</span></p>
     {% if c.teacher_note %}<p class="small">Teacher's note: {{ c.teacher_note }}</p>{% endif %}
+    {% set pr = presence_of(c) %}{% if pr %}<p class="small">Teacher in class {{ pr.teacher.in }} of {{ pr.length }} min (window in view {{ pr.teacher.view }}, camera {{ pr.teacher.cam }}) · {{ c.student.first_name }} in class {{ pr.student.in }} min (in view {{ pr.student.view }}, camera {{ pr.student.cam }})</p>{% endif %}
     {% if c.flagged_at %}<p class="small">You reported a problem{% if c.flag_resolution %}; it has been resolved{% else %}; we are looking into it{% endif %}.</p>
     {% elif can_flag(c) %}
     <details class="report"><summary>Report a problem with this class</summary>

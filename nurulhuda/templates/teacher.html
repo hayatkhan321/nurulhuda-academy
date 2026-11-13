@@ -19,7 +19,22 @@
   <form class="class-note" method="post" action="{{ url_for('portal.mark', cid=c.id) }}">
     <input type="hidden" name="csrf" value="{{ csrf }}">
     <p><b>{{ fmt_time(c.starts_at, teacher.timezone) }}</b>: {{ c.student.first_name }} ({{ c.student.course or 'course not set' }})</p>
+    {% set lp = last_prog.get(c.student_id) %}
     <div class="field"><label for="n{{ c.id }}">What did you cover?</label><textarea id="n{{ c.id }}" name="note" placeholder="e.g. Qaida lesson 6, letters with fatha; revised lesson 5."></textarea></div>
+    <p class="small" style="margin:6px 0 0"><b>Where did you stop?</b> Parents see this as a progress bar.</p>
+    <div class="prog-fields">
+      <div class="field"><label for="b{{ c.id }}">Book</label><select id="b{{ c.id }}" name="book">
+        <option value="quran"{% if not lp or lp.prog_book == 'quran' %} selected{% endif %}>Quran</option>
+        <option value="qaida"{% if lp and lp.prog_book == 'qaida' %} selected{% endif %}>Noorani Qaida</option>
+        <option value="">Not this time</option></select></div>
+      <div class="field"><label for="s{{ c.id }}">Surah (Quran)</label><select id="s{{ c.id }}" name="surah"><option value="">Choose</option>
+        {% for nm in SURAHS %}<option value="{{ loop.index }}"{% if lp and lp.prog_surah == loop.index %} selected{% endif %}>{{ loop.index }}. {{ nm }}</option>{% endfor %}</select></div>
+      <div class="field"><label for="v{{ c.id }}">Verse</label><input id="v{{ c.id }}" name="verse" type="number" min="1" max="286" value="{{ lp.prog_verse if lp and lp.prog_verse else '' }}"></div>
+    </div>
+    <div class="prog-fields">
+      <div class="field"><label for="l{{ c.id }}">Qaida lesson</label><input id="l{{ c.id }}" name="lesson" type="number" min="1" max="{{ QAIDA }}" value="{{ lp.prog_lesson if lp and lp.prog_lesson else '' }}"></div>
+      <div class="field" style="grid-column: span 2"><label for="f{{ c.id }}">Working on</label><input id="f{{ c.id }}" name="focus" maxlength="120" placeholder="e.g. ikhfa, madd, letters with kasra" value="{{ lp.prog_focus if lp and lp.prog_focus else '' }}"></div>
+    </div>
     <div class="choices">
       <button class="btn green sm" name="status" value="completed" type="submit">Class completed</button>
       <button class="btn sm outline-dark" name="status" value="student_missed" type="submit">Student did not come</button>

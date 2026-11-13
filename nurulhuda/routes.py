@@ -13,7 +13,7 @@ site_bp = Blueprint("site", __name__)
 
 PAGES = ["site.home", "site.courses", "site.families", "site.trial", "site.teach", "site.about", "site.videos",
          "site.contact", "site.terms", "site.vision", "site.islam", "site.app",
-         "site.resources", "site.why_quran", "site.pricing"]
+         "site.resources", "site.why_quran", "site.pricing", "site.dashboard_demo"]
 
 
 @site_bp.app_context_processor
@@ -146,6 +146,7 @@ def trial():
                              student_age=_f("student_age", 20), course=_f("course", 60),
                              teacher_gender=_f("teacher_gender", 20), preferred_times=_f("preferred_times"),
                              notes=_f("notes", 2000), instruction_language=_f("instruction_language", 40),
+                             teacher_pref="open" if _f("teacher_pref", 60).startswith("To try") else "same",
                              **_languages())
             if not _save(t):
                 return _save_failed("trial.html", "families", "Book a free trial class", form)
@@ -324,6 +325,13 @@ def sitemap():
 @site_bp.route("/resources")
 def resources():
     return render_template("resources.html", page="resources", title="Resources")
+
+
+@site_bp.route("/families/dashboard")
+def dashboard_demo():
+    """A demo of the family dashboard with example numbers, so parents can see it before joining."""
+    from nurulhuda import dashboard
+    return render_template("dashboard_demo.html", page="families", title="Family dashboard demo", D=dashboard.demo_dashboard())
 
 
 @site_bp.route("/board")

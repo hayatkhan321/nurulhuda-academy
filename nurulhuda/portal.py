@@ -4,9 +4,9 @@ from datetime import timedelta
 
 from flask import Blueprint, abort, current_app, jsonify, redirect, render_template, request, url_for
 
-from nurulhuda import auth, db, ledger, mail, pricing, video
+from nurulhuda import auth, dashboard, db, ledger, mail, pricing, quran_index, video
 from nurulhuda.ledger import STATUS_LABELS, aware, now
-from nurulhuda.models import ClassSession, CreditEntry, Invoice, Student, TeacherEarning
+from nurulhuda.models import ClassReview, ClassSession, CreditEntry, Invoice, Student, Teacher, TeacherCheckin, TeacherEarning
 from nurulhuda.routes import _check_form, _f, calculator_input, guess_currency
 from nurulhuda.i18n import tr
 from nurulhuda.timefmt import ZONE_NAMES, fmt
@@ -86,7 +86,65 @@ def family_home(family):
                 .order_by(Invoice.created_at.desc()).limit(10).all())
     return render_template("family.html", title="My classes", family=family, upcoming=upcoming, past=past,
                            balance=ledger.balance(family.id), entries=entries, can_flag=ledger.can_flag,
-                           joinable=_joinable, invoices=invoices, P=pricing)
+                           joinable=_joinable, invoices=invoices, P=pricing, D=dashboard.family_dashboard(family),
+                           presence_of=dashboard.presence_of)
+
+
+@portal_bp.route("/my/class/<int:cid>/review", methods=["POST"])
+@auth.login_required("family")
+def review(family, cid):
+    """The family rates a class (1 to 5 stars), once."""
+    _check_form()
+    cs = db.session.get(ClassSession, cid) or abort(404)
+    if cs.student.family_id != family.id or cs.status != "completed":
+        abort(403)
+    try:
+        stars = int(request.form.get("stars", 0))
+    except ValueError:
+        stars = 0
+    if 1 <= stars <= 5 and not ClassReview.query.filter_by(class_id=cs.id).first():
+        db.session.add(ClassReview(class_id=cs.id, family_id=family.id, teacher_id=cs.teacher_id,
+                                   student_id=cs.student_id, stars=stars, comment=_f("comment", 1000)))
+        db.session.commit()
+        if stars <= 2:
+            mail.send_email(current_app.config.get("NOTIFY_EMAIL"), f"Low rating: {stars} star(s) for {cs.teacher.full_name}",
+                            f"<p>{html.escape(family.parent_name)} rated {html.escape(cs.student.first_name)}'s class on "
+                            f"{fmt(cs.starts_at, 'Asia/Dubai')} with {html.escape(cs.teacher.full_name)}: <b>{stars} of 5</b>.</p>"
+                            f"<p>{html.escape(_f('comment', 1000) or 'No comment.')}</p><p>See Admin > Quality.</p>")
+    return redirect(url_for("portal.family_home") + "#dashboard")
+
+
+@portal_bp.route("/my/checkin", methods=["POST"])
+@auth.login_required("family")
+def checkin(family):
+    """After six classes: keep this teacher, or try another of the same standard."""
+    _check_form()
+    student = db.session.get(Student, request.form.get("student_id", type=int) or 0)
+    teacher = db.session.get(Teacher, request.form.get("teacher_id", type=int) or 0)
+    choice = request.form.get("choice")
+    if not student or student.family_id != family.id or not teacher or choice not in ("keep", "change"):
+        abort(400)
+    if not TeacherCheckin.query.filter_by(student_id=student.id, teacher_id=teacher.id).first():
+        db.session.add(TeacherCheckin(student_id=student.id, teacher_id=teacher.id, choice=choice, note=_f("note", 500),
+                                      handled=(choice == "keep")))
+        db.session.commit()
+        if choice == "change":
+            mail.send_email(current_app.config.get("NOTIFY_EMAIL"), f"Teacher change requested: {student.first_name}",
+                            f"<p>{html.escape(family.parent_name)} would like {html.escape(student.first_name)} to try another "
+                            f"teacher instead of {html.escape(teacher.full_name)}.</p><p>Note: {html.escape(_f('note', 500) or '-')}</p>"
+                            "<p>Please arrange a teacher of the same standard and tell the family at least 48 hours before the "
+                            "first class with the new teacher. Mark it done in Admin > Quality.</p>")
+    return redirect(url_for("portal.family_home") + "#dashboard")
+
+
+@portal_bp.route("/my/teacher-preference", methods=["POST"])
+@auth.login_required("family")
+def teacher_pref(family):
+    _check_form()
+    if request.form.get("pref") in ("same", "open"):
+        family.teacher_pref = request.form["pref"]
+        db.session.commit()
+    return redirect(url_for("portal.family_home") + "#dashboard")
 
 
 # --- paying for classes --------------------------------------------------------------------------
@@ -181,8 +239,12 @@ def teacher_home(teacher):
     owed = sum((e.amount for e in earn.filter_by(status="owed")), 0)
     held = sum((e.amount for e in earn.filter_by(status="held")), 0)
     paid = sum((e.amount for e in earn.filter_by(status="paid")), 0)
+    last_prog = {}
+    for c in ClassSession.query.filter(ClassSession.teacher_id == teacher.id, ClassSession.prog_book.isnot(None)).order_by(ClassSession.starts_at):
+        last_prog[c.student_id] = c
     return render_template("teacher.html", title="My teaching", teacher=teacher, upcoming=upcoming, to_mark=to_mark,
-                           past=past, owed=owed, held=held, paid=paid, joinable=_joinable)
+                           past=past, owed=owed, held=held, paid=paid, joinable=_joinable, last_prog=last_prog,
+                           SURAHS=quran_index.NAMES, QAIDA=dashboard.QAIDA_LESSONS)
 
 
 @portal_bp.route("/teacher/class/<int:cid>/mark", methods=["POST"])
@@ -195,6 +257,15 @@ def mark(teacher, cid):
     status = request.form.get("status")
     if status in ("completed", "student_missed"):
         ledger.set_status(cs, status, _f("note", 2000))
+        if status == "completed":
+            book = request.form.get("book")
+            num = lambda k: request.form.get(k, type=int)
+            if book == "quran" and num("surah") and 1 <= num("surah") <= 114:
+                cs.prog_book, cs.prog_surah = "quran", num("surah")
+                cs.prog_verse = max(1, min(quran_index.VERSES[cs.prog_surah - 1], num("verse") or 1))
+            elif book == "qaida" and num("lesson"):
+                cs.prog_book, cs.prog_lesson = "qaida", max(1, min(dashboard.QAIDA_LESSONS, num("lesson")))
+            cs.prog_focus = _f("focus", 120)
         db.session.commit()
     return redirect(url_for("portal.teacher_home"))
 
@@ -239,6 +310,40 @@ def room(cid):
         current_app.logger.exception("Classroom could not open for class %s", cs.id)
         return render_template("room.html", title="Classroom", cs=cs, role=role, state="error"), 503
     return render_template("room.html", title="Classroom", cs=cs, role=role, state="open", url=url, token=tok)
+
+
+@portal_bp.route("/class/<int:cid>/beat", methods=["POST"])
+def beat(cid):
+    """Every 30 seconds the classroom says: still in the call, window in view or not, camera on or not.
+    Time is added from the previous beat (at most 40 seconds), only around the class's own time."""
+    from flask import session
+    if request.headers.get("X-CSRF") != session.get("csrf"):
+        abort(400)
+    cs = db.session.get(ClassSession, cid) or abort(404)
+    role, _ = _who_for(cs)
+    if role not in ("teacher", "student"):
+        return jsonify(ok=True)
+    start = aware(cs.starts_at)
+    t = now()
+    if not (start - timedelta(minutes=15) <= t <= start + timedelta(minutes=(cs.minutes or 30) + 30)):
+        return jsonify(ok=True)
+    d = request.get_json(silent=True) or {}
+    p = "t_" if role == "teacher" else "s_"
+    last = getattr(cs, p + "beat_at")
+    secs = 0
+    if last is not None:
+        secs = int(max(0, min(40, (t - aware(last)).total_seconds())))
+    setattr(cs, p + "beat_at", t)
+    if secs:
+        setattr(cs, p + "secs", (getattr(cs, p + "secs") or 0) + secs)
+        if d.get("view"):
+            setattr(cs, p + "view_secs", (getattr(cs, p + "view_secs") or 0) + secs)
+        if d.get("cam"):
+            setattr(cs, p + "cam_secs", (getattr(cs, p + "cam_secs") or 0) + secs)
+    if role == "teacher":
+        cs.t_marks = (cs.t_marks or 0) + max(0, min(500, int(d.get("marks") or 0)))
+    db.session.commit()
+    return jsonify(ok=True)
 
 
 @portal_bp.route("/class/<int:cid>/joined", methods=["POST"])

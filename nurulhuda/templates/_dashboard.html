@@ -1,0 +1,84 @@
+{# Family dashboard. Needs D (from dashboard.py). D.demo = the public demo: buttons do nothing. #}
+<div class="dash">
+  {% if D.checkins %}{% for k in D.checkins %}
+  <form class="dash-card dash-checkin" method="post" action="{{ url_for('portal.checkin') if not D.demo else '#' }}">
+    {% if not D.demo %}<input type="hidden" name="csrf" value="{{ csrf }}"><input type="hidden" name="student_id" value="{{ k.student_id }}"><input type="hidden" name="teacher_id" value="{{ k.teacher_id }}">{% endif %}
+    <p class="dash-label">Teacher check-in</p>
+    <p><b>{{ k.student }} has had {{ k.count }} classes with {{ k.teacher }}.</b> Would you like to keep this teacher, or try another teacher of the same standard? There's no charge either way.</p>
+    <div class="field"><label for="ck{{ loop.index }}">Anything we should know? (optional)</label><input id="ck{{ loop.index }}" name="note" maxlength="500"></div>
+    <div class="choices"><button class="btn green sm" name="choice" value="keep" type="{{ 'button' if D.demo else 'submit' }}">Keep {{ k.teacher }}</button>
+      <button class="btn sm outline-dark" name="choice" value="change" type="{{ 'button' if D.demo else 'submit' }}">Try another teacher</button></div>
+  </form>
+  {% endfor %}{% endif %}
+
+  {% for r in D.to_review %}
+  <form class="dash-card dash-review" method="post" action="{{ url_for('portal.review', cid=r.id) if not D.demo else '#' }}">
+    {% if not D.demo %}<input type="hidden" name="csrf" value="{{ csrf }}">{% endif %}
+    <p class="dash-label">Rate the class</p>
+    <p><b>How was {{ r.student }}'s class with {{ r.teacher }} on {{ r.when }}?</b></p>
+    <fieldset class="stars"><legend class="sr-only">Stars</legend>
+      {% for n in range(5, 0, -1) %}<input type="radio" id="st{{ r.id }}-{{ n }}" name="stars" value="{{ n }}" required><label for="st{{ r.id }}-{{ n }}" title="{{ n }} star{{ 's' if n > 1 }}">★</label>{% endfor %}
+    </fieldset>
+    <div class="field"><label for="rc{{ r.id }}">A word for the academy (optional, only we see it)</label><input id="rc{{ r.id }}" name="comment" maxlength="1000"></div>
+    <button class="btn green sm" type="{{ 'button' if D.demo else 'submit' }}">Send rating</button>
+  </form>
+  {% endfor %}
+
+  <div class="dash-card">
+    <div class="dash-row"><p class="dash-label">Classes left</p>{% if D.bought_on %}<p class="small">Last paid {{ D.bought_on }}</p>{% endif %}</div>
+    <p class="dash-big"><!--nt-->{{ D.balance }}<!--/nt--> <span>of {{ D.tank }} classes</span></p>
+    <div class="meter"><span style="width: {{ D.pct_left }}%"{% if D.balance <= 3 %} class="low"{% endif %}></span></div>
+    <p class="small dash-foot">{% if D.runout %}At your usual {{ D.per_week|round(1)|string|replace('.0','') }} classes a week, these last until about {{ D.runout }}. We'll remind you when 3 classes are left.{% elif D.balance > 0 %}Your forecast appears once classes are on the timetable.{% else %}No classes left.{% endif %}
+      {% if not D.demo %} <a href="{{ url_for('portal.pay') }}">Pay for more classes</a>{% endif %}</p>
+  </div>
+
+  <div class="dash-grid">
+    <div class="dash-tile"><p class="dash-label">This week</p><p class="dash-mid">{{ D.week.done }} of {{ D.week.plan }} <span>classes</span></p>
+      <div class="meter thin"><span style="width: {{ (D.week.done / D.week.plan * 100)|round|int if D.week.plan else 0 }}%"></span></div>
+      <p class="small">{% if D.next %}Next: {{ D.next }}{% else %}No more classes this week{% endif %}</p></div>
+    <div class="dash-tile"><p class="dash-label">This month</p><p class="dash-mid">{{ D.month.done }} of {{ D.month.plan }} <span>classes</span></p>
+      <div class="meter thin"><span style="width: {{ (D.month.done / D.month.plan * 100)|round|int if D.month.plan else 0 }}%"></span></div>
+      <p class="small">{% if D.month.teacher_missed %}{{ D.month.teacher_missed }} missed by the teacher, not charged{% else %}All classes on time{% endif %}</p></div>
+    <div class="dash-tile"><p class="dash-label">Attendance, last 8 weeks</p>
+      <div class="bars" role="img" aria-label="Classes attended each week for 8 weeks">{% for w in D.weeks %}<span style="height: {{ [w.h, 4]|max if w.due else 4 }}%" title="Week of {{ w.label }}: {{ w.came }} of {{ w.due }}"{% if not w.due %} class="none"{% endif %}></span>{% endfor %}</div>
+      <p class="small">{% if D.attendance is not none %}{{ D.attendance }}% of classes attended{% else %}Starts with the first class{% endif %}</p></div>
+  </div>
+
+  <div class="dash-card">
+    <div class="dash-row"><p class="dash-label">Class time, measured</p>{% if D.presence %}<p class="small">Last 4 weeks · {{ D.presence.classes }} classes</p>{% endif %}</div>
+    {% if D.presence %}
+    <div class="dash-grid presence">
+      <div><p class="dash-mid">{{ D.presence.teacher }}%</p><p class="small">of class time the teacher was in the class</p></div>
+      <div><p class="dash-mid">{{ D.presence.view }}%</p><p class="small">with the class window in view on the teacher's screen</p></div>
+      <div><p class="dash-mid">{{ D.presence.student }}%</p><p class="small">of class time your child was in the class</p></div>
+    </div>
+    {% endif %}
+    {% if D.last_class %}{% set p = D.last_class.p %}
+    <p class="small" style="margin-top:10px"><b>Last class:</b> {{ D.last_class.when }}</p>
+    <div class="table-wrap"><table class="data presence-table">
+      <tr><th></th><th>In the class</th><th>Class window in view</th><th>Camera on</th></tr>
+      <tr><td>Teacher</td><td>{{ p.teacher.in }} of {{ p.length }} min</td><td>{{ p.teacher.view }} min</td><td>{{ p.teacher.cam }} min</td></tr>
+      <tr><td>Student</td><td>{{ p.student.in }} of {{ p.length }} min</td><td>{{ p.student.view }} min</td><td>{{ p.student.cam }} min</td></tr>
+    </table></div>
+    {% if p.teacher.marks %}<p class="small">The teacher made {{ p.teacher.marks }} marks on the lesson board.</p>{% endif %}
+    {% endif %}
+    {% if not D.presence and not D.last_class %}<p class="small">Measured automatically in every class from your first one: minutes in the class, minutes the class window was on screen, and minutes with the camera on, for the teacher and your child. No video is recorded or analysed.</p>
+    {% else %}<p class="small dash-meta">Measured by the classroom every 30 seconds. "In view" means the class was the open window, not another tab or app. No video is recorded or analysed.</p>{% endif %}
+  </div>
+
+  <div class="dash-kids">
+    {% for c in D.children %}
+    <div class="dash-card">
+      <div class="dash-kid"><span class="dash-avatar">{{ c.name[:1] }}</span><div><p><b>{{ c.name }}{% if c.age %}, {{ c.age }}{% endif %}</b></p><p class="small">{{ c.course }}{% if c.teacher %} · {{ c.teacher }}{% endif %}</p></div></div>
+      {% if c.progress %}
+      <p class="small dash-where">Reached <b>{{ c.progress.where }}</b></p>
+      <div class="meter thin violet"><span style="width: {{ [c.progress.pct, 2]|max }}%"></span></div>
+      <p class="small">{{ c.progress.sub }}</p>
+      {% else %}<p class="small">Progress appears after the teacher's first class report.</p>{% endif %}
+      {% if c.focus %}<p class="small"><b>Working on:</b> {{ c.focus }}</p>{% endif %}
+      {% if c.note %}<p class="small"><b>Last note:</b> {{ c.note }}</p>{% endif %}
+      <p class="small dash-meta">{{ c.classes }} class{{ 'es' if c.classes != 1 }} so far{% if c.next %} · next {{ c.next }}{% endif %}</p>
+    </div>
+    {% endfor %}
+  </div>
+</div>

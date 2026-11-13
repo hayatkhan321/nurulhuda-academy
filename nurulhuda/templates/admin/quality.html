@@ -1,0 +1,51 @@
+{% extends "base.html" %}
+{% block main %}{% include "admin/_nav.html" %}
+<section class="section"><div class="wrap">
+  <p class="cur-switch">Period: {% for d in (30, 90, 365) %}<a href="?days={{ d }}"{% if d == days %} aria-current="true"{% endif %}>{{ d }} days</a>{% endfor %}</p>
+  <div class="stats">
+    <div class="stat"><b>{{ overall.avg if overall.avg is not none else '–' }}{% if overall.avg is not none %}<span style="font-size:1rem"> / 5</span>{% endif %}</b><span>average class rating ({{ overall.n }} ratings)</span></div>
+    <div class="stat"><b>{{ (overall.happy|string ~ '%') if overall.happy is not none else '–' }}</b><span>of ratings are 4 or 5 stars</span></div>
+    <div class="stat"><b>{{ overall.keep }} / {{ overall.change }}</b><span>check-ins: kept teacher / asked to try another</span></div>
+  </div>
+  {% if overall.n %}
+  <p class="small" style="margin-top:12px">Ratings: {% for c in overall.dist %}{{ 5 - loop.index0 }}★ {{ c }}{{ ' · ' if not loop.last }}{% endfor %}</p>
+  {% endif %}
+
+  {% if open_changes %}
+  <h2 style="margin-top:32px">Teacher changes to arrange</h2>
+  <p class="small">Arrange a teacher of the same standard and tell the family at least 48 hours before the first class with them.</p>
+  <div class="table-wrap"><table class="data"><tr><th>Asked</th><th>Student</th><th>Current teacher</th><th>Note</th><th></th></tr>
+  {% for c in open_changes %}<tr><td>{{ c.created_at.strftime('%d %b') }}</td><td><a href="{{ url_for('admin.family', fid=c.student.family_id) }}">{{ c.student.first_name }}</a></td><td>{{ c.teacher.full_name }}</td><td>{{ c.note or '' }}</td>
+    <td><form method="post"><input type="hidden" name="csrf" value="{{ csrf }}"><input type="hidden" name="checkin_id" value="{{ c.id }}"><button class="btn green sm" type="submit">Arranged</button></form></td></tr>{% endfor %}
+  </table></div>
+  {% endif %}
+
+  <h2 style="margin-top:32px">Teachers compared</h2>
+  <p class="small">Best rated first. Reliability = classes held out of classes the teacher was due to give. Reports = classes where the teacher recorded where the student stopped. Time in class, in view and camera are shares of the class length, measured by the classroom.</p>
+  {% if rows %}
+  <div class="table-wrap"><table class="data">
+    <tr><th>Teacher</th><th>Average rating</th><th>Ratings</th><th>5 stars</th><th>Classes held</th><th>Teacher absent</th><th>Reliability</th><th>Student absent</th><th>Reports filled</th><th>Time in class / in view / camera</th><th>Check-ins kept / change</th></tr>
+    {% for r in rows %}<tr>
+      <td><a href="{{ url_for('admin.teacher', tid=r.t.id) }}">{{ r.t.full_name }}</a></td>
+      <td>{% if r.avg is not none %}<b>{{ r.avg }}</b> ★{% else %}–{% endif %}</td>
+      <td>{{ r.n }}{% if r.rated is not none %}<br><span class="small">{{ r.rated }}% of classes</span>{% endif %}</td>
+      <td>{{ (r.five|string ~ '%') if r.five is not none else '–' }}</td>
+      <td>{{ r.done }}</td>
+      <td>{% if r.t_missed %}<span style="color:var(--danger)">{{ r.t_missed }}</span>{% else %}0{% endif %}</td>
+      <td>{{ (r.reliability|string ~ '%') if r.reliability is not none else '–' }}</td>
+      <td>{{ r.s_missed }}</td>
+      <td>{{ (r.reports|string ~ '%') if r.reports is not none else '–' }}</td>
+      <td>{% if r.present is not none %}{{ r.present }}% / {{ r.view }}% / {{ r.cam }}%{% else %}–{% endif %}</td>
+      <td>{{ r.keep }} / {% if r.change %}<span style="color:var(--danger)">{{ r.change }}</span>{% else %}0{% endif %}</td>
+    </tr>{% endfor %}
+  </table></div>
+  {% else %}<p>No classes in this period yet.</p>{% endif %}
+
+  <h2 style="margin-top:32px">Latest comments from families</h2>
+  {% if comments %}
+  <div class="table-wrap"><table class="data"><tr><th>Date</th><th>Rating</th><th>Teacher</th><th>Student</th><th>Comment</th></tr>
+  {% for r in comments %}<tr><td>{{ r.created_at.strftime('%d %b') }}</td><td>{{ '★' * r.stars }}</td><td>{{ r.teacher.full_name }}</td><td>{{ r.student.first_name }}</td><td>{{ r.comment }}</td></tr>{% endfor %}
+  </table></div>
+  {% else %}<p>No comments yet.</p>{% endif %}
+</div></section>
+{% endblock %}

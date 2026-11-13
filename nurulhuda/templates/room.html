@@ -43,7 +43,21 @@
   // Lesson board: marks travel as app messages over this call. Messages wait until we have joined.
   var joined = false, queue = [];
   function send(m) { if (joined) { frame.sendAppMessage({ nhb: m }, "*"); } else { queue.push(m); } }
-  var board = window.NHBoard.start(document.getElementById("board"), { role: {{ role|tojson }}, send: send, dataUrl: "/quran/hafs-v18.json" });
+  var marks = 0;
+  var board = window.NHBoard.start(document.getElementById("board"), { role: {{ role|tojson }}, dataUrl: "/quran/hafs-v18.json",
+    send: function (m) { if (m && m.k === "stroke" && !/~/.test(m.s.id)) { marks++; } send(m); } });
+  // Presence: every 30 seconds, tell the academy we're in the call, whether this window is in view, and whether the camera is on.
+  function camOn() {
+    try { var p = frame.participants().local; var v = p.tracks && p.tracks.video; return v ? (v.state === "playable" || v.state === "sendable" || v.state === "loading") : !!p.video; }
+    catch (e) { return false; }
+  }
+  function beatNow() {
+    if (!joined) { return; }
+    var body = JSON.stringify({ view: document.visibilityState === "visible" && document.hasFocus(), cam: camOn(), marks: marks });
+    marks = 0;
+    fetch("{{ url_for('portal.beat', cid=cs.id) }}", { method: "POST", headers: { "X-CSRF": "{{ csrf }}", "Content-Type": "application/json" }, body: body, keepalive: true }).catch(function () {});
+  }
+  setInterval(beatNow, 30000);
   frame.on("app-message", function (e) { if (e && e.data && e.data.nhb) { board.receive(e.data.nhb); } });
   frame.on("participant-joined", function () { if ({{ (role == 'teacher')|tojson }}) { board.sendState(); } });
   var toggle = document.getElementById("board-toggle");
@@ -55,7 +69,7 @@
   };
   frame.on("joined-meeting", function () {
     fetch("{{ url_for('portal.joined', cid=cs.id) }}", { method: "POST", headers: { "X-CSRF": "{{ csrf }}" } });
-    joined = true; queue.splice(0).forEach(send);
+    joined = true; queue.splice(0).forEach(send); beatNow();
     if ({{ (role != 'teacher')|tojson }}) { send({ k: "hello" }); }
   });
   var failed = false;
