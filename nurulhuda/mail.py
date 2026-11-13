@@ -104,3 +104,16 @@ def dawah_emails(d) -> None:
         "one-to-one conversation at a time that suits you. There is no cost and no pressure: ask anything you like.</p>"
         "<p>With warm regards,<br>Nurul Huda Academy</p>",
     )
+
+
+def low_balance_reminder(family, balance: int) -> None:
+    """Sent once, when a family's balance drops to 3 classes (or 1), so classes never stop by surprise."""
+    from flask import url_for
+    if balance not in (3, 1):
+        return
+    link = url_for("portal.pay", _external=True)
+    send_email(family.email, f"{balance} class{'es' if balance != 1 else ''} left for your family",
+               f"<p>Assalamu alaikum {html.escape(family.parent_name)},</p><p>Your family has <b>{balance} class"
+               f"{'es' if balance != 1 else ''} left</b> with Nurul Huda Academy. To keep the same timetable, "
+               f'you can pay for your next month here: <a href="{link}">{link}</a></p>'
+               "<p>Your dashboard shows exactly when your classes will run out. JazakAllahu khairan,<br>Nurul Huda Academy</p>")

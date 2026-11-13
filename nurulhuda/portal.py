@@ -256,6 +256,7 @@ def mark(teacher, cid):
         abort(403)
     status = request.form.get("status")
     if status in ("completed", "student_missed"):
+        before = ledger.balance(cs.student.family_id)
         ledger.set_status(cs, status, _f("note", 2000))
         if status == "completed":
             book = request.form.get("book")
@@ -267,6 +268,9 @@ def mark(teacher, cid):
                 cs.prog_book, cs.prog_lesson = "qaida", max(1, min(dashboard.QAIDA_LESSONS, num("lesson")))
             cs.prog_focus = _f("focus", 120)
         db.session.commit()
+        after = ledger.balance(cs.student.family_id)
+        if after < before:
+            mail.low_balance_reminder(cs.student.family, after)
     return redirect(url_for("portal.teacher_home"))
 
 
