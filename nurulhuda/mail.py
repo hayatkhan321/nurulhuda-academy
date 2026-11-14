@@ -59,9 +59,10 @@ def trial_emails(t) -> None:
             ("City", t.city), ("Student", t.student_name), ("Age", t.student_age), ("Course", t.course),
             ("Teacher", t.teacher_gender), ("Preferred times", t.preferred_times), ("Notes", t.notes)]),
     )
-    from nurulhuda import followup
-    subject, body = followup.confirmation(t)
-    send_email(t.email, subject, body)
+    if t.email:
+        from nurulhuda import followup
+        subject, body = followup.confirmation(t)
+        send_email(t.email, subject, body)
 
 
 def teacher_emails(a, files=None) -> None:

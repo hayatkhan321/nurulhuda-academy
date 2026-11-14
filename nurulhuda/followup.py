@@ -354,7 +354,8 @@ def run(now: datetime | None = None) -> dict:
     now = now or datetime.now(timezone.utc)
     sent = stopped = 0
     rows = (TrialRequest.query.filter(TrialRequest.created_at >= START, TrialRequest.followup_stopped_at.is_(None),
-                                      TrialRequest.followup_step < 3, TrialRequest.status != "closed").all())
+                                      TrialRequest.followup_step < 3, TrialRequest.status != "closed",
+                                      TrialRequest.email.isnot(None)).all())
     for tr in rows:
         if has_paid(tr.email):
             tr.followup_stopped_at, tr.followup_stop_reason = now, "paid"

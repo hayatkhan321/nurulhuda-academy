@@ -1,0 +1,23 @@
+{% extends "base.html" %}
+{% block main %}{% include "admin/_nav.html" %}
+<section class="section"><div class="wrap">
+  <p><a href="{{ url_for('admin.whatsapp_home') }}">← WhatsApp</a></p>
+  <h2>Try Noor</h2>
+  <p class="small">Chat as if you were a parent. Nothing is saved or sent to anyone. Write in any language.</p>
+  {% if error %}<p class="alert">{{ error }}</p>{% endif %}
+  <div class="form-card" style="max-width:760px"><!--nt-->
+    {% for m in hist %}<p style="margin:0 0 12px;{% if m.role == 'assistant' %}text-align:right{% endif %}"><span class="small">{{ 'You' if m.role == 'user' else 'Noor' }}</span><br><span style="display:inline-block;padding:10px 14px;border-radius:14px;max-width:85%;white-space:pre-wrap;background:{{ '#eef4f1' if m.role == 'user' else '#fff6dd' }}">{{ m.content }}</span></p>{% endfor %}
+    {% if not hist %}<p class="small">Try: "Assalamu alaikum, do you have a female teacher for my 7 year old daughter?" or "Fees kitni hai?"</p>{% endif %}
+  <!--/nt--></div>
+  {% if result %}<details class="report" style="margin:12px 0;max-width:760px"><summary>What Noor understood</summary><!--nt-->
+    <p class="small">Free trial ready: <b>{{ 'yes' if result.lead_complete else 'not yet' }}</b> · Hand to a person: <b>{{ 'yes' if result.handover else 'no' }}</b>{% if result.handover_reason %} ({{ result.handover_reason }}){% endif %}</p>
+    <table class="data">{% for k, v in result.lead.items() if v %}<tr><td>{{ k.replace('_', ' ') }}</td><td>{{ v }}</td></tr>{% endfor %}</table><!--/nt--></details>{% endif %}
+  <form method="post" class="form-card" style="max-width:760px;margin-top:16px"><input type="hidden" name="csrf" value="{{ csrf }}">
+    <div class="field"><label for="body">Your message</label><textarea id="body" name="body" rows="2" autofocus></textarea></div>
+    <div class="field"><label for="country">Pretend to message from</label><select id="country" name="country">
+      {% for code, label in [('971','UAE (AED prices)'),('44','UK (GBP)'),('1','USA or Canada (USD)'),('974','Qatar (USD)'),('92','Pakistan (USD)'),('60','Malaysia (USD)')] %}<option value="{{ code }}"{% if code == country %} selected{% endif %}>{{ label }}</option>{% endfor %}</select></div>
+    <button class="btn sm green" name="action" value="send">Send</button>
+    <button class="btn sm outline-dark" name="action" value="reset" formnovalidate>Start again</button>
+  </form>
+</div></section>
+{% endblock %}

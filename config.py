@@ -64,6 +64,11 @@ class Config:
     # Claude as bookkeeping reviewer (https://console.anthropic.com). Without a key, the Books page works without it.
     ANTHROPIC_API_KEY = os.getenv("ANTHROPIC_API_KEY", "").strip()
     ANTHROPIC_MODEL = os.getenv("ANTHROPIC_MODEL", "claude-sonnet-5-5").strip()
+    WHATSAPP_TOKEN = os.getenv("WHATSAPP_TOKEN", "").strip()
+    WHATSAPP_PHONE_ID = os.getenv("WHATSAPP_PHONE_ID", "").strip()
+    WHATSAPP_VERIFY_TOKEN = os.getenv("WHATSAPP_VERIFY_TOKEN", "").strip()
+    WHATSAPP_APP_SECRET = os.getenv("WHATSAPP_APP_SECRET", "").strip()
+    WHATSAPP_API_VERSION = os.getenv("WHATSAPP_API_VERSION", "v23.0").strip()
     # Vercel sends this with its scheduled monthly review (set CRON_SECRET in the website settings).
     CRON_SECRET = os.getenv("CRON_SECRET", "").strip()
 

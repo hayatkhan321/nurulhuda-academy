@@ -1,0 +1,47 @@
+{% extends "base.html" %}
+{% block main %}{% include "admin/_nav.html" %}
+<section class="section"><div class="wrap">
+  {% if msg %}<p class="alert">{{ msg }}</p>{% endif %}
+  <div class="form-card">
+    <h2>Noor, the WhatsApp assistant</h2>
+    <p>Noor answers families on WhatsApp in their own language, collects free-trial details into Sign-ups, and hands the chat to you when needed. It says it is an AI assistant, gives no religious rulings and never takes payments.</p>
+    <p><b>Status: {% if on %}switched ON{% else %}switched OFF{% endif %}</b></p>
+    <form method="post" class="inline-form"><input type="hidden" name="csrf" value="{{ csrf }}">
+      {% if on %}<button class="btn sm outline-dark" name="action" value="off">Switch off</button>
+      {% else %}<button class="btn sm green" name="action" value="on" {% if not (cfg.token and cfg.phone_id and cfg.claude) %}disabled title="Finish the setup first"{% endif %}>Switch on</button>{% endif %}
+      <a class="btn sm green" href="{{ url_for('admin.whatsapp_try') }}">Try Noor here</a>
+    </form>
+    <h3 style="margin-top:24px">Setup</h3>
+    <ul class="tick-list">
+      <li>{{ '✅' if cfg.claude else '⬜' }} Claude key (ANTHROPIC_API_KEY)</li>
+      <li>{{ '✅' if cfg.token else '⬜' }} WhatsApp access token (WHATSAPP_TOKEN)</li>
+      <li>{{ '✅' if cfg.phone_id else '⬜' }} WhatsApp phone number ID (WHATSAPP_PHONE_ID)</li>
+      <li>{{ '✅' if cfg.verify else '⬜' }} Webhook verify word (WHATSAPP_VERIFY_TOKEN)</li>
+      <li>{{ '✅' if cfg.secret else '⬜' }} App secret, so only WhatsApp can send messages here (WHATSAPP_APP_SECRET)</li>
+    </ul>
+    <p class="small">Webhook address to give Meta: <!--nt--><code>{{ webhook }}</code><!--/nt--> (subscribe to <b>messages</b>). Use a number only for the academy: Noor replies to everyone who messages it except muted numbers.</p>
+  </div>
+
+  <form class="form-card" method="post" style="margin-top:24px"><input type="hidden" name="csrf" value="{{ csrf }}"><input type="hidden" name="action" value="mute">
+    <h3>Never answer these numbers</h3>
+    <p class="small">Family, friends, suppliers: Noor stays silent with muted numbers. You can still reply from the WhatsApp Business app.</p>
+    <div class="grid2"><div class="field"><label for="number">Number with country code</label><input id="number" name="number" placeholder="971501234567" inputmode="tel"></div>
+    <div class="field"><label for="label">Who is it (optional)</label><input id="label" name="label"></div></div>
+    <button class="btn sm outline-dark" type="submit">Mute this number</button>
+  </form>
+
+  <h2 style="margin-top:32px">Conversations</h2>
+  {% if contacts %}
+  <div class="table-wrap"><table class="data">
+    <tr><th>Last message</th><th>Contact</th><th>Status</th><th>Free trial</th><th></th></tr>
+    {% for c in contacts %}<tr>
+      <td>{{ c.last_at.strftime('%d %b %H:%M') if c.last_at else '' }}</td>
+      <td><!--nt-->{{ c.profile_name or '' }}<br><span class="small">+{{ c.wa_id }}</span><!--/nt--></td>
+      <td>{% if c.status == 'human' %}<b>Needs you</b>{% elif c.status == 'muted' %}Muted{% else %}Noor{% endif %}</td>
+      <td>{% if c.trial_request_id %}Request #{{ c.trial_request_id }}{% endif %}</td>
+      <td><a class="btn sm outline-dark" href="{{ url_for('admin.whatsapp_chat', cid=c.id) }}">Open</a></td>
+    </tr>{% endfor %}
+  </table></div>
+  {% else %}<p>No conversations yet.</p>{% endif %}
+</div></section>
+{% endblock %}

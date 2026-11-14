@@ -905,3 +905,98 @@ def audit_pack():
     db.session.commit()
     return Response(mem.getvalue(), mimetype="application/zip",
                     headers={"Content-Disposition": f"attachment; filename=nurulhuda-audit-pack-{s_d}-to-{e_d}.zip"})
+
+
+# ---------------------------------------------------------------- WhatsApp assistant (Noor)
+@admin_bp.route("/whatsapp", methods=["GET", "POST"])
+@auth.admin_required
+def whatsapp_home():
+    from nurulhuda import whatsapp
+    from nurulhuda.models import WaContact
+    msg = None
+    if request.method == "POST":
+        _check_form()
+        action = request.form.get("action")
+        if action in ("on", "off"):
+            ledger.set_setting("wa_bot_on", "1" if action == "on" else "0")
+            books.log("whatsapp_assistant_" + action, None, None)
+        elif action == "mute":
+            num = "".join(ch for ch in _f("number", 30) if ch.isdigit()).lstrip("0")
+            if len(num) >= 8:
+                c = WaContact.query.filter_by(wa_id=num).first() or WaContact(wa_id=num, status="muted")
+                c.status = "muted"
+                c.profile_name = c.profile_name or (_f("label", 120) or None)
+                db.session.add(c)
+                books.log("whatsapp_number_muted", "wa_contact", None, number_end=num[-4:])
+            else:
+                msg = "Enter the full number with country code, e.g. 971501234567."
+        db.session.commit()
+        if not msg:
+            return redirect(url_for("admin.whatsapp_home"))
+    contacts = WaContact.query.order_by(WaContact.last_at.desc().nullslast()).limit(200).all()
+    return render_template("admin/whatsapp.html", title="WhatsApp", tab="whatsapp", on=whatsapp.is_on(),
+                           cfg=whatsapp.configured(), contacts=contacts, msg=msg,
+                           webhook=current_app_url("site.whatsapp_webhook"))
+
+
+@admin_bp.route("/whatsapp/<int:cid>", methods=["GET", "POST"])
+@auth.admin_required
+def whatsapp_chat(cid):
+    from nurulhuda import whatsapp
+    from nurulhuda.models import WaContact, WaMessage
+    c = db.session.get(WaContact, cid) or abort(404)
+    msg = None
+    if request.method == "POST":
+        _check_form()
+        action = request.form.get("action")
+        if action in ("bot", "human", "muted"):
+            c.status = action
+            c.human_since = now() if action == "human" else None
+            books.log("whatsapp_status_" + action, "wa_contact", c.id)
+            db.session.commit()
+        elif action == "reply":
+            text = (request.form.get("body") or "").strip()[:3000]
+            if text and not whatsapp.staff_reply(c, text):
+                msg = ("Not sent. WhatsApp only allows replies within 24 hours of the family's last message, "
+                       "and the number must be connected. Reply from the WhatsApp Business app instead.")
+        if not msg:
+            return redirect(url_for("admin.whatsapp_chat", cid=c.id))
+    rows = WaMessage.query.filter_by(contact_id=c.id).order_by(WaMessage.id).all()
+    import json as _json
+    return render_template("admin/whatsapp_chat.html", title="WhatsApp", tab="whatsapp", c=c, rows=rows, msg=msg,
+                           lead=_json.loads(c.lead_json or "{}"),
+                           trial=db.session.get(TrialRequest, c.trial_request_id) if c.trial_request_id else None)
+
+
+@admin_bp.route("/whatsapp/try", methods=["GET", "POST"])
+@auth.admin_required
+def whatsapp_try():
+    """Chat with Noor here before any number is connected. Nothing is saved or sent."""
+    from flask import session
+    from nurulhuda import whatsapp
+    hist = session.get("noor_try", [])
+    result, error = None, None
+    if request.method == "POST":
+        _check_form()
+        if request.form.get("action") == "reset":
+            session.pop("noor_try", None)
+            return redirect(url_for("admin.whatsapp_try"))
+        text = (request.form.get("body") or "").strip()[:1000]
+        country = _f("country", 6) or "971"
+        if text:
+            hist = hist + [{"role": "user", "content": text}]
+            try:
+                result = whatsapp.try_chat(hist, wa_id=country + "500000000")
+                hist = hist + [{"role": "assistant", "content": result["reply"]}]
+            except Exception as e:  # noqa: BLE001
+                error = ("Noor could not answer: " + ("add ANTHROPIC_API_KEY in Vercel." if "ANTHROPIC" in str(e)
+                                                       else "please try again in a minute."))
+                hist = hist[:-1]
+            session["noor_try"] = hist[-16:]
+    return render_template("admin/whatsapp_try.html", title="WhatsApp", tab="whatsapp", hist=hist, result=result,
+                           error=error, country=request.form.get("country", "971"))
+
+
+def current_app_url(endpoint):
+    from flask import current_app
+    return current_app.config["SITE_URL"].rstrip("/") + url_for(endpoint)

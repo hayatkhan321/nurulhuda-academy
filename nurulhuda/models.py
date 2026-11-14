@@ -13,7 +13,7 @@ class TrialRequest(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     created_at = db.Column(db.DateTime(timezone=True), default=_now, nullable=False)
     parent_name = db.Column(db.String(120), nullable=False)
-    email = db.Column(db.String(200), nullable=False)
+    email = db.Column(db.String(200))                                    # may be empty for WhatsApp requests
     phone = db.Column(db.String(40))
     country = db.Column(db.String(60))
     city = db.Column(db.String(80))
@@ -36,6 +36,7 @@ class TrialRequest(db.Model):
     followup_stopped_at = db.Column(db.DateTime(timezone=True))
     followup_stop_reason = db.Column(db.String(20))                     # paid / family / admin
     followup_token = db.Column(db.String(40), unique=True)              # for the "stop these e-mails" link
+    source = db.Column(db.String(20), default="website")                # website / whatsapp
 
 
 class TeacherApplication(db.Model):
@@ -370,3 +371,28 @@ class AuditLog(db.Model):
     entity = db.Column(db.String(40))
     entity_id = db.Column(db.Integer)
     details = db.Column(db.Text)                                        # JSON
+
+
+class WaContact(db.Model):
+    """Someone who messaged the academy's WhatsApp number (see whatsapp.py)."""
+    __tablename__ = "wa_contacts"
+    id = db.Column(db.Integer, primary_key=True)
+    created_at = db.Column(db.DateTime(timezone=True), default=_now, nullable=False)
+    wa_id = db.Column(db.String(20), nullable=False, unique=True)       # phone number in international form, no +
+    profile_name = db.Column(db.String(120))
+    lang = db.Column(db.String(5))
+    status = db.Column(db.String(10), default="bot", nullable=False)   # bot / human / muted
+    human_since = db.Column(db.DateTime(timezone=True))
+    lead_json = db.Column(db.Text)
+    trial_request_id = db.Column(db.Integer, db.ForeignKey("trial_requests.id"))
+    last_at = db.Column(db.DateTime(timezone=True), default=_now)
+
+
+class WaMessage(db.Model):
+    __tablename__ = "wa_messages"
+    id = db.Column(db.Integer, primary_key=True)
+    created_at = db.Column(db.DateTime(timezone=True), default=_now, nullable=False)
+    contact_id = db.Column(db.Integer, db.ForeignKey("wa_contacts.id"), nullable=False, index=True)
+    direction = db.Column(db.String(6), nullable=False)                 # in / bot / staff
+    body = db.Column(db.Text, nullable=False)
+    wa_message_id = db.Column(db.String(120), unique=True)

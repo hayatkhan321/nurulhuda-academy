@@ -1,0 +1,25 @@
+{% extends "base.html" %}
+{% block main %}{% include "admin/_nav.html" %}
+<section class="section"><div class="wrap">
+  <p><a href="{{ url_for('admin.whatsapp_home') }}">← All conversations</a></p>
+  {% if msg %}<p class="alert">{{ msg }}</p>{% endif %}
+  <h2><!--nt-->{{ c.profile_name or 'WhatsApp contact' }} · +{{ c.wa_id }}<!--/nt--></h2>
+  <form method="post" class="inline-form"><input type="hidden" name="csrf" value="{{ csrf }}">
+    Status: <b>{% if c.status == 'human' %}You are answering{% elif c.status == 'muted' %}Muted{% else %}Noor is answering{% endif %}</b>
+    {% if c.status != 'bot' %}<button class="btn sm green" name="action" value="bot">Give back to Noor</button>{% endif %}
+    {% if c.status != 'human' %}<button class="btn sm outline-dark" name="action" value="human">I'll answer</button>{% endif %}
+    {% if c.status != 'muted' %}<button class="btn sm outline-dark" name="action" value="muted">Mute</button>{% endif %}
+  </form>
+  {% if trial %}<p>Free trial request <b>#{{ trial.id }}</b> created {{ trial.created_at.strftime('%d %b %Y') }}. See <a href="{{ url_for('site.admin') }}">Sign-ups</a>.</p>{% endif %}
+  {% if lead %}<details class="report" style="margin:12px 0"><summary>Details Noor has collected</summary>
+    <table class="data"><!--nt-->{% for k, v in lead.items() %}<tr><td>{{ k.replace('_', ' ') }}</td><td>{{ v }}</td></tr>{% endfor %}<!--/nt--></table></details>{% endif %}
+  <div class="form-card" style="max-width:760px"><!--nt-->
+    {% for r in rows %}<p style="margin:0 0 12px;{% if r.direction != 'in' %}text-align:right{% endif %}"><span class="small">{{ 'Family' if r.direction == 'in' else ('Noor' if r.direction == 'bot' else 'Team') }} · {{ r.created_at.strftime('%d %b %H:%M') }}</span><br><span style="display:inline-block;padding:10px 14px;border-radius:14px;max-width:85%;white-space:pre-wrap;background:{{ '#eef4f1' if r.direction == 'in' else ('#fff6dd' if r.direction == 'bot' else '#e6f0ff') }}">{{ r.body }}</span></p>{% endfor %}
+  <!--/nt--></div>
+  <form method="post" class="form-card" style="max-width:760px;margin-top:16px"><input type="hidden" name="csrf" value="{{ csrf }}"><input type="hidden" name="action" value="reply">
+    <div class="field"><label for="body">Reply as the academy</label><textarea id="body" name="body" rows="3"></textarea></div>
+    <button class="btn sm green" type="submit">Send on WhatsApp</button>
+    <p class="small">Sending a reply does not stop Noor; press "I'll answer" first if you want to take over.</p>
+  </form>
+</div></section>
+{% endblock %}

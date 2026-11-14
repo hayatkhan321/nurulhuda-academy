@@ -333,6 +333,36 @@ def admin_stop_followups(tid):
     return redirect(url_for("site.admin"))
 
 
+@site_bp.route("/whatsapp/webhook", methods=["GET", "POST"])
+def whatsapp_webhook():
+    """WhatsApp Business Cloud API webhook: GET = Meta's verification handshake, POST = incoming messages."""
+    from nurulhuda import whatsapp
+    if request.method == "GET":
+        token = current_app.config.get("WHATSAPP_VERIFY_TOKEN")
+        if token and request.args.get("hub.mode") == "subscribe" and \
+                hmac.compare_digest(request.args.get("hub.verify_token", ""), token):
+            return Response(request.args.get("hub.challenge", ""), mimetype="text/plain")
+        abort(403)
+    raw = request.get_data()
+    if not whatsapp.valid_signature(raw, request.headers.get("X-Hub-Signature-256")):
+        abort(403)
+    try:
+        data = request.get_json(force=True, silent=True) or {}
+        for entry in data.get("entry", []):
+            for change in entry.get("changes", []):
+                value = change.get("value", {})
+                names = {c.get("wa_id"): (c.get("profile") or {}).get("name", "") for c in value.get("contacts", [])}
+                for m in value.get("messages", []):
+                    kind = m.get("type", "text")
+                    text = (m.get("text") or {}).get("body", "") if kind == "text" else ""
+                    if kind == "button":
+                        kind, text = "text", (m.get("button") or {}).get("text", "")
+                    whatsapp.handle_inbound(m.get("from", ""), names.get(m.get("from"), ""), text, m.get("id", ""), kind)
+    except Exception:
+        current_app.logger.exception("WhatsApp webhook failed")
+    return {"ok": True}          # always 200 so WhatsApp does not keep retrying
+
+
 @site_bp.route("/cron/trial-followups")
 def cron_trial_followups():
     """Run by Vercel every morning: sends the follow-up e-mails that are due."""

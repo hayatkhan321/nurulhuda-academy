@@ -66,7 +66,7 @@ PAGE_LANGS = {
 }
 
 # Pages search engines should not list.
-NOINDEX_PREFIXES = ("/admin", "/thanks", "/my", "/teacher", "/class", "/login", "/followups", "/board", "/offline", "/cron")
+NOINDEX_PREFIXES = ("/admin", "/thanks", "/my", "/teacher", "/class", "/login", "/followups", "/board", "/offline", "/cron", "/whatsapp")
 
 OG_LOCALE = {"en": "en_GB", "ur": "ur_PK", "ar": "ar_AE", "hi": "hi_IN", "ms": "ms_MY", "id": "id_ID", "es": "es_ES", "fr": "fr_FR"}
 
