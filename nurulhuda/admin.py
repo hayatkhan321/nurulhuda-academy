@@ -989,8 +989,10 @@ def whatsapp_try():
                 result = whatsapp.try_chat(hist, wa_id=country + "500000000")
                 hist = hist + [{"role": "assistant", "content": result["reply"]}]
             except Exception as e:  # noqa: BLE001
-                error = ("Noor could not answer: " + ("add ANTHROPIC_API_KEY in Vercel." if "ANTHROPIC" in str(e)
-                                                       else "please try again in a minute."))
+                from flask import current_app
+                current_app.logger.exception("Try Noor failed")
+                error = "Noor could not answer: " + ("add ANTHROPIC_API_KEY in Vercel." if "ANTHROPIC_API_KEY" in str(e)
+                                                     else str(e)[:300] or "please try again in a minute.")
                 hist = hist[:-1]
             session["noor_try"] = hist[-16:]
     return render_template("admin/whatsapp_try.html", title="WhatsApp", tab="whatsapp", hist=hist, result=result,

@@ -132,14 +132,22 @@ def ask_claude(currency: str, history: list[dict]) -> dict:
             msgs.append({"role": m["role"], "content": m["content"][:2000]})
     if not msgs or msgs[0]["role"] != "user":
         msgs.insert(0, {"role": "user", "content": "(conversation start)"})
-    msgs.append({"role": "assistant", "content": "{"})
-    body = {"model": current_app.config.get("ANTHROPIC_MODEL", "claude-sonnet-5-5"), "max_tokens": 700,
+    body = {"model": current_app.config.get("ANTHROPIC_MODEL", "claude-sonnet-5-5"), "max_tokens": 900,
             "system": RULES + "\n\n" + facts(currency), "messages": msgs}
     req = urllib.request.Request("https://api.anthropic.com/v1/messages", data=json.dumps(body).encode(), method="POST",
                                  headers={"x-api-key": key, "anthropic-version": "2023-06-01", "content-type": "application/json"})
-    with urllib.request.urlopen(req, timeout=40) as r:
-        data = json.loads(r.read())
-    text = "{" + "".join(b.get("text", "") for b in data.get("content", []) if b.get("type") == "text")
+    try:
+        with urllib.request.urlopen(req, timeout=40) as r:
+            data = json.loads(r.read())
+    except urllib.error.HTTPError as e:
+        detail = e.read()[:400].decode("utf-8", "replace")
+        current_app.logger.error("Claude API error %s for Noor: %s", e.code, detail)
+        try:
+            detail = json.loads(detail).get("error", {}).get("message", detail)
+        except Exception:
+            pass
+        raise RuntimeError(f"Claude API error {e.code}: {detail}") from None
+    text = "".join(b.get("text", "") for b in data.get("content", []) if b.get("type") == "text")
     return parse(text)
 
 
