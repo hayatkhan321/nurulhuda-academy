@@ -234,7 +234,8 @@ table.data th { background: var(--paper); font-weight: 650; white-space: nowrap;
 
 /* footer */
 .site-footer { background: var(--emerald-deep); color: #cfe6dc; padding: 56px 0 32px; font-size: .95rem; }
-.site-footer .cols { display: grid; grid-template-columns: 1.4fr 1fr 1fr; gap: 32px; margin-bottom: 32px; }
+.site-footer .cols { display: grid; grid-template-columns: 1.3fr 1fr 1fr 1fr; gap: 32px; margin-bottom: 32px; }
+@media (max-width: 1100px) { .site-footer .cols { grid-template-columns: 1fr 1fr; } }
 .site-footer h2 { font-size: 1.05rem; color: var(--white); letter-spacing: 0; }
 .site-footer ul { list-style: none; padding: 0; margin: 0; }
 .site-footer li { margin: .4em 0; }
