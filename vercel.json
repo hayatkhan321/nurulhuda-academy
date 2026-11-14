@@ -2,5 +2,8 @@
   "rewrites": [
     { "source": "/dl/quranenc/:file", "destination": "https://quranenc.com/downloads/pdf/:file" },
     { "source": "/dl/islamhouse/:path*", "destination": "https://d1.islamhouse.com/data/:path*" }
+  ],
+  "crons": [
+    { "path": "/cron/books-review", "schedule": "0 5 1 * *" }
   ]
 }

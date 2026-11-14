@@ -233,6 +233,11 @@ class CreditEntry(db.Model):
     package_id = db.Column(db.Integer, db.ForeignKey("packages.id"))
     class_id = db.Column(db.Integer, db.ForeignKey("class_sessions.id"))
     note = db.Column(db.String(300))
+    receipt_no = db.Column(db.String(20), unique=True)                  # RC-2026-0001 for payments, RF-... for refunds
+    aed_rate = db.Column(db.Numeric(14, 6))                             # 1 unit of `currency` in AED, on the day
+    amount_aed = db.Column(db.Numeric(12, 2))
+    reverses_id = db.Column(db.Integer, db.ForeignKey("credit_entries.id"))   # a correction points at what it corrects
+    family_obj = db.relationship("Family", lazy="joined", foreign_keys=[family_id])
 
 
 class ClassSession(db.Model):
@@ -294,6 +299,9 @@ class Payout(db.Model):
     currency = db.Column(db.String(3), nullable=False)
     method = db.Column(db.String(40))
     reference = db.Column(db.String(200))
+    voucher_no = db.Column(db.String(20), unique=True)                  # PV-2026-0001
+    aed_rate = db.Column(db.Numeric(14, 6))
+    amount_aed = db.Column(db.Numeric(12, 2))
 
 
 class Setting(db.Model):
@@ -324,3 +332,35 @@ class Upload(db.Model):
     content_type = db.Column(db.String(100), nullable=False)
     size = db.Column(db.Integer, nullable=False)
     data = db.deferred(db.Column(db.LargeBinary, nullable=False))   # only loaded when the file is downloaded
+
+
+class Expense(db.Model):
+    """Money the academy spends (video, hosting, licence, salaries ...). Never edited: a mistake is reversed."""
+    __tablename__ = "expenses"
+    id = db.Column(db.Integer, primary_key=True)
+    created_at = db.Column(db.DateTime(timezone=True), default=_now, nullable=False)
+    spent_on = db.Column(db.Date, nullable=False)
+    category = db.Column(db.String(40), nullable=False)
+    description = db.Column(db.String(300), nullable=False)
+    payee = db.Column(db.String(120))
+    amount = db.Column(db.Numeric(12, 2), nullable=False)               # negative for a reversal
+    currency = db.Column(db.String(3), nullable=False)
+    aed_rate = db.Column(db.Numeric(14, 6), nullable=False)
+    amount_aed = db.Column(db.Numeric(12, 2), nullable=False)
+    method = db.Column(db.String(40))
+    reference = db.Column(db.String(200))
+    voucher_no = db.Column(db.String(20), unique=True, nullable=False)  # EX-2026-0001
+    reverses_id = db.Column(db.Integer, db.ForeignKey("expenses.id"))
+
+
+class AuditLog(db.Model):
+    """Who did what, and when. Rows are only ever added."""
+    __tablename__ = "audit_log"
+    id = db.Column(db.Integer, primary_key=True)
+    created_at = db.Column(db.DateTime(timezone=True), default=_now, nullable=False, index=True)
+    actor = db.Column(db.String(40), nullable=False)                    # admin / teacher:3 / family:7 / system
+    ip = db.Column(db.String(64))
+    action = db.Column(db.String(60), nullable=False)
+    entity = db.Column(db.String(40))
+    entity_id = db.Column(db.Integer)
+    details = db.Column(db.Text)                                        # JSON

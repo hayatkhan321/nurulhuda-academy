@@ -10,7 +10,8 @@
     <form method="post" class="inline-form">
       <input type="hidden" name="csrf" value="{{ csrf }}"><input type="hidden" name="teacher_id" value="{{ o.t.id }}">
       <select name="method" aria-label="Paid by"><option>Wise</option><option>Payoneer</option><option>Bank transfer</option><option>Other</option></select>
-      <input name="reference" placeholder="Transfer reference">
+      <input name="reference" placeholder="Transfer reference" required>
+      {% if o.currency != 'AED' %}<input name="aed_rate" inputmode="decimal" placeholder="AED rate for {{ o.currency }}" aria-label="AED rate for {{ o.currency }}" value="{{ last_rate(o.currency) or '' }}" required>{% endif %}
       <button class="btn sm green" type="submit">Mark as paid</button>
     </form>
     {% endif %}

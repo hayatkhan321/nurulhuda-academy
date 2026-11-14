@@ -4,7 +4,7 @@ from datetime import timedelta
 
 from flask import Blueprint, abort, current_app, jsonify, redirect, render_template, request, url_for
 
-from nurulhuda import auth, dashboard, db, ledger, mail, pricing, quran_index, video
+from nurulhuda import auth, books, dashboard, db, ledger, mail, pricing, quran_index, video
 from nurulhuda.ledger import STATUS_LABELS, aware, now
 from nurulhuda.models import ClassReview, ClassSession, CreditEntry, Invoice, Student, Teacher, TeacherCheckin, TeacherEarning
 from nurulhuda.routes import _check_form, _f, calculator_input, guess_currency
@@ -217,6 +217,7 @@ def report(family, cid):
     reason = _f("reason", 2000)
     if reason and ledger.can_flag(cs):
         ledger.flag(cs, reason)
+        books.log("problem_reported", "class", cs.id, reason=reason[:300])
         db.session.commit()
         mail.send_email(current_app.config.get("NOTIFY_EMAIL"), f"Problem reported: class #{cs.id} ({cs.teacher.full_name})",
                         f"<p>{html.escape(family.parent_name)} reported a problem with {html.escape(cs.student.first_name)}'s "
@@ -224,6 +225,15 @@ def report(family, cid):
                         f"<p><b>What they said:</b> {html.escape(reason)}</p><p>The teacher's pay for this class is on hold "
                         "until you decide in the admin area (Problems).</p>")
     return redirect(url_for("portal.family_home"))
+
+
+@portal_bp.route("/my/receipt/<int:eid>")
+@auth.login_required("family")
+def receipt(family, eid):
+    e = db.session.get(CreditEntry, eid) or abort(404)
+    if e.family_id != family.id or not e.receipt_no:
+        abort(404)
+    return render_template("receipt.html", e=e, fam=family, business=ledger.get_setting("business_details", ""))
 
 
 # --- teacher ------------------------------------------------------------------------------------
@@ -255,9 +265,10 @@ def mark(teacher, cid):
     if cs.teacher_id != teacher.id or cs.status != "scheduled" or aware(cs.starts_at) > now():
         abort(403)
     status = request.form.get("status")
-    if status in ("completed", "student_missed"):
+    if status in ("completed", "student_missed") and not books.is_closed(cs.starts_at):
         before = ledger.balance(cs.student.family_id)
         ledger.set_status(cs, status, _f("note", 2000))
+        books.log("class_marked", "class", cs.id, status=status)
         if status == "completed":
             book = request.form.get("book")
             num = lambda k: request.form.get(k, type=int)

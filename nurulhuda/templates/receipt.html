@@ -1,0 +1,30 @@
+{% extends "base.html" %}
+{% block main %}
+<section class="section"><div class="wrap">
+  <article class="receipt">
+    <header>
+      <div>{% include "_logo.html" %}</div>
+      <div>
+        <h1>{% if e.kind == 'refund' %}Refund receipt{% elif e.kind == 'reversal' %}Credit note{% else %}Receipt{% endif %}</h1>
+        <p class="receipt-no"><!--nt-->{{ e.receipt_no }}<!--/nt--></p>
+      </div>
+    </header>
+    <div class="receipt-from">
+      <b>Nurul Huda Academy</b>
+      {% if business %}<div class="small" style="white-space:pre-line">{{ business }}</div>{% endif %}
+      <div class="small">info@nurulhudaacademy.org · www.nurulhudaacademy.org</div>
+    </div>
+    <table class="data receipt-table">
+      <tr><th>Date</th><td>{{ e.created_at.strftime('%d %B %Y') }}</td></tr>
+      <tr><th>Received from</th><td><!--nt-->{{ fam.parent_name }}<!--/nt--><br><span class="small"><!--nt-->{{ fam.email }}<!--/nt--></span></td></tr>
+      <tr><th>For</th><td>{{ e.note or 'Classes' }}</td></tr>
+      <tr><th>Classes</th><td>{{ '%+d' % e.classes }}</td></tr>
+      <tr><th>Amount</th><td><b><!--nt-->{{ '{:,.2f}'.format(e.amount|abs) }} {{ e.currency }}<!--/nt--></b>{% if e.amount < 0 %} {{ 'refunded' if e.kind == 'refund' else 'credited' }}{% endif %}</td></tr>
+      {% if e.method %}<tr><th>Paid by</th><td>{{ e.method }}</td></tr>{% endif %}
+      {% if e.reference %}<tr><th>Reference</th><td><!--nt-->{{ e.reference }}<!--/nt--></td></tr>{% endif %}
+    </table>
+    <p class="small">JazakAllahu khairan. Please keep this receipt for your records.</p>
+    <p class="no-print"><button class="btn green" type="button" onclick="window.print()">Print or save as PDF</button></p>
+  </article>
+</div></section>
+{% endblock %}

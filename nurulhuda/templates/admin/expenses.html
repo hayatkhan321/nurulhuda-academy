@@ -1,0 +1,43 @@
+{% extends "base.html" %}
+{% block main %}{% include "admin/_nav.html" %}
+<section class="section"><div class="wrap">
+  {% if error %}<p class="error" role="alert">{{ error }}</p>{% endif %}
+  <p><a href="{{ url_for('admin.books_home') }}">Back to Books</a></p>
+  <form class="form-card" method="post">
+    <input type="hidden" name="csrf" value="{{ csrf }}"><input type="hidden" name="action" value="add">
+    <h2>Record an expense</h2>
+    <div class="grid2">
+      <div class="field"><label for="spent_on">Date on the bill</label><input id="spent_on" name="spent_on" type="date" max="{{ today }}" value="{{ today }}" required></div>
+      <div class="field"><label for="category">Category</label><select id="category" name="category" required>{% for c in categories %}<option>{{ c }}</option>{% endfor %}</select></div>
+      <div class="field"><label for="description">What it was for</label><input id="description" name="description" required placeholder="e.g. Daily video, October minutes"></div>
+      <div class="field"><label for="payee">Paid to</label><input id="payee" name="payee" placeholder="e.g. Daily.co"></div>
+      <div class="field"><label for="amount">Amount</label><input id="amount" name="amount" inputmode="decimal" required></div>
+      <div class="field"><label for="currency">Currency</label><select id="currency" name="currency">{% for c in CURRENCIES %}<option{% if c == 'AED' %} selected{% endif %}>{{ c }}</option>{% endfor %}</select></div>
+      <div class="field"><label for="rate">AED rate<span class="hint">1 unit of the currency in dirhams. AED is always 1.</span></label><input id="rate" name="aed_rate" inputmode="decimal" data-rate-for="currency"></div>
+      <div class="field"><label for="method">Paid by</label><select id="method" name="method"><option>Card</option><option>Bank transfer</option><option>Cash</option><option>Other</option></select></div>
+      <div class="field"><label for="reference">Invoice or transaction reference</label><input id="reference" name="reference"></div>
+    </div>
+    <button class="btn green" type="submit">Save expense</button>
+  </form>
+
+  <h2 style="margin-top:30px">Expenses</h2>
+  {% if rows %}
+  <div class="table-wrap"><table class="data"><tr><th>Number</th><th>Date</th><th>Category</th><th>What</th><th>Paid to</th><th>Amount</th><th>AED</th><th>Reference</th></tr>
+  {% for x in rows %}<tr{% if x.id in corrected %} class="corrected"{% endif %}><td>{{ x.voucher_no }}</td><td>{{ x.spent_on.strftime('%d %b %Y') }}</td><td>{{ x.category }}</td><td>{{ x.description }}{% if x.id in corrected %} <span class="small">(corrected)</span>{% endif %}</td><td>{{ x.payee or '' }}</td><td>{{ x.amount }} {{ x.currency }}</td><td>{{ x.amount_aed }}</td><td>{{ x.reference or '' }}</td></tr>{% endfor %}
+  </table></div>
+  {% set correctable = rows|rejectattr('id', 'in', corrected)|rejectattr('reverses_id')|list %}
+  {% if correctable %}
+  <form class="form-card" method="post" style="margin-top:18px">
+    <input type="hidden" name="csrf" value="{{ csrf }}"><input type="hidden" name="action" value="reverse">
+    <h2>Correct a mistake</h2>
+    <div class="grid2">
+      <div class="field"><label for="expense_id">Expense</label><select id="expense_id" name="expense_id">{% for x in correctable %}<option value="{{ x.id }}">{{ x.voucher_no }}: {{ x.description[:50] }}, {{ x.amount }} {{ x.currency }}</option>{% endfor %}</select></div>
+      <div class="field"><label for="reason">Reason</label><input id="reason" name="reason" required></div>
+    </div>
+    <button class="btn outline-dark" type="submit">Record the correction</button>
+  </form>
+  {% endif %}
+  {% else %}<p>No expenses recorded yet.</p>{% endif %}
+</div></section>
+{% endblock %}
+{% block scripts %}{% include "admin/_rate_js.html" %}{% endblock %}

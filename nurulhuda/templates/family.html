@@ -58,7 +58,7 @@
   <h2 style="margin-top:36px">Classes bought and used</h2>
   {% if entries %}
   <div class="table-wrap"><table class="data"><tr><th>Date</th><th>Change</th><th>Details</th></tr>
-  {% for e in entries %}<tr><td>{{ fmt_time(e.created_at, family.timezone, False) }}</td><td>{{ '%+d' % e.classes }}</td><td>{{ e.note or e.kind }}</td></tr>{% endfor %}
+  {% for e in entries %}<tr><td>{{ fmt_time(e.created_at, family.timezone, False) }}</td><td>{{ '%+d' % e.classes }}</td><td>{{ e.note or e.kind }}{% if e.receipt_no %} <a href="{{ url_for('portal.receipt', eid=e.id) }}">Receipt {{ e.receipt_no }}</a>{% endif %}</td></tr>{% endfor %}
   </table></div>{% else %}<p>Nothing yet.</p>{% endif %}
 </div></section>
 {% endblock %}

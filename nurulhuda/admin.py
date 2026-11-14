@@ -3,15 +3,15 @@ import csv
 import html
 import io
 import secrets
-from datetime import timedelta, timezone
+from datetime import datetime, timedelta, timezone
 from decimal import Decimal, InvalidOperation
 
 from flask import Blueprint, Response, abort, redirect, render_template, request, url_for
 
 from nurulhuda import content as C
-from nurulhuda import auth, db, ledger, mail, pricing
+from nurulhuda import auth, books, db, ledger, mail, pricing
 from nurulhuda.ledger import now
-from nurulhuda.models import (ClassReview, ClassSession, CreditEntry, Family, Invoice, Package, Payout, PromoCode, Student, Teacher, TeacherCheckin,
+from nurulhuda.models import (AuditLog, ClassReview, ClassSession, CreditEntry, Expense, Family, Invoice, Package, Payout, PromoCode, Student, Teacher, TeacherCheckin,
                               TeacherApplication, TeacherEarning, TrialRequest)
 from nurulhuda.routes import _check_form, _f
 from nurulhuda.timefmt import ZONES, fmt, parse_local, tz
@@ -22,7 +22,31 @@ CURRENCIES = ["USD", "GBP", "EUR", "CAD", "AED", "PKR", "EGP"]
 
 @admin_bp.app_context_processor
 def _admin_ctx():
-    return {"ZONES": ZONES, "CURRENCIES": CURRENCIES}
+    def rate_map():
+        return {c: (str(books.last_rate(c)) if books.last_rate(c) is not None else "") for c in CURRENCIES}
+    return {"ZONES": ZONES, "CURRENCIES": CURRENCIES, "last_rate": books.last_rate, "KIND_LABELS": books.KIND_LABELS,
+            "rate_map": rate_map}
+
+
+def _rate(currency):
+    """The AED rate typed on the form (1 for AED)."""
+    if currency == "AED":
+        return Decimal("1")
+    try:
+        r = Decimal(_f("aed_rate", 20))
+        return r if r > 0 else None
+    except InvalidOperation:
+        return None
+
+
+def _receipt_email(fam, e):
+    link = url_for("portal.receipt", eid=e.id, _external=True)
+    mail.send_email(fam.email, f"Receipt {e.receipt_no}: Nurul Huda Academy",
+                    f"<p>Assalamu alaikum {html.escape(fam.parent_name)},</p>"
+                    f"<p>Thank you. We have received <b>{e.amount} {e.currency}</b> for {html.escape(e.note or 'classes')} "
+                    f"({e.classes} classes have been added to your balance).</p>"
+                    f'<p>Receipt number: <b>{e.receipt_no}</b>. You can view and print it at <a href="{link}">{link}</a> '
+                    "after signing in.</p><p>JazakAllahu khairan,<br>Nurul Huda Academy</p>")
 
 
 def _money(name):
@@ -92,6 +116,7 @@ def family_new():
             trial.status = "converted"
             fam.instruction_language, fam.site_lang = trial.instruction_language, trial.site_lang or "en"
             fam.teacher_pref = trial.teacher_pref or "same"
+        books.log("family_created", "family", fam.id, name=fam.parent_name, email=fam.email)
         db.session.commit()
         return redirect(url_for("admin.family", fid=fam.id))
     return render_template("admin/family_form.html", title="New family", tab="families", trial=trial)
@@ -104,37 +129,89 @@ def family(fid):
     if request.method == "POST":
         _check_form()
         action = request.form.get("action")
+        error = None
         if action == "student" and _f("first_name"):
-            db.session.add(Student(family_id=fam.id, first_name=_f("first_name", 80), age=_f("age", 20),
-                                   course=_f("course", 60), level=_f("level", 120)))
+            st = Student(family_id=fam.id, first_name=_f("first_name", 80), age=_f("age", 20),
+                         course=_f("course", 60), level=_f("level", 120))
+            db.session.add(st)
+            books.log("student_added", "family", fam.id, name=st.first_name)
         elif action == "payment":
             pkg = db.session.get(Package, _int("package_id"))
-            amount = _money("amount")
-            if pkg and amount is not None:
-                db.session.add(CreditEntry(family_id=fam.id, classes=pkg.classes, kind="purchase", amount=amount,
-                                           currency=_f("currency", 3) or pkg.currency, method=_f("method", 40),
-                                           reference=_f("reference", 200), package_id=pkg.id, note=pkg.name))
+            amount, cur = _money("amount"), _f("currency", 3) or (pkg.currency if pkg else "USD")
+            rate = _rate(cur)
+            if not (pkg and amount and amount > 0 and rate):
+                error = "Choose a package and enter the amount received and the AED rate."
+            else:
+                e = CreditEntry(family_id=fam.id, classes=pkg.classes, kind="purchase", amount=amount, currency=cur,
+                                method=_f("method", 40), reference=_f("reference", 200), package_id=pkg.id, note=pkg.name,
+                                receipt_no=books.next_number("RC"), aed_rate=rate, amount_aed=books.to_aed(amount, rate))
+                db.session.add(e)
+                books.remember_rate(cur, rate)
+                db.session.flush()
+                books.log("payment_received", "credit_entry", e.id, family=fam.parent_name, receipt=e.receipt_no,
+                          amount=amount, currency=cur, aed=e.amount_aed, classes=pkg.classes, reference=e.reference)
+                db.session.commit()
+                _receipt_email(fam, e)
         elif action == "adjust" and _int("classes"):
-            db.session.add(CreditEntry(family_id=fam.id, classes=_int("classes"), kind="adjustment",
-                                       note=_f("note", 300) or "Manual adjustment"))
+            e = CreditEntry(family_id=fam.id, classes=_int("classes"), kind="adjustment",
+                            note=_f("note", 300) or "Manual adjustment")
+            db.session.add(e)
+            db.session.flush()
+            books.log("classes_adjusted", "credit_entry", e.id, family=fam.parent_name, classes=e.classes, note=e.note)
         elif action == "refund":
-            amount = _money("amount")
-            if amount:
-                db.session.add(CreditEntry(family_id=fam.id, classes=-abs(_int("classes")), kind="refund",
-                                           amount=-amount, currency=_f("currency", 3), method=_f("method", 40),
-                                           reference=_f("reference", 200), note="Refund"))
+            amount, cur = _money("amount"), _f("currency", 3) or "USD"
+            rate = _rate(cur)
+            if not (amount and amount > 0 and rate):
+                error = "Enter the amount refunded and the AED rate."
+            else:
+                e = CreditEntry(family_id=fam.id, classes=-abs(_int("classes")), kind="refund", amount=-amount,
+                                currency=cur, method=_f("method", 40), reference=_f("reference", 200),
+                                note=_f("note", 300) or "Refund", receipt_no=books.next_number("RF"),
+                                aed_rate=rate, amount_aed=books.to_aed(-amount, rate))
+                db.session.add(e)
+                books.remember_rate(cur, rate)
+                db.session.flush()
+                books.log("refund_paid", "credit_entry", e.id, family=fam.parent_name, receipt=e.receipt_no,
+                          amount=-amount, currency=cur, aed=e.amount_aed, classes=e.classes, reference=e.reference)
+        elif action == "reverse":
+            orig = db.session.get(CreditEntry, _int("entry_id"))
+            reason = _f("reason", 200)
+            if not (orig and orig.family_id == fam.id and orig.kind in ("purchase", "refund", "adjustment") and reason):
+                error = "Choose the entry to correct and give a reason."
+            elif CreditEntry.query.filter_by(reverses_id=orig.id).first():
+                error = "That entry has already been corrected."
+            else:
+                e = CreditEntry(family_id=fam.id, classes=-orig.classes, kind="reversal",
+                                amount=-orig.amount if orig.amount is not None else None, currency=orig.currency,
+                                method=orig.method, reference=orig.reference, reverses_id=orig.id,
+                                note=f"Correction of {orig.receipt_no or 'entry ' + str(orig.id)}: {reason}"[:300],
+                                receipt_no=books.next_number("CN") if orig.amount is not None else None,
+                                aed_rate=orig.aed_rate,
+                                amount_aed=-orig.amount_aed if orig.amount_aed is not None else None)
+                db.session.add(e)
+                db.session.flush()
+                books.log("entry_corrected", "credit_entry", e.id, corrects=orig.receipt_no or orig.id, reason=reason,
+                          amount=e.amount, currency=e.currency, classes=e.classes)
         elif action == "details":
+            before = {"phone": fam.phone, "country": fam.country, "timezone": fam.timezone}
             fam.phone, fam.country = _f("phone", 40), _f("country", 60)
             fam.timezone = _f("timezone", 60) or fam.timezone
             fam.recording_consent = bool(request.form.get("recording_consent"))
             fam.notes = _f("notes", 3000)
+            books.log("family_details_changed", "family", fam.id, before=before,
+                      after={"phone": fam.phone, "country": fam.country, "timezone": fam.timezone})
+        if error:
+            db.session.rollback()
+            return redirect(url_for("admin.family", fid=fam.id, error=error))
         db.session.commit()
         return redirect(url_for("admin.family", fid=fam.id))
     sids = [s.id for s in fam.students] or [0]
     classes = ClassSession.query.filter(ClassSession.student_id.in_(sids)).order_by(ClassSession.starts_at.desc()).limit(50).all()
     entries = CreditEntry.query.filter_by(family_id=fam.id).order_by(CreditEntry.created_at.desc()).all()
+    corrected = {e.reverses_id for e in entries if e.reverses_id}
     return render_template("admin/family.html", title=fam.parent_name, tab="families", fam=fam, classes=classes,
-                           entries=entries, balance=ledger.balance(fam.id),
+                           entries=entries, balance=ledger.balance(fam.id), corrected=corrected,
+                           error=request.args.get("error"),
                            packages=Package.query.filter_by(active=True).order_by(Package.classes).all())
 
 
@@ -146,6 +223,7 @@ def teachers():
     if request.method == "POST":
         _check_form()
         if request.form.get("action") == "limit":
+            books.log("teacher_limit_changed", None, None, before=ledger.teacher_limit(), after=max(1, _int("limit", 5)))
             ledger.set_setting("teacher_limit", str(max(1, _int("limit", 5))))
             db.session.commit()
         elif request.form.get("action") == "toggle":
@@ -157,6 +235,7 @@ def teachers():
                 error = f"Set {t.full_name}'s pay per class before activating."
             else:
                 t.active = not t.active
+                books.log("teacher_activated" if t.active else "teacher_paused", "teacher", t.id, name=t.full_name)
                 db.session.commit()
         if not error:
             return redirect(url_for("admin.teachers"))
@@ -186,6 +265,7 @@ def teacher(tid=None):
         if not _f("full_name") or "@" not in email or rate is None or clash:
             return render_template("admin/teacher_form.html", title="Teacher", tab="teachers", t=t, app=app,
                                    error="Enter a name, a unique e-mail and a valid pay per class."), 400
+        before = {"rate": t.rate, "currency": t.rate_currency, "payout": t.payout_method} if t else None
         if not t:
             t = Teacher(active=False, application_id=app.id if app else None)
             db.session.add(t)
@@ -200,6 +280,9 @@ def teacher(tid=None):
             setattr(t, key, _f(key, 20) if _f(key) in C.LEVELS_WITH_NONE else None)
         if app and not t.site_lang:
             t.site_lang = app.site_lang or "en"
+        db.session.flush()
+        books.log("teacher_saved", "teacher", t.id, name=t.full_name, before=before,
+                  after={"rate": t.rate, "currency": t.rate_currency, "payout": t.payout_method})
         db.session.commit()
         return redirect(url_for("admin.teachers"))
     return render_template("admin/teacher_form.html", title="Teacher", tab="teachers", t=t, app=app)
@@ -221,6 +304,7 @@ def packages():
         p = db.session.get(Package, pid) if pid else None
         if action == "toggle" and p:
             p.active = not p.active
+            books.log("package_toggled", "package", p.id, name=p.name, active=p.active)
         elif action == "price" and p:
             price = _money("price")
             if price is not None and price > 0:
@@ -267,6 +351,8 @@ def packages():
                 p.plan = (_f("plan", 40) or p.name).lower().replace(" ", "-")[:40]
                 p.blurb, p.sort, p.public = _f("blurb", 200), _int("sort", 100), bool(request.form.get("public"))
                 db.session.add(p)
+                db.session.flush()
+                books.log("package_saved", "package", p.id, name=p.name, classes=p.classes, price=p.price, currency=p.currency)
         if not error:
             db.session.commit()
             return redirect(url_for("admin.packages"))
@@ -351,30 +437,40 @@ def payments():
             inv = db.session.get(Invoice, _int("invoice_id")) or abort(404)
             if action == "confirm" and inv.status in ("pending", "reported"):
                 received = _money("amount_received")
+                rate = _rate(inv.currency)
                 if received is None or received <= 0:
                     error = f"Enter the amount you received for {inv.number}."
+                elif rate is None:
+                    error = f"Enter today's AED rate for {inv.currency} so the books show {inv.number} in dirhams."
+                elif books.is_closed(now()):
+                    error = "This month's books are closed. Reopen them on the Books page first."
                 else:
                     method = _f("method", 20) or inv.method or "bank"
                     inv.status, inv.paid_at, inv.amount_received = "paid", now(), received
                     inv.method, inv.admin_note = method, _f("note", 300)
                     lines = pricing.invoice_lines(inv)
-                    db.session.add(CreditEntry(
+                    books.remember_rate(inv.currency, rate)
+                    entry = CreditEntry(
                         family_id=inv.family_id, classes=inv.classes, kind="purchase", amount=received,
                         currency=inv.currency, method=pricing.METHODS.get(method, {}).get("name", method),
                         reference=f"{inv.number} {inv.payer_reference or ''}".strip()[:200],
                         package_id=lines[0].get("package_id") if len(lines) == 1 else None,
-                        note=f"Invoice {inv.number}: " + ", ".join(f"{l['child']} {l['plan']}" for l in lines)[:250]))
+                        note=f"Invoice {inv.number}: " + ", ".join(f"{l['child']} {l['plan']}" for l in lines)[:250],
+                        receipt_no=books.next_number("RC"), aed_rate=rate,
+                        amount_aed=(received * rate).quantize(Decimal("0.01")))
+                    db.session.add(entry)
+                    db.session.flush()
+                    books.log("payment_received", "invoice", inv.id, number=inv.number, receipt=entry.receipt_no,
+                              amount=str(received), currency=inv.currency, aed=str(entry.amount_aed), method=method)
                     db.session.commit()
-                    fam = inv.family
-                    mail.send_email(fam.email, f"Payment received: {inv.number}",
-                                    f"<p>Assalamu alaikum {html.escape(fam.parent_name)},</p><p>We have received "
-                                    f"<b>{pricing.money(received, inv.currency)}</b> for invoice {inv.number}. "
-                                    f"<b>{inv.classes} classes</b> have been added to your family's balance.</p>"
-                                    "<p>JazakAllahu khairan,<br>Nurul Huda Academy</p>")
+                    _receipt_email(inv.family, entry)
+
             elif action == "cancel" and inv.status in ("pending", "reported"):
                 inv.status, inv.admin_note = "cancelled", _f("note", 300) or inv.admin_note
+                books.log("invoice_cancelled", "invoice", inv.id, number=inv.number)
             elif action == "reopen" and inv.status == "cancelled":
                 inv.status = "pending"
+                books.log("invoice_reopened", "invoice", inv.id, number=inv.number)
         elif action == "new_invoice":
             fam = db.session.get(Family, _int("family_id"))
             if fam:
@@ -457,6 +553,9 @@ def classes():
                                           room_name="nh-" + secrets.token_hex(8))
                         db.session.add(cs)
                         made.append(cs)
+                db.session.flush()
+                books.log("classes_scheduled", "student", st.id, teacher=t.full_name, count=len(made),
+                          first=min((c.starts_at for c in made), default=None))
                 db.session.commit()
                 made.sort(key=lambda c: c.starts_at)
                 if request.form.get("notify"):
@@ -464,9 +563,15 @@ def classes():
                 return redirect(url_for("admin.classes"))
         elif action in ("status", "cancel"):
             cs = db.session.get(ClassSession, _int("class_id")) or abort(404)
-            ledger.set_status(cs, "cancelled" if action == "cancel" else _f("status", 20))
-            db.session.commit()
-            return redirect(url_for("admin.classes"))
+            new = "cancelled" if action == "cancel" else _f("status", 20)
+            if books.is_closed(cs.starts_at):
+                error = (f"The books for {cs.starts_at:%B %Y} are closed, so this class cannot change. "
+                         "Record a correction on the family's page instead.")
+            elif new in ledger.STATUS_LABELS:
+                books.log("class_status_changed", "class", cs.id, before=cs.status, after=new)
+                ledger.set_status(cs, new)
+                db.session.commit()
+                return redirect(url_for("admin.classes"))
     start = now() - timedelta(days=2)
     rows = ClassSession.query.filter(ClassSession.starts_at >= start).order_by(ClassSession.starts_at).limit(300).all()
     unmarked = ClassSession.query.filter(ClassSession.status == "scheduled",
@@ -485,7 +590,8 @@ def problems():
         _check_form()
         cs = db.session.get(ClassSession, _int("class_id")) or abort(404)
         decision = request.form.get("decision")
-        if decision in ("pay", "refund"):
+        if decision in ("pay", "refund") and not books.is_closed(cs.starts_at):
+            books.log("problem_resolved", "class", cs.id, decision=decision, note=_f("note", 180))
             ledger.resolve(cs, decision, _f("note", 180))
             db.session.commit()
         return redirect(url_for("admin.problems"))
@@ -514,13 +620,19 @@ def payouts():
         _check_form()
         t = db.session.get(Teacher, _int("teacher_id")) or abort(404)
         rows = TeacherEarning.query.filter_by(teacher_id=t.id, status="owed").all()
-        if rows:
-            p = Payout(teacher_id=t.id, amount=sum((r.amount for r in rows), Decimal("0")), currency=t.rate_currency,
-                       method=_f("method", 40), reference=_f("reference", 200))
+        rate = _rate(t.rate_currency)
+        if rows and rate:
+            total = sum((r.amount for r in rows), Decimal("0"))
+            p = Payout(teacher_id=t.id, amount=total, currency=t.rate_currency, method=_f("method", 40),
+                       reference=_f("reference", 200), voucher_no=books.next_number("PV"), aed_rate=rate,
+                       amount_aed=books.to_aed(total, rate))
             db.session.add(p)
+            books.remember_rate(t.rate_currency, rate)
             db.session.flush()
             for r in rows:
                 r.status, r.payout_id = "paid", p.id
+            books.log("teacher_paid", "payout", p.id, teacher=t.full_name, voucher=p.voucher_no, amount=total,
+                      currency=p.currency, aed=p.amount_aed, classes=len(rows), reference=p.reference)
             db.session.commit()
         return redirect(url_for("admin.payouts"))
     history = Payout.query.order_by(Payout.created_at.desc()).limit(50).all()
@@ -541,3 +653,255 @@ def payouts_csv():
                         o["currency"], o["t"].payout_method or ""])
     return Response(buf.getvalue(), mimetype="text/csv",
                     headers={"Content-Disposition": f"attachment; filename=teacher-payouts-{now():%Y-%m-%d}.csv"})
+
+
+# --- books ----------------------------------------------------------------------------------------
+@admin_bp.route("/books", methods=["GET", "POST"])
+@auth.admin_required
+def books_home():
+    error = None
+    if request.method == "POST":
+        _check_form()
+        if request.form.get("action") == "close":
+            ym = books.next_month_to_close()
+            start, end = books.month_bounds(ym)
+            if end > now():
+                error = f"{start:%B %Y} has not finished yet."
+            elif ClassSession.query.filter(ClassSession.starts_at >= start, ClassSession.starts_at < end,
+                                           ClassSession.status == "scheduled").count():
+                error = f"Some classes in {start:%B %Y} are still unmarked. Mark them before closing the month."
+            else:
+                ledger.set_setting("books_closed_through", ym)
+                books.log("month_closed", None, None, month=ym, summary={k: str(v) for k, v in books.summary(ym).items()
+                                                                         if k.endswith("_aed")})
+                db.session.commit()
+                return redirect(url_for("admin.books_home", ym=ym))
+        elif request.form.get("action") == "business":
+            ledger.set_setting("business_details", _f("business_details", 500))
+            books.log("business_details_changed", None, None)
+            db.session.commit()
+            return redirect(url_for("admin.books_home"))
+    return books_home_render(ym=request.args.get("ym"), error=error)
+
+
+def books_home_render(ym=None, error=None, question=None, answer=None):
+    from nurulhuda import books_ai
+    ym = ym or f"{now():%Y-%m}"
+    try:
+        sm = books.summary(ym)
+    except ValueError:
+        abort(404)
+    y, m = map(int, ym.split("-"))
+    prev_ym = f"{y - (m == 1)}-{(m - 2) % 12 + 1:02d}"
+    next_ym = f"{y + (m == 12)}-{m % 12 + 1:02d}"
+    return render_template("admin/books.html", title="Books", tab="books", s=sm, checks=books.checks(), error=error,
+                           closed=books.closed_through(), to_close=books.next_month_to_close(), prev_ym=prev_ym,
+                           next_ym=next_ym, business=ledger.get_setting("business_details", ""),
+                           recent=AuditLog.query.order_by(AuditLog.id.desc()).limit(15).all(),
+                           ai_on=books_ai.configured(), question=question, answer=answer)
+
+
+@admin_bp.route("/books/ask", methods=["POST"])
+@auth.admin_required
+def books_ask():
+    from nurulhuda import books_ai
+    _check_form()
+    q = _f("question", 2000) or books_ai.MONTHLY_QUESTION
+    ym = _f("ym", 7) or None
+    answer = books_ai.ask(q, ym)
+    books.log("books_question_asked", None, None, question=q[:300])
+    db.session.commit()
+    return books_home_render(ym=ym, question=q, answer=answer)
+
+
+@admin_bp.route("/expenses", methods=["GET", "POST"])
+@auth.admin_required
+def expenses():
+    error = None
+    if request.method == "POST":
+        _check_form()
+        from datetime import date as _date
+        if request.form.get("action") == "reverse":
+            orig = db.session.get(Expense, _int("expense_id")) or abort(404)
+            reason = _f("reason", 200)
+            if not reason or Expense.query.filter_by(reverses_id=orig.id).first() or orig.reverses_id:
+                error = "Give a reason. An expense can be corrected only once."
+            else:
+                x = Expense(spent_on=now().date(), category=orig.category, description=f"Correction of {orig.voucher_no}: {reason}"[:300],
+                            payee=orig.payee, amount=-orig.amount, currency=orig.currency, aed_rate=orig.aed_rate,
+                            amount_aed=-orig.amount_aed, method=orig.method, reference=orig.reference,
+                            voucher_no=books.next_number("EX"), reverses_id=orig.id)
+                db.session.add(x)
+                db.session.flush()
+                books.log("expense_corrected", "expense", x.id, corrects=orig.voucher_no, reason=reason)
+                db.session.commit()
+                return redirect(url_for("admin.expenses"))
+        else:
+            amount, cur = _money("amount"), _f("currency", 3) or "AED"
+            rate = _rate(cur)
+            try:
+                spent_on = _date.fromisoformat(_f("spent_on", 10))
+            except ValueError:
+                spent_on = None
+            if not (amount and amount > 0 and rate and spent_on and _f("description") and _f("category") in books.EXPENSE_CATEGORIES):
+                error = "Enter the date, category, what it was for, the amount and the AED rate."
+            elif books.is_closed(spent_on):
+                error = f"The books for {spent_on:%B %Y} are closed. Date the expense in an open month."
+            elif spent_on > now().date():
+                error = "The date cannot be in the future."
+            else:
+                x = Expense(spent_on=spent_on, category=_f("category", 40), description=_f("description", 300),
+                            payee=_f("payee", 120), amount=amount, currency=cur, aed_rate=rate,
+                            amount_aed=books.to_aed(amount, rate), method=_f("method", 40), reference=_f("reference", 200),
+                            voucher_no=books.next_number("EX"))
+                db.session.add(x)
+                books.remember_rate(cur, rate)
+                db.session.flush()
+                books.log("expense_recorded", "expense", x.id, voucher=x.voucher_no, amount=amount, currency=cur,
+                          aed=x.amount_aed, category=x.category, payee=x.payee)
+                db.session.commit()
+                return redirect(url_for("admin.expenses"))
+    rows = Expense.query.order_by(Expense.spent_on.desc(), Expense.id.desc()).limit(200).all()
+    corrected = {x.reverses_id for x in rows if x.reverses_id}
+    return render_template("admin/expenses.html", title="Expenses", tab="books", rows=rows, error=error,
+                           categories=books.EXPENSE_CATEGORIES, corrected=corrected, today=now().date())
+
+
+@admin_bp.route("/receipts/<int:eid>")
+@auth.admin_required
+def receipt(eid):
+    e = db.session.get(CreditEntry, eid) or abort(404)
+    if not e.receipt_no:
+        abort(404)
+    return render_template("receipt.html", e=e, fam=e.family_obj, business=ledger.get_setting("business_details", ""))
+
+
+def _csv(rows, header):
+    buf = io.StringIO()
+    w = csv.writer(buf)
+    w.writerow(header)
+    w.writerows(rows)
+    return buf.getvalue()
+
+
+def _period():
+    from datetime import date as _date, datetime as _dt
+    try:
+        start = _date.fromisoformat(request.args.get("from", ""))
+    except ValueError:
+        start = _date(now().year, 1, 1)
+    try:
+        end = _date.fromisoformat(request.args.get("to", ""))
+    except ValueError:
+        end = now().date()
+    to_dt = lambda d: _dt(d.year, d.month, d.day, tzinfo=timezone.utc)
+    return start, end, to_dt(start), to_dt(end) + timedelta(days=1)
+
+
+def _journal(s_dt, e_dt, s_d, e_d):
+    """Every money movement, oldest first, with the dirham value."""
+    fams = {f.id: f.parent_name for f in Family.query.all()}
+    names = {t.id: t.full_name for t in Teacher.query.all()}
+    out = []
+    for e in CreditEntry.query.filter(CreditEntry.amount.isnot(None), CreditEntry.created_at >= s_dt,
+                                      CreditEntry.created_at < e_dt).all():
+        out.append((e.created_at, e.receipt_no or "", books.KIND_LABELS.get(e.kind, e.kind), fams.get(e.family_id, ""),
+                    e.note or "", f"{e.amount:.2f}", e.currency, f"{e.aed_rate or ''}", f"{e.amount_aed if e.amount_aed is not None else ''}",
+                    e.method or "", e.reference or ""))
+    for p in Payout.query.filter(Payout.created_at >= s_dt, Payout.created_at < e_dt).all():
+        out.append((p.created_at, p.voucher_no or "", "Teacher payout", names.get(p.teacher_id, ""), "Classes taught",
+                    f"{-p.amount:.2f}", p.currency, f"{p.aed_rate or ''}", f"{-p.amount_aed if p.amount_aed is not None else ''}",
+                    p.method or "", p.reference or ""))
+    for x in Expense.query.filter(Expense.spent_on >= s_d, Expense.spent_on <= e_d).all():
+        when = datetime.combine(x.spent_on, datetime.min.time(), tzinfo=timezone.utc)
+        out.append((when, x.voucher_no, f"Expense: {x.category}", x.payee or "", x.description, f"{-x.amount:.2f}",
+                    x.currency, f"{x.aed_rate}", f"{-x.amount_aed}", x.method or "", x.reference or ""))
+    out.sort(key=lambda r: (books_aware(r[0]), r[1]))
+    return [(f"{books_aware(r[0]):%Y-%m-%d %H:%M}",) + r[1:] for r in out]
+
+
+def books_aware(dt):
+    return dt if dt.tzinfo else dt.replace(tzinfo=timezone.utc)
+
+
+JOURNAL_HEADER = ["Date (UTC)", "Number", "Type", "Family / teacher / payee", "Details", "Amount", "Currency",
+                  "AED rate", "Amount in AED", "Method", "Bank or card reference"]
+
+
+@admin_bp.route("/books/journal.csv")
+@auth.admin_required
+def journal_csv():
+    s_d, e_d, s_dt, e_dt = _period()
+    return Response(_csv(_journal(s_dt, e_dt, s_d, e_d), JOURNAL_HEADER), mimetype="text/csv",
+                    headers={"Content-Disposition": f"attachment; filename=nurulhuda-journal-{s_d}-to-{e_d}.csv"})
+
+
+@admin_bp.route("/books/audit-pack.zip")
+@auth.admin_required
+def audit_pack():
+    """Everything an auditor asks for, for a period, in one file."""
+    import json as _json
+    import zipfile
+    s_d, e_d, s_dt, e_dt = _period()
+    fams = {f.id: f.parent_name for f in Family.query.all()}
+    names = {t.id: t.full_name for t in Teacher.query.all()}
+    mem = io.BytesIO()
+    with zipfile.ZipFile(mem, "w", zipfile.ZIP_DEFLATED) as z:
+        z.writestr("1-journal-all-money.csv", _csv(_journal(s_dt, e_dt, s_d, e_d), JOURNAL_HEADER))
+        z.writestr("2-family-class-balances.csv", _csv(
+            [(fams.get(e.family_id, ""), f"{books_aware(e.created_at):%Y-%m-%d %H:%M}", books.KIND_LABELS.get(e.kind, e.kind),
+              e.classes, e.receipt_no or "", e.class_id or "", e.note or "")
+             for e in CreditEntry.query.filter(CreditEntry.created_at >= s_dt, CreditEntry.created_at < e_dt)
+             .order_by(CreditEntry.created_at).all()],
+            ["Family", "Date (UTC)", "Type", "Classes", "Receipt", "Class id", "Note"]))
+        z.writestr("3-classes.csv", _csv(
+            [(c.id, f"{books_aware(c.starts_at):%Y-%m-%d %H:%M}", c.minutes, c.student.first_name, fams.get(c.student.family_id, ""),
+              c.teacher.full_name, c.status, (c.teacher_note or "").replace("\n", " "), c.flag_reason or "", c.flag_resolution or "")
+             for c in ClassSession.query.filter(ClassSession.starts_at >= s_dt, ClassSession.starts_at < e_dt)
+             .order_by(ClassSession.starts_at).all()],
+            ["Class id", "Starts (UTC)", "Minutes", "Student", "Family", "Teacher", "Status", "Teacher's note",
+             "Parent report", "Decision"]))
+        z.writestr("4-teacher-earnings.csv", _csv(
+            [(e.id, names.get(e.teacher_id, ""), e.class_id, f"{e.amount:.2f}", e.currency, e.status, e.payout_id or "")
+             for e in TeacherEarning.query.filter(TeacherEarning.created_at >= s_dt, TeacherEarning.created_at < e_dt).all()],
+            ["Earning id", "Teacher", "Class id", "Amount", "Currency", "Status", "Payout id"]))
+        z.writestr("5-teacher-payouts.csv", _csv(
+            [(p.voucher_no or p.id, f"{books_aware(p.created_at):%Y-%m-%d %H:%M}", names.get(p.teacher_id, ""), f"{p.amount:.2f}",
+              p.currency, p.aed_rate or "", p.amount_aed or "", p.method or "", p.reference or "",
+              TeacherEarning.query.filter_by(payout_id=p.id).count())
+             for p in Payout.query.filter(Payout.created_at >= s_dt, Payout.created_at < e_dt).order_by(Payout.created_at).all()],
+            ["Voucher", "Date (UTC)", "Teacher", "Amount", "Currency", "AED rate", "Amount in AED", "Method", "Reference",
+             "Classes covered"]))
+        z.writestr("6-expenses.csv", _csv(
+            [(x.voucher_no, x.spent_on, x.category, x.description, x.payee or "", f"{x.amount:.2f}", x.currency, x.aed_rate,
+              x.amount_aed, x.method or "", x.reference or "", x.reverses_id or "")
+             for x in Expense.query.filter(Expense.spent_on >= s_d, Expense.spent_on <= e_d).order_by(Expense.spent_on).all()],
+            ["Voucher", "Date", "Category", "Description", "Payee", "Amount", "Currency", "AED rate", "Amount in AED",
+             "Method", "Reference", "Corrects"]))
+        z.writestr("7-activity-log.csv", _csv(
+            [(a.id, f"{books_aware(a.created_at):%Y-%m-%d %H:%M:%S}", a.actor, a.ip or "", a.action, a.entity or "",
+              a.entity_id or "", a.details or "")
+             for a in AuditLog.query.filter(AuditLog.created_at >= s_dt, AuditLog.created_at < e_dt).order_by(AuditLog.id).all()],
+            ["Id", "Time (UTC)", "Who", "IP address", "Action", "Record", "Record id", "Details"]))
+        months, cur = [], s_d.replace(day=1)
+        while cur <= e_d:
+            sm = books.summary(f"{cur:%Y-%m}")
+            months.append((sm["label"], sm["payments"], sm["income_aed"], sm["refunds_aed"], sm["payouts_aed"],
+                           sm["expenses_aed"], sm["net_aed"], sm["classes"]["completed"], sm["classes"]["student_missed"]))
+            cur = cur.replace(year=cur.year + (cur.month == 12), month=cur.month % 12 + 1)
+        z.writestr("0-monthly-summary-AED.csv", _csv(months, ["Month", "Payments", "Income AED", "Refunds AED",
+                                                              "Teacher pay AED", "Expenses AED", "Net AED",
+                                                              "Classes completed", "Student absent (charged)"]))
+        problems = books.checks()
+        z.writestr("README.txt",
+                   f"Nurul Huda Academy: audit pack\nPeriod: {s_d} to {e_d}\nPrepared: {now():%Y-%m-%d %H:%M} UTC\n"
+                   f"Books closed through: {books.closed_through() or 'not yet closed'}\n\n"
+                   "Records are append-only: nothing is edited or deleted, mistakes are corrected with numbered entries\n"
+                   "(CN- for families, EX- corrections for expenses) that point at the original.\n"
+                   "Numbers: RC- receipts, RF- refunds, CN- credit notes, PV- teacher payout vouchers, EX- expenses.\n\n"
+                   f"Open issues found by the automatic checks: {sum(p['count'] for p in problems)}\n" +
+                   "".join(f"- {p['title']}: {p['count']}\n" for p in problems))
+    books.log("audit_pack_downloaded", None, None, period=f"{s_d} to {e_d}")
+    db.session.commit()
+    return Response(mem.getvalue(), mimetype="application/zip",
+                    headers={"Content-Disposition": f"attachment; filename=nurulhuda-audit-pack-{s_d}-to-{e_d}.zip"})

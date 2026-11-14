@@ -619,3 +619,27 @@ fieldset.pay-method { border: 1px solid var(--line); }
 .dash-grid.presence > div { background: var(--paper); border-radius: var(--r-sm); padding: 12px 14px; }
 .dash-grid.presence p { margin: 0 !important; }
 .presence-table td, .presence-table th { font-size: .9rem; }
+/* books */
+.books-head { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; margin-bottom: 14px; }
+.books-head h2 { margin: 0; }
+.check { border: 1px solid var(--line); border-radius: var(--r-sm); padding: 10px 14px; margin: 8px 0; background: var(--white); }
+.check.problem { border-color: #d9534f; background: #fff5f4; }
+.check.warning { border-color: #e2ad48; background: #fffaf0; }
+.check.ok { border-color: #2e8b57; background: #f2fbf5; }
+.check summary { cursor: pointer; }
+.check ul { margin: 8px 0 0; font-size: .93rem; }
+tr.corrected td { color: var(--muted); text-decoration: line-through; text-decoration-color: rgba(0,0,0,.25); }
+.receipt { max-width: 640px; margin: 0 auto; background: var(--white); border: 1px solid var(--line); border-radius: var(--r-lg); padding: 30px; }
+.receipt header { display: flex; align-items: center; gap: 18px; border-bottom: 2px solid var(--line); padding-bottom: 16px; margin-bottom: 16px; }
+.receipt header svg { width: 72px; height: 72px; }
+.receipt h1 { margin: 0; font-size: 1.6rem; }
+.receipt-no { margin: 2px 0 0; font-weight: 700; color: var(--emerald); letter-spacing: .02em; }
+.receipt-from { margin-bottom: 14px; }
+.receipt-table th { width: 34%; }
+@media print {
+  .site-header, .site-footer, .no-print, .skip { display: none !important; }
+  .section { padding: 0 !important; background: none !important; }
+  .receipt { border: 0; }
+  body { background: #fff !important; }
+}
+.ai-answer { margin-top: 16px; padding: 16px 18px; border-radius: var(--r-sm); background: var(--paper); border-inline-start: 4px solid var(--emerald); white-space: pre-wrap; line-height: 1.6; }

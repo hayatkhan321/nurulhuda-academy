@@ -61,5 +61,11 @@ class Config:
     # Classroom video (https://daily.co). Without it, the classroom page explains that video is not set up yet.
     DAILY_API_KEY = os.getenv("DAILY_API_KEY", "").strip()
 
+    # Claude as bookkeeping reviewer (https://console.anthropic.com). Without a key, the Books page works without it.
+    ANTHROPIC_API_KEY = os.getenv("ANTHROPIC_API_KEY", "").strip()
+    ANTHROPIC_MODEL = os.getenv("ANTHROPIC_MODEL", "claude-sonnet-5-5").strip()
+    # Vercel sends this with its scheduled monthly review (set CRON_SECRET in the website settings).
+    CRON_SECRET = os.getenv("CRON_SECRET", "").strip()
+
     # Password for /admin, the list of sign-ups. Leave empty to keep /admin switched off.
     ADMIN_PASSWORD = os.getenv("ADMIN_PASSWORD", "")

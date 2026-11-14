@@ -1,0 +1,18 @@
+<script>
+// Fill in the last AED rate used for the chosen currency, so the founders only type it when it changes.
+(function () {
+  var rates = {{ rate_map()|tojson }};
+  document.querySelectorAll('[data-rate-for]').forEach(function (input) {
+    var sel = document.getElementById(input.dataset.rateFor);
+    function sync() {
+      var c = sel.value;
+      if (c === 'AED') { input.value = '1'; input.readOnly = true; }
+      else { input.readOnly = false; if (!input.dataset.touched) { input.value = rates[c] || ''; } }
+      input.required = c !== 'AED';
+    }
+    input.addEventListener('input', function () { input.dataset.touched = '1'; });
+    sel.addEventListener('change', function () { delete input.dataset.touched; sync(); });
+    sync();
+  });
+})();
+</script>

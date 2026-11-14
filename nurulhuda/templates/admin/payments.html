@@ -3,7 +3,7 @@
 <section class="section"><div class="wrap">
   {% if error %}<p class="alert">{{ error }}</p>{% endif %}
   <h2>Waiting for money</h2>
-  <p class="small">Check your bank, Wise or PayPal for the invoice number, then confirm. Confirming adds the classes to the family and e-mails them a receipt.</p>
+  <p class="small">Check your bank, Wise or PayPal for the invoice number, then confirm. Confirming adds the classes to the family, gives the payment a receipt number, and e-mails them the receipt. For other currencies, check the AED rate for the day.</p>
   {% if waiting %}
   <div class="table-wrap"><table class="data">
     <tr><th>Invoice</th><th>Family</th><th>Amount</th><th>Status</th><th>Confirm payment</th></tr>
@@ -15,6 +15,7 @@
       <td><form method="post" class="inline-form"><input type="hidden" name="csrf" value="{{ csrf }}"><input type="hidden" name="invoice_id" value="{{ i.id }}">
         <input name="amount_received" inputmode="decimal" value="{{ i.total }}" size="8" aria-label="Amount received">
         <select name="method" aria-label="Method">{% for k, m in P.METHODS.items() %}<option value="{{ k }}"{% if i.method == k %} selected{% endif %}>{{ m.name }}</option>{% endfor %}<option value="cash">Cash</option><option value="other">Other</option></select>
+        {% if i.currency != 'AED' %}<input name="aed_rate" inputmode="decimal" value="{{ last_rate(i.currency) or '' }}" size="7" required aria-label="AED for 1 {{ i.currency }}" placeholder="AED per {{ i.currency }}">{% endif %}
         <input name="note" placeholder="Note (optional)" size="14">
         <button class="btn green sm" name="action" value="confirm" type="submit">Received</button>
         <button class="btn sm outline-dark" name="action" value="cancel" type="submit">Cancel invoice</button></form></td>

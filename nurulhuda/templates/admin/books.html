@@ -1,0 +1,93 @@
+{% extends "base.html" %}
+{% block main %}{% include "admin/_nav.html" %}
+<section class="section"><div class="wrap">
+  {% if error %}<p class="error" role="alert">{{ error }}</p>{% endif %}
+  <div class="books-head">
+    <a class="btn sm outline-dark" href="{{ url_for('admin.books_home', ym=prev_ym) }}" aria-label="Previous month">‹</a>
+    <h2>{{ s.label }}</h2>
+    <a class="btn sm outline-dark" href="{{ url_for('admin.books_home', ym=next_ym) }}" aria-label="Next month">›</a>
+    <span class="small">{% if closed and s.ym <= closed %}Closed: this month can no longer change.{% else %}Open{% endif %}</span>
+  </div>
+  <div class="stats">
+    <div class="stat"><b>{{ '{:,.2f}'.format(s.income_aed) }}</b><span>AED received ({{ s.payments }} payment{{ 's' if s.payments != 1 }})</span></div>
+    <div class="stat"><b>{{ '{:,.2f}'.format(-s.refunds_aed) }}</b><span>AED refunded</span></div>
+    <div class="stat"><b>{{ '{:,.2f}'.format(s.payouts_aed) }}</b><span>AED paid to teachers</span></div>
+    <div class="stat"><b>{{ '{:,.2f}'.format(s.expenses_aed) }}</b><span>AED expenses</span></div>
+    <div class="stat"><b>{{ '{:,.2f}'.format(s.net_aed) }}</b><span>AED left over</span></div>
+  </div>
+  <div class="admin-grid">
+    <div>
+      <h3>Received, by currency</h3>
+      {% if s.income %}<ul>{% for c, v in s.income.items() %}<li>{{ '{:,.2f}'.format(v) }} {{ c }}</li>{% endfor %}</ul>{% else %}<p class="small">Nothing yet.</p>{% endif %}
+      <h3>Expenses, by category</h3>
+      {% if s.expenses_by_cat %}<ul>{% for c, v in s.expenses_by_cat.items() %}<li>{{ c }}: {{ '{:,.2f}'.format(v) }} AED</li>{% endfor %}</ul>{% else %}<p class="small">None recorded. <a href="{{ url_for('admin.expenses') }}">Record an expense</a></p>{% endif %}
+    </div>
+    <div>
+      <h3>Classes</h3>
+      <ul><li>Completed: {{ s.classes.completed }}</li><li>Student absent (charged): {{ s.classes.student_missed }}</li>
+      <li>Teacher absent (not charged): {{ s.classes.teacher_missed }}</li><li>Cancelled: {{ s.classes.cancelled }}</li>
+      <li>Still unmarked: {{ s.classes.scheduled }}</li></ul>
+      {% if s.missing_aed %}<p class="error">{{ s.missing_aed }} money record{{ 's' if s.missing_aed != 1 }} this month ha{{ 've' if s.missing_aed != 1 else 's' }} no AED value (recorded before AED values were added).</p>{% endif %}
+    </div>
+  </div>
+
+  <form class="form-card ask-books" method="post" action="{{ url_for('admin.books_ask') }}" style="margin-top:28px">
+    <input type="hidden" name="csrf" value="{{ csrf }}"><input type="hidden" name="ym" value="{{ s.ym }}">
+    <h2>Ask Claude about the books</h2>
+    {% if ai_on %}
+    <p class="small">Claude reads the figures above and the last two months of records, and answers in plain English. It cannot change anything.</p>
+    <div class="field"><label for="question">Your question</label>
+      <textarea id="question" name="question" rows="2" placeholder="e.g. How much did we pay teachers in Egypt this month? Is last month ready to close?">{{ question or '' }}</textarea></div>
+    <button class="btn green" type="submit">Ask</button>
+    <button class="btn outline-dark" type="submit" name="question" value="">Review this month like an auditor</button>
+    {% if answer %}<div class="ai-answer" aria-live="polite">{{ answer }}</div>{% endif %}
+    {% else %}
+    <p>Not switched on yet. Create an API key at console.anthropic.com and add it in Vercel as <b>ANTHROPIC_API_KEY</b>. Everything else on this page works without it.</p>
+    {% endif %}
+  </form>
+
+  <h2 style="margin-top:34px">Health checks</h2>
+  {% if checks %}
+  {% for c in checks %}
+  <details class="check {{ c.level }}"{% if c.level == 'problem' %} open{% endif %}>
+    <summary><b>{{ 'Needs fixing' if c.level == 'problem' else 'Worth a look' }}:</b> {{ c.title }} ({{ c.count }})</summary>
+    <ul>{% for i in c['items'] %}<li>{{ i }}</li>{% endfor %}</ul>
+  </details>
+  {% endfor %}
+  {% else %}<p class="check ok">All checks passed. Every class, credit, teacher payment and receipt matches.</p>{% endif %}
+
+  <div class="admin-grid" style="margin-top:34px">
+    <form class="form-card" method="post">
+      <input type="hidden" name="csrf" value="{{ csrf }}"><input type="hidden" name="action" value="close">
+      <h2>Close a month</h2>
+      <p>Closed through: <b>{{ closed or 'nothing closed yet' }}</b>. Next to close: <b>{{ to_close }}</b>.</p>
+      <p class="small">Once closed, classes, decisions and expenses dated in that month cannot change. Corrections go into the current month with their own numbers, as an auditor expects. Fix the health checks first.</p>
+      <button class="btn green" type="submit">Close {{ to_close }}</button>
+    </form>
+    <form class="form-card" method="get" action="{{ url_for('admin.audit_pack') }}">
+      <h2>Download for your accountant</h2>
+      <div class="grid2">
+        <div class="field"><label for="from">From</label><input id="from" name="from" type="date" value="{{ s.ym[:4] }}-01-01"></div>
+        <div class="field"><label for="to">To</label><input id="to" name="to" type="date"></div>
+      </div>
+      <p class="small">The audit pack is one file with every payment, refund, teacher payout, expense, class and the activity log, plus a monthly summary in AED.</p>
+      <button class="btn green" type="submit">Download audit pack</button>
+      <button class="btn outline-dark" type="submit" formaction="{{ url_for('admin.journal_csv') }}">Journal only (CSV)</button>
+    </form>
+  </div>
+
+  <form class="form-card" method="post" style="margin-top:24px">
+    <input type="hidden" name="csrf" value="{{ csrf }}"><input type="hidden" name="action" value="business">
+    <h2>Details printed on receipts</h2>
+    <div class="field"><label for="business_details">Company name, licence number, address and tax number (TRN), once you have them</label>
+    <textarea id="business_details" name="business_details" rows="3">{{ business }}</textarea></div>
+    <button class="btn outline-dark" type="submit">Save</button>
+  </form>
+
+  <h2 style="margin-top:34px">Recent activity</h2>
+  <div class="table-wrap"><table class="data"><tr><th>When (UTC)</th><th>Who</th><th>What</th><th>Details</th></tr>
+  {% for a in recent %}<tr><td>{{ a.created_at.strftime('%d %b %H:%M') }}</td><td>{{ a.actor }}</td><td>{{ a.action.replace('_', ' ') }}</td><td class="small">{{ (a.details or '')[:160] }}</td></tr>{% endfor %}
+  </table></div>
+  <p class="small"><a href="{{ url_for('admin.expenses') }}">Expenses</a> · The full activity log is in the audit pack.</p>
+</div></section>
+{% endblock %}

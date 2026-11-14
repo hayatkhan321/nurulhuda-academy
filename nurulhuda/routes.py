@@ -6,7 +6,7 @@ from flask import (Blueprint, g, Response, abort, current_app, redirect, render_
                    session, url_for)
 
 from nurulhuda import content as C
-from nurulhuda import db, mail, uploads
+from nurulhuda import books, db, mail, uploads
 from nurulhuda.models import DawahRequest, TeacherApplication, TrialRequest, Upload
 
 site_bp = Blueprint("site", __name__)
@@ -271,7 +271,11 @@ def admin():
     if request.method == "POST":
         if hmac.compare_digest(request.form.get("password", ""), password):
             session["admin"] = True
+            books.log("admin_signed_in")
+            db.session.commit()
         else:
+            books.log("admin_sign_in_failed")
+            db.session.commit()
             return render_template("admin_login.html", title="Sign in", error="That password is not right."), 401
     if not session.get("admin"):
         return render_template("admin_login.html", title="Sign in")
@@ -292,6 +296,31 @@ def admin_file(file_id):
     resp.headers["X-Content-Type-Options"] = "nosniff"
     resp.headers["Cache-Control"] = "private, no-store"
     return resp
+
+
+@site_bp.route("/cron/books-review")
+def cron_books_review():
+    """Run by Vercel on the 1st of each month: e-mails the health checks, and Claude's review if switched on."""
+    secret = current_app.config.get("CRON_SECRET")
+    if not secret or not hmac.compare_digest(request.headers.get("Authorization", ""), f"Bearer {secret}"):
+        abort(404)
+    import html as _html
+    from nurulhuda import books_ai
+    from datetime import datetime, timezone
+    today = datetime.now(timezone.utc)
+    last = f"{today.year - (today.month == 1)}-{(today.month - 2) % 12 + 1:02d}"
+    problems = books.checks()
+    parts = [f"<p>Monthly review of the books for {last}.</p>"]
+    parts.append("<p><b>Automatic checks:</b> " + ("all passed.</p>" if not problems else "</p><ul>" + "".join(
+        f"<li>{_html.escape(p['title'])}: {p['count']}</li>" for p in problems) + "</ul>"))
+    if books_ai.configured():
+        review = books_ai.ask(books_ai.MONTHLY_QUESTION, last)
+        parts.append("<p><b>Claude's review:</b></p><div style='white-space:pre-wrap'>" + _html.escape(review) + "</div>")
+    parts.append(f'<p>Open the Books page: <a href="{url_for("admin.books_home", ym=last, _external=True)}">Books</a></p>')
+    books.log("monthly_review_sent", None, None, month=last, issues=sum(p["count"] for p in problems))
+    db.session.commit()
+    mail.send_email(current_app.config.get("ADMIN_EMAIL"), f"Books review for {last}: Nurul Huda Academy", "".join(parts))
+    return {"ok": True}
 
 
 @site_bp.route("/admin/sign-out")

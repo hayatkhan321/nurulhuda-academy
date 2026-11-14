@@ -61,15 +61,17 @@ def active_teacher_count() -> int:
 
 
 def set_status(cs: ClassSession, status: str, note: str | None = None) -> None:
-    """Change a class's status and keep credits and teacher pay consistent. Safe to call twice."""
+    """Change a class's status and keep credits and teacher pay consistent. Safe to call twice, and safe to
+    change back and forth: the family's net use for a class is always -1 (took place) or 0 (did not)."""
     family_id = cs.student.family_id
-    used = CreditEntry.query.filter_by(class_id=cs.id, kind="used").first()
+    net = int(db.session.query(func.coalesce(func.sum(CreditEntry.classes), 0))
+              .filter(CreditEntry.class_id == cs.id).scalar() or 0)
     earning = TeacherEarning.query.filter_by(class_id=cs.id).first()
     cs.status = status
     if note is not None:
         cs.teacher_note = note
     if status in USES_CREDIT:
-        if not used:
+        if net == 0:
             db.session.add(CreditEntry(family_id=family_id, classes=-1, kind="used", class_id=cs.id,
                                        note=f"Class on {cs.starts_at:%d %b %Y}"))
         if not earning:
@@ -79,11 +81,9 @@ def set_status(cs: ClassSession, status: str, note: str | None = None) -> None:
         elif earning.status == "void":
             earning.status = "owed"
     else:
-        if used:
-            returned = CreditEntry.query.filter_by(class_id=cs.id, kind="returned").first()
-            if not returned:
-                db.session.add(CreditEntry(family_id=family_id, classes=1, kind="returned", class_id=cs.id,
-                                           note="Class not charged"))
+        if net == -1:
+            db.session.add(CreditEntry(family_id=family_id, classes=1, kind="returned", class_id=cs.id,
+                                       note="Class not charged"))
         if earning and earning.status in ("owed", "held"):
             earning.status = "void"
 
