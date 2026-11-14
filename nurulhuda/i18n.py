@@ -114,6 +114,8 @@ def _swap_attr(m, code):
     import html as _h
     plain = _h.unescape(m.group(2))
     out = tr(plain, code)
+    if out == plain and " | " in plain:          # e.g. og:title "Courses | Nurul Huda Academy"
+        out = " | ".join(tr(p.strip(), code) for p in plain.split(" | "))
     return m.group(0) if out == plain else m.group(1) + _h.escape(out) + m.group(3)
 
 

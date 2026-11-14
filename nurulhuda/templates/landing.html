@@ -1,0 +1,37 @@
+{% extends "base.html" %}
+{% block main %}
+<section class="page-head lattice"><div class="wrap">
+  <!--nt--><h1>{{ T.h1 }}</h1><p>{{ T.lead }}</p><!--/nt-->
+  <p style="margin-top:22px"><a class="btn gold" href="{{ url_for('site.trial') }}">Book a free trial class</a> <a class="btn outline" href="{{ url_for('site.pricing') }}">See prices</a></p>
+</div></section>
+<section class="section white"><div class="wrap">
+  <div class="prose"><!--nt-->
+  {% for heading, paras in T.sections %}<h2>{{ heading }}</h2>{% for p in paras %}<p>{{ p }}</p>{% endfor %}{% endfor %}
+  <!--/nt--></div>
+  {% if zones %}<p class="small"><!--nt-->{{ L.zones }}: {{ zones|join(', ') }}<!--/nt--></p>{% endif %}
+</div></section>
+{% if plans %}
+<section class="section"><div class="wrap">
+  <div class="section-head"><h2>Plans for 4 weeks of classes</h2><p>Every plan is one-to-one with the same teacher each week. A missed class by the teacher is always credited back.</p></div>
+  <div class="plans">
+    {% for p in plans %}
+    <div class="plan">
+      <h3>{{ p.name }}</h3>
+      <p class="price"><!--nt-->{{ P.money(p.price, cur) }}<!--/nt--><span>{% if p.plan in ('starter', 'flexible') %} once{% else %} a month{% endif %}</span></p>
+      <p class="per"><!--nt-->{{ P.money(p.price / p.classes, cur) }}<!--/nt--> a class</p>
+      <p>{{ p.blurb or '' }}</p>
+    </div>
+    {% endfor %}
+  </div>
+  <p class="small" style="margin-top:16px"><a href="{{ url_for('site.pricing', cur=cur) }}">See prices and family discounts</a></p>
+</div></section>
+{% endif %}
+<section class="section{% if not plans %}{% else %} white{% endif %}"><div class="wrap">
+  <!--nt--><div class="section-head"><h2>{{ L.faq }}</h2></div>
+  <div class="faq">{% for q, a in T.faq %}<details><summary>{{ q }}</summary><p>{{ a }}</p></details>{% endfor %}</div>
+  {% if related %}<h2 style="margin-top:48px;font-size:1.4rem">{{ L.related }}</h2>
+  <ul class="tick-list">{% for slug, label in related %}<li><a href="{{ url_for('site.landing', slug=slug) }}{% if lang != 'en' %}?lang={{ lang }}{% endif %}">{{ label }}</a></li>{% endfor %}</ul>{% endif %}<!--/nt-->
+  <p style="margin-top:40px"><a class="btn green" href="{{ url_for('site.trial') }}">Book a free trial class</a></p>
+</div></section>
+{% if schema %}<script type="application/ld+json">{{ schema|tojson }}</script>{% endif %}
+{% endblock %}

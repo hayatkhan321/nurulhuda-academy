@@ -373,8 +373,24 @@ def admin_sign_out():
     return redirect(url_for("site.home"))
 
 
+@site_bp.app_context_processor
+def _seo_ctx():
+    from nurulhuda import landing as Lmod, seo
+    try:
+        ctx = seo.context(g.get("lang", "en"))
+    except Exception:          # never let search details break a page
+        current_app.logger.exception("seo context failed")
+        ctx = {}
+    ctx["seo_org"] = seo.organization
+    ctx["seo_courses"] = lambda: seo.courses_schema(C.PATH, C.ALONGSIDE)
+    ctx["landing_links"] = Lmod.nav_links()
+    return ctx
+
+
 @site_bp.after_app_request
 def _private(resp):
+    if request.path.startswith(("/followups", "/board", "/offline", "/cron")):
+        resp.headers["X-Robots-Tag"] = "noindex, nofollow"
     if request.path.startswith(("/admin", "/thanks")):
         resp.headers["X-Robots-Tag"] = "noindex, nofollow"
         resp.headers["Cache-Control"] = "no-store"
@@ -384,20 +400,64 @@ def _private(resp):
 @site_bp.route("/robots.txt")
 def robots():
     base = current_app.config["SITE_URL"].rstrip("/")
-    return Response(f"User-agent: *\nAllow: /\nDisallow: /admin\n\nSitemap: {base}/sitemap.xml\n", mimetype="text/plain")
+    private = ["/admin", "/my", "/teacher", "/class", "/login", "/followups", "/cron", "/thanks"]
+    rules = "".join(f"Disallow: {p}\n" for p in private)
+    return Response(f"User-agent: *\nAllow: /\n{rules}\nSitemap: {base}/sitemap.xml\n", mimetype="text/plain")
 
 
 @site_bp.route("/sitemap.xml")
 def sitemap():
-    base = current_app.config["SITE_URL"].rstrip("/")
-    rows = "".join(f"<url><loc>{base}{url_for(ep)}</loc></url>" for ep in PAGES)
-    return Response('<?xml version="1.0" encoding="UTF-8"?><urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">'
-                    f"{rows}</urlset>", mimetype="application/xml")
+    """Every public page in every language it is offered in, with hreflang alternates (Google's recommended form)."""
+    from xml.sax.saxutils import escape
+    from nurulhuda import landing as Lmod, seo
+    paths = [(url_for(ep), seo.PAGE_LANGS.get(ep, list(seo.LANGS))) for ep in PAGES]
+    paths += [(url_for("site.landing", slug=s), Lmod.PAGES[s]["langs"]) for s in Lmod.TOPICS + Lmod.COUNTRIES]
+    rows = []
+    for path, langs in paths:
+        alts = "".join(f'<xhtml:link rel="alternate" hreflang="{c}" href="{escape(seo.page_url(path, c))}"/>' for c in langs)
+        if len(langs) > 1:
+            alts += f'<xhtml:link rel="alternate" hreflang="x-default" href="{escape(seo.page_url(path, "en"))}"/>'
+        for code in langs:
+            rows.append(f"<url><loc>{escape(seo.page_url(path, code))}</loc>{alts if len(langs) > 1 else ''}</url>")
+    return Response('<?xml version="1.0" encoding="UTF-8"?><urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" '
+                    'xmlns:xhtml="http://www.w3.org/1999/xhtml">' + "".join(rows) + "</urlset>", mimetype="application/xml")
 
 
 @site_bp.route("/resources")
 def resources():
     return render_template("resources.html", page="resources", title="Resources")
+
+
+def landing(slug):
+    """Search landing pages (topics and countries); content lives in landing.py."""
+    from nurulhuda import landing as Lmod, pricing as P
+    page = Lmod.PAGES.get(slug) or abort(404)
+    lang = g.get("lang", "en")
+    show = lang if lang in page["langs"] else "en"
+    T = Lmod.text(page, show)
+    cur = page.get("currency")
+    plans = P.price_list(cur) if cur else []
+    group = Lmod.TOPICS if page["kind"] == "topic" else Lmod.COUNTRIES
+    related = [(s, Lmod.text(Lmod.PAGES[s], show)["h1"]) for s in Lmod.TOPICS + Lmod.COUNTRIES
+               if s != slug and show in Lmod.PAGES[s]["langs"] and (s in group or show == "en")][:6]
+    zones = [label for _, label in page.get("zones", [])] if len(page.get("zones", [])) > 1 else []
+    schema = None
+    if page["kind"] == "topic":
+        base = current_app.config["SITE_URL"].rstrip("/")
+        schema = {"@context": "https://schema.org", "@type": "Course", "name": T["h1"], "description": T["desc"],
+                  "inLanguage": show, "url": base + url_for("site.landing", slug=slug),
+                  "provider": {"@type": "EducationalOrganization", "name": "Nurul Huda Academy", "sameAs": base}}
+    return render_template("landing.html", page="landing", title=T["title"], T=T, L=Lmod.LABELS.get(show, Lmod.LABELS["en"]),
+                           P=P, cur=cur, plans=plans, related=related, zones=zones, schema=schema)
+
+
+def _register_landing():
+    from nurulhuda import landing as Lmod
+    for slug in Lmod.PAGES:
+        site_bp.add_url_rule(f"/{slug}", endpoint="landing", view_func=landing, defaults={"slug": slug})
+
+
+_register_landing()
 
 
 @site_bp.route("/families/dashboard")

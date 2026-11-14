@@ -28,7 +28,7 @@ T = {
         "s1_new_button": "Reply with a time",
         "s1_done_subject": "How was {child}'s first class?",
         "s1_done_body": "We hope {child} enjoyed the trial class. If you are happy, choose a plan and classes can start this "
-                        "week. Most families choose 3 days a week.",
+                        "week. A good way to start is 3 days a week.",
         "s2_subject": "What a month at Nurul Huda looks like",
         "s2_body": "Every class is one to one, with the same teacher. After each class you receive a short report: the surah "
                    "and verse, or the Qaida lesson, your child reached, and what to practise. You only pay for classes that "
@@ -58,7 +58,7 @@ T = {
         "s1_new_button": "وقت بتائیں",
         "s1_done_subject": "{child} کی پہلی کلاس کیسی رہی؟",
         "s1_done_body": "امید ہے {child} کو آزمائشی کلاس پسند آئی ہوگی۔ اگر آپ مطمئن ہیں تو ایک پلان منتخب کریں، کلاسیں اسی ہفتے "
-                        "شروع ہو سکتی ہیں۔ زیادہ تر خاندان ہفتے میں 3 دن کا پلان چنتے ہیں۔",
+                        "شروع ہو سکتی ہیں۔ شروع کرنے کے لیے ہفتے میں 3 دن کا پلان اچھا رہتا ہے۔",
         "s2_subject": "نور الہدیٰ میں ایک مہینہ کیسا ہوتا ہے",
         "s2_body": "ہر کلاس انفرادی ہوتی ہے اور ایک ہی استاد کے ساتھ۔ ہر کلاس کے بعد آپ کو مختصر رپورٹ ملتی ہے: بچہ کس سورت اور آیت، "
                    "یا قاعدے کے کس سبق تک پہنچا، اور کیا مشق کرنی ہے۔ آپ صرف انہی کلاسوں کی ادائیگی کرتے ہیں جو ہوں۔",
@@ -86,7 +86,7 @@ T = {
         "s1_new_button": "أرسلوا الوقت المناسب",
         "s1_done_subject": "كيف كانت الحصة الأولى لـ{child}؟",
         "s1_done_body": "نرجو أن يكون {child} قد استمتع بالحصة التجريبية. إن كنتم راضين، اختاروا خطة ويمكن أن تبدأ الحصص هذا "
-                        "الأسبوع. معظم العائلات تختار 3 أيام في الأسبوع.",
+                        "الأسبوع. ومن البدايات الجيدة 3 أيام في الأسبوع.",
         "s2_subject": "كيف يبدو شهر في نور الهدى",
         "s2_body": "كل حصة فردية ومع المعلم نفسه. بعد كل حصة يصلكم تقرير قصير: السورة والآية، أو درس القاعدة، الذي وصل إليه طفلكم، "
                    "وما يحتاج إلى مراجعته. ولا تدفعون إلا عن الحصص التي تُعقد فعلًا.",
@@ -114,7 +114,7 @@ T = {
         "s1_new_button": "समय बताएँ",
         "s1_done_subject": "{child} की पहली क्लास कैसी रही?",
         "s1_done_body": "उम्मीद है {child} को ट्रायल क्लास पसंद आई होगी। अगर आप संतुष्ट हैं तो एक प्लान चुनें, क्लासें इसी हफ़्ते "
-                        "शुरू हो सकती हैं। ज़्यादातर परिवार हफ़्ते में 3 दिन का प्लान चुनते हैं।",
+                        "शुरू हो सकती हैं। शुरुआत के लिए हफ़्ते में 3 दिन का प्लान अच्छा रहता है।",
         "s2_subject": "नूरुल हुदा में एक महीना कैसा होता है",
         "s2_body": "हर क्लास अकेले बच्चे के लिए होती है, एक ही उस्ताद के साथ। हर क्लास के बाद आपको छोटी रिपोर्ट मिलती है: बच्चा किस "
                    "सूरह और आयत, या क़ायदे के किस सबक़ तक पहुँचा, और क्या अभ्यास करना है। आप सिर्फ़ उन्हीं क्लासों का भुगतान "
@@ -144,7 +144,7 @@ T = {
         "s1_new_button": "Balas dengan masa",
         "s1_done_subject": "Bagaimana kelas pertama {child}?",
         "s1_done_body": "Kami harap {child} seronok dengan kelas percubaan itu. Jika anda berpuas hati, pilih pelan dan kelas boleh "
-                        "bermula minggu ini. Kebanyakan keluarga memilih 3 hari seminggu.",
+                        "bermula minggu ini. Permulaan yang baik ialah 3 hari seminggu.",
         "s2_subject": "Sebulan di Nurul Huda",
         "s2_body": "Setiap kelas adalah satu lawan satu, dengan guru yang sama. Selepas setiap kelas anda menerima laporan ringkas: "
                    "surah dan ayat, atau pelajaran Qaida, yang dicapai anak anda dan apa yang perlu dilatih. Anda hanya membayar "
@@ -174,7 +174,7 @@ T = {
         "s1_new_button": "Balas dengan waktu",
         "s1_done_subject": "Bagaimana kelas pertama {child}?",
         "s1_done_body": "Kami harap {child} menikmati kelas percobaannya. Jika Anda puas, pilih paket dan kelas bisa dimulai minggu "
-                        "ini. Sebagian besar keluarga memilih 3 hari seminggu.",
+                        "ini. Awal yang baik adalah 3 hari seminggu.",
         "s2_subject": "Seperti apa sebulan di Nurul Huda",
         "s2_body": "Setiap kelas bersifat privat, dengan guru yang sama. Setelah setiap kelas Anda menerima laporan singkat: surah dan "
                    "ayat, atau pelajaran Qaida, yang dicapai anak Anda dan apa yang perlu dilatih. Anda hanya membayar kelas yang "
@@ -203,7 +203,7 @@ T = {
         "s1_new_button": "Responder con un horario",
         "s1_done_subject": "¿Qué tal fue la primera clase de {child}?",
         "s1_done_body": "Esperamos que {child} haya disfrutado de la clase de prueba. Si está satisfecho, elija un plan y las clases "
-                        "pueden empezar esta semana. La mayoría de las familias elige 3 días por semana.",
+                        "pueden empezar esta semana. Una buena forma de empezar son 3 días por semana.",
         "s2_subject": "Así es un mes en Nurul Huda",
         "s2_body": "Cada clase es individual y con el mismo profesor. Después de cada clase recibe un breve informe: la sura y el "
                    "versículo, o la lección de Qaida, que alcanzó su hijo y qué debe practicar. Solo paga las clases que se imparten.",
@@ -231,7 +231,7 @@ T = {
         "s1_new_button": "Répondre avec un créneau",
         "s1_done_subject": "Comment s'est passé le premier cours de {child} ?",
         "s1_done_body": "Nous espérons que {child} a apprécié le cours d'essai. Si vous êtes satisfait, choisissez une formule et les "
-                        "cours peuvent commencer cette semaine. La plupart des familles choisissent 3 jours par semaine.",
+                        "cours peuvent commencer cette semaine. Pour commencer, 3 jours par semaine est un bon rythme.",
         "s2_subject": "Un mois à Nurul Huda, concrètement",
         "s2_body": "Chaque cours est individuel, avec le même enseignant. Après chaque cours, vous recevez un court compte rendu : la "
                    "sourate et le verset, ou la leçon de Qaida, atteints par votre enfant, et ce qu'il doit réviser. Vous ne payez "
