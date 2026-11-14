@@ -1,12 +1,13 @@
 import hmac
 import re
 import secrets
+from datetime import datetime, timezone
 
 from flask import (Blueprint, g, Response, abort, current_app, redirect, render_template, request, send_from_directory,
                    session, url_for)
 
 from nurulhuda import content as C
-from nurulhuda import books, db, mail, uploads
+from nurulhuda import books, db, followup, mail, uploads
 from nurulhuda.models import DawahRequest, TeacherApplication, TrialRequest, Upload
 
 site_bp = Blueprint("site", __name__)
@@ -282,7 +283,8 @@ def admin():
     trials = TrialRequest.query.order_by(TrialRequest.created_at.desc()).limit(500).all()
     teachers = TeacherApplication.query.order_by(TeacherApplication.created_at.desc()).limit(500).all()
     dawah = DawahRequest.query.order_by(DawahRequest.created_at.desc()).limit(500).all()
-    return render_template("admin.html", title="Sign-ups", tab="signups", trials=trials, teachers=teachers, dawah=dawah)
+    return render_template("admin.html", title="Sign-ups", tab="signups", trials=trials, teachers=teachers, dawah=dawah,
+                           fu_state=followup.state)
 
 
 @site_bp.route("/admin/file/<int:file_id>")
@@ -296,6 +298,48 @@ def admin_file(file_id):
     resp.headers["X-Content-Type-Options"] = "nosniff"
     resp.headers["Cache-Control"] = "private, no-store"
     return resp
+
+
+@site_bp.route("/followups/stop/<token>", methods=["GET", "POST"])
+def followup_stop(token):
+    """A family's one-click "stop these e-mails" link. GET asks, POST stops (so link scanners can't stop it)."""
+    tr = TrialRequest.query.filter_by(followup_token=token).first() if len(token) < 60 else None
+    if not tr:
+        abort(404)
+    lang = followup.lang_of(tr)
+    done = bool(tr.followup_stopped_at)
+    if request.method == "POST" or request.headers.get("List-Unsubscribe-Post"):
+        if not done:
+            tr.followup_stopped_at, tr.followup_stop_reason = datetime.now(timezone.utc), "family"
+            books.log("trial_followup_stopped", "trial_request", tr.id, by="family")
+            db.session.commit()
+        done = True
+    T = {k: followup.t(lang, k) for k in ("page_title", "page_ask", "page_button", "page_done")}
+    return render_template("followup_stop.html", title=T["page_title"], T=T, done=done,
+                           rtl=lang in followup.RTL, lang_code=lang)
+
+
+@site_bp.route("/admin/trials/<int:tid>/stop-followups", methods=["POST"])
+def admin_stop_followups(tid):
+    if not session.get("admin"):
+        abort(404)
+    if not _check_form():
+        abort(400)
+    tr = db.session.get(TrialRequest, tid) or abort(404)
+    if not tr.followup_stopped_at:
+        tr.followup_stopped_at, tr.followup_stop_reason = datetime.now(timezone.utc), "admin"
+        books.log("trial_followup_stopped", "trial_request", tr.id, by="admin")
+        db.session.commit()
+    return redirect(url_for("site.admin"))
+
+
+@site_bp.route("/cron/trial-followups")
+def cron_trial_followups():
+    """Run by Vercel every morning: sends the follow-up e-mails that are due."""
+    secret = current_app.config.get("CRON_SECRET")
+    if not secret or not hmac.compare_digest(request.headers.get("Authorization", ""), f"Bearer {secret}"):
+        abort(404)
+    return followup.run()
 
 
 @site_bp.route("/cron/books-review")

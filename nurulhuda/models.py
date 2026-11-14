@@ -30,6 +30,12 @@ class TrialRequest(db.Model):
     english_level = db.Column(db.String(20))
     urdu_level = db.Column(db.String(20))
     site_lang = db.Column(db.String(5))                                 # language the visitor used the site in
+    # automatic follow-up e-mails (see followup.py)
+    followup_step = db.Column(db.Integer, default=0, nullable=False)    # reminders sent so far (0-3)
+    followup_last_at = db.Column(db.DateTime(timezone=True))
+    followup_stopped_at = db.Column(db.DateTime(timezone=True))
+    followup_stop_reason = db.Column(db.String(20))                     # paid / family / admin
+    followup_token = db.Column(db.String(40), unique=True)              # for the "stop these e-mails" link
 
 
 class TeacherApplication(db.Model):

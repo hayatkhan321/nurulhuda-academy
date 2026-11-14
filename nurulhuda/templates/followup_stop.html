@@ -1,0 +1,14 @@
+{% extends "base.html" %}
+{% block main %}
+<section class="section"><div class="wrap">
+  <div class="form-card" style="max-width:520px"{% if rtl %} dir="rtl"{% endif %} lang="{{ lang_code }}"><!--nt-->
+    <h1 style="font-size:1.7rem">{{ T.page_title }}</h1>
+    {% if done %}
+      <p>{{ T.page_done }}</p>
+    {% else %}
+      <p>{{ T.page_ask }}</p>
+      <form method="post"><button class="btn green" type="submit">{{ T.page_button }}</button></form>
+    {% endif %}
+  <!--/nt--></div>
+</div></section>
+{% endblock %}

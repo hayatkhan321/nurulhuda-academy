@@ -7,7 +7,7 @@ import urllib.request
 from flask import current_app
 
 
-def send_email(to: str, subject: str, inner_html: str, reply_to: str | None = None, attachments=None) -> bool:
+def send_email(to: str, subject: str, inner_html: str, reply_to: str | None = None, attachments=None, headers=None) -> bool:
     key = current_app.config.get("RESEND_API_KEY")
     if not key or not to:
         current_app.logger.info("E-mail not sent (RESEND_API_KEY or recipient missing): %s", subject)
@@ -15,6 +15,8 @@ def send_email(to: str, subject: str, inner_html: str, reply_to: str | None = No
     payload = {"from": current_app.config["MAIL_FROM"], "to": [to], "subject": subject, "html": _wrap(inner_html)}
     if reply_to or current_app.config.get("MAIL_REPLY_TO"):
         payload["reply_to"] = reply_to or current_app.config["MAIL_REPLY_TO"]
+    if headers:
+        payload["headers"] = headers
     if attachments:
         import base64
         payload["attachments"] = [{"filename": a["filename"], "content": base64.b64encode(a["data"]).decode()} for a in attachments]
@@ -57,13 +59,9 @@ def trial_emails(t) -> None:
             ("City", t.city), ("Student", t.student_name), ("Age", t.student_age), ("Course", t.course),
             ("Teacher", t.teacher_gender), ("Preferred times", t.preferred_times), ("Notes", t.notes)]),
     )
-    send_email(
-        t.email, "We have your free trial request",
-        f"<p>Assalamu alaikum {html.escape(t.parent_name)},</p>"
-        "<p>Thank you for asking for a free trial class. Within one working day we will contact you to agree a time, "
-        "and match you with a teacher who suits your child's level and your time zone.</p>"
-        "<p>If you have a question in the meantime, simply reply to this e-mail.</p><p>JazakAllahu khairan,<br>Nurul Huda Academy</p>",
-    )
+    from nurulhuda import followup
+    subject, body = followup.confirmation(t)
+    send_email(t.email, subject, body)
 
 
 def teacher_emails(a, files=None) -> None:
