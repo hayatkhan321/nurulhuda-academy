@@ -269,7 +269,7 @@ def admin():
     if not password:
         abort(404)
     if request.method == "POST":
-        if hmac.compare_digest(request.form.get("password", ""), password):
+        if hmac.compare_digest(request.form.get("password", "").strip().encode(), password.strip().encode()):
             session["admin"] = True
             books.log("admin_signed_in")
             db.session.commit()
