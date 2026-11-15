@@ -137,6 +137,7 @@ h1 em{font-style:normal;color:#f7cf6a}
 @keyframes card{from{opacity:0;transform:translateX(400px) rotate(8deg)}to{opacity:1;transform:rotate(-2deg)}}
 .card img{width:100%%;display:block}
 .tick{position:absolute;right:-30px;top:-40px;width:150px;height:150px;border-radius:50%%;background:#e3a237;color:#13241f;font-size:90px;font-weight:800;display:flex;align-items:center;justify-content:center;box-shadow:0 20px 50px rgba(0,0,0,.4);animation:pop .7s cubic-bezier(.3,1.6,.5,1) 2.6s both}
+.example{position:absolute;left:24px;top:24px;background:rgba(19,36,31,.82);color:#fff;font-size:30px;font-weight:650;padding:8px 18px;border-radius:12px}
 .verse{width:900px;background:#fbf8ef;color:#13241f;border-radius:44px;padding:56px 60px;box-shadow:0 50px 120px rgba(0,0,0,.5);position:relative}
 .verse .ar{font-family:Hafs;direction:rtl;text-align:center;font-size:72px;line-height:1.9;color:#0b3d2e}
 .verse .tr{font-size:40px;line-height:1.35;text-align:center;margin-top:26px;color:#22352f;font-weight:500}
@@ -205,8 +206,9 @@ def body(sc):
         return (f'{TOP}<div class="stage">{kick}<div class="tablet"><div class="live">● LIVE</div><img src="{asset(sc.get("img", "board.jpg"))}">'
                 f'{hls}</div><div class="chips3">{tags}</div></div>')
     if k == "card":            # a picture card sliding in (the class report, the dashboard)
+        badge = f'<div class="example">{t(sc.get("badge", "Example"))}</div>' if sc.get("badge", "Example") else ""
         return (f'{TOP}<div class="glow"></div><div class="stage">{kick}<div class="card"><img src="{asset(sc["img"])}">'
-                f'<div class="tick">✓</div></div>{ur(sc.get("ur"), 4, "margin-top:40px")}</div>')
+                f'{badge}<div class="tick">✓</div></div>{ur(sc.get("ur"), 4, "margin-top:40px")}</div>')
     if k == "verse":           # Quran text from the King Fahd data, never typed; translation from a published source
         s, a = sc["ref"][0], sc["ref"][1]
         b = sc["ref"][2] if len(sc["ref"]) > 2 else a

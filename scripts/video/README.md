@@ -76,7 +76,7 @@ Urdu lines (`ur`) are optional; only write Urdu you are sure is correct and natu
 | `number` | one large true figure | `kicker`, `big`, `h1`, `ur` |
 | `phone` | a phone showing a screenshot, gently scrolling | `kicker`, `img`, `stamp` (badge), or `chips` beside it |
 | `board` | the live lesson board on a tablet with highlights | `kicker`, `tags` [["1","One to one"], ...], `highlights` |
-| `card` | a picture card sliding in (report, dashboard) | `kicker`, `img`, `ur` |
+| `card` | a picture card sliding in (report, dashboard), labelled "Example" because the screenshots are demo data | `kicker`, `img`, `ur`, `badge` |
 | `verse` | a Quran verse from the verified text + translation | `kicker`, `ref` [surah, ayah] or [surah, from, to] |
 | `end` | logo, headline, free-trial QR code, website | `h1`, `ur`, `qr` (false to hide), `url` |
 | `html` | your own markup inside the stage | `html` |
