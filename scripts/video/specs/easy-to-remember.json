@@ -1,0 +1,42 @@
+{
+  "slug": "easy-to-remember",
+  "voice": null,
+  "scenes": [
+    {
+      "kind": "verse",
+      "kicker": "Surah Al-Qamar",
+      "ref": [
+        54,
+        17
+      ],
+      "seconds": 8,
+      "sub": "Allah tells us He has made the Quran easy to remember.",
+      "translation": "And We have certainly made the Qur'an easy for remembrance, so is there any who will remember?",
+      "translation_source": "Sahih International"
+    },
+    {
+      "kind": "headline",
+      "kicker": "Our job",
+      "h1": "Make learning it <em>easy</em> for your child",
+      "chips": [
+        "Tested teachers",
+        "Female teachers on request"
+      ],
+      "sub": "Our job is to make learning it easy for your child."
+    },
+    {
+      "kind": "number",
+      "kicker": "Every class",
+      "big": "1:1",
+      "h1": "one teacher, one child",
+      "ur": "انفرادی کلاس، 30 منٹ",
+      "sub": "One teacher, one child, 30 minutes, at a time that suits your family."
+    },
+    {
+      "kind": "end",
+      "h1": "Your first class is <em>free</em>",
+      "ur": "پہلی کلاس مفت ہے",
+      "sub": "Book a free trial class at nurulhudaacademy.org"
+    }
+  ]
+}

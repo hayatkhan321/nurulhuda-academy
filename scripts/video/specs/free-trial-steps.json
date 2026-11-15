@@ -1,0 +1,20 @@
+{
+  "slug": "free-trial-steps",
+  "voice": null,
+  "scenes": [
+    {"kind": "opener", "h1": "What happens in a <em>free trial</em> class?", "ur": "مفت آزمائشی کلاس",
+     "sub": "What happens in a free trial class?"},
+    {"kind": "phone", "kicker": "Step 1", "img": "phone-trial.jpg", "chips": ["Child's age", "Their level", "Times that suit you"],
+     "sub": "Fill in a short form. It takes two minutes."},
+    {"kind": "headline", "kicker": "Step 2", "h1": "We reply within <em>one working day</em>",
+     "chips": ["To agree a time that suits you"],
+     "sub": "We reply within one working day to agree a time."},
+    {"kind": "board", "kicker": "Step 3 · Live class", "tags": [["1", "One to one"], ["30", "minutes"]],
+     "sub": "Your child meets a tested teacher, live and one to one."},
+    {"kind": "headline", "kicker": "Step 4", "h1": "A level check, <em>a clear start</em>",
+     "chips": ["Noorani Qaida", "Reading", "Tajweed", "Hifz"],
+     "sub": "The trial class tells us where your child should start."},
+    {"kind": "end", "h1": "Your first class is <em>free</em>", "ur": "پہلی کلاس مفت ہے",
+     "sub": "Book a free trial class at nurulhudaacademy.org"}
+  ]
+}

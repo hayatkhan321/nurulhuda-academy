@@ -1,0 +1,21 @@
+{
+  "slug": "we-are-open",
+  "greeting": true,
+  "voice": null,
+  "scenes": [
+    {"kind": "opener", "h1": "Nurul Huda Academy is <em>open</em>",
+     "sub": "Assalamu alaikum. Nurul Huda Academy is now open."},
+    {"kind": "board", "kicker": "Live Quran classes", "tags": [["1", "One to one"], ["30", "minutes"]],
+     "sub": "Every class is live, online and one to one, for 30 minutes."},
+    {"kind": "headline", "kicker": "Our teachers", "h1": "Every teacher is <em>tested</em>",
+     "chips": ["Passes a recitation test", "Female teachers on request"], "gold": "Head of Academics: a Hafiza",
+     "ur": "جانچے پرکھے اساتذہ، خواتین اساتذہ بھی دستیاب",
+     "sub": "Our Head of Academics is a Hafiza, and every teacher passes her recitation test."},
+    {"kind": "card", "kicker": "After every class", "img": "report.jpg", "ur": "ہر کلاس کے بعد رپورٹ",
+     "sub": "After every class, you get a short report on your child's progress."},
+    {"kind": "phone", "kicker": "Start here", "img": "phone-home.jpg", "stamp": "FREE<br>trial",
+     "sub": "Your child's first class is free, with a level check."},
+    {"kind": "end", "h1": "Your first class is <em>free</em>", "ur": "پہلی کلاس مفت ہے",
+     "sub": "Book your free trial at nurulhudaacademy.org"}
+  ]
+}
