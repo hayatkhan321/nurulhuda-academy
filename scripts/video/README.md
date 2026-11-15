@@ -27,19 +27,30 @@ python3 reel.py specs/my-video.json               # builds out/<slug>.mp4, out/<
 
 ## Voice
 
-- Narrator: **Alice** (ElevenLabs, voiceId `Xb7hH8MSUJpSbSDYk0k2`), made with vidIQ `vidiq_voiceover_generate`.
-  vidIQ is used **only** to make the voice file; never connect, upload or post through it (it is tied to the
-  Hayat Clinics channel).
-- Write the narration **without** "Assalamu alaikum": with `"greeting": true` the video opens with Dr Hayat's own
-  recording (`assets/greeting-assalamu-alaikum.mp3`), then Alice. The first scene's caption still starts
-  "Assalamu alaikum."
-- **One sentence per scene**, in the same order as the scenes, and each scene's `sub` is that sentence. The tool
-  finds the pauses between sentences and cuts there; it prints the cuts. If a cut looks wrong, set `"cuts"` in the
-  spec (the seconds where scenes 2, 3, ... start).
-- Credits: about 28 per 1000 characters, 150 a month on the free plan. One narrated video a week (under 450
-  characters) fits; the others are caption-only (`"voice": null`).
-- If the voice file cannot be downloaded (the workspace may block assets.vidiq.com), make the video caption-only
-  and say so in the report.
+**Google voices (preferred, paid from the academy's Google Cloud credits).** Add to the spec:
+
+```json
+"tts": {"lang": "en-GB", "voice": "<a voice name>", "rate": 0.95}, "greeting": true, "voice": null
+```
+
+- Each scene's sentence (`say`, or its caption `sub`) is spoken separately and joined with short pauses, so every
+  scene cut lands exactly between sentences. Use `say` when the spoken words should differ from the caption.
+- With `"greeting": true` the video opens with Dr Hayat's own recording (`assets/greeting-assalamu-alaikum.mp3`); a
+  leading "Assalamu alaikum" in the first sentence is dropped automatically so it isn't said twice.
+- The key: `GOOGLE_TTS_KEY` in the environment. A scheduled run reads it from the website's database with the
+  Supabase tool (`select value from settings where key = 'google_tts_key'`, project paqpdnpnhrkcvxyrwofi) and exports
+  it for this command only. Never print it, write it to a file, commit it or put it in a report.
+- Pick voices once with `python3 reel.py --voices en-GB` (then `ur-IN`, `ar-XA`): a calm, clear female voice in each
+  language; prefer Chirp3-HD, Neural2 or WaveNet voices. Write the chosen names in this README.
+- The workspace must be allowed to reach texttospeech.googleapis.com (claude.ai Settings > Capabilities). If it can't,
+  or there is no key, the video is made caption-only and the report says so.
+- Languages: English for every video; Urdu (`ur-IN`) and Arabic (`ar-XA`) versions use the same scenes with
+  translated captions. Only write Urdu or Arabic you are sure is correct; mark them "to check" in the captions Doc.
+
+**vidIQ (fallback only):** voice Alice (voiceId `Xb7hH8MSUJpSbSDYk0k2`) via `vidiq_voiceover_generate`, set as
+`"voice": "narration.mp3"`. Use vidIQ only to make the voice file, never to connect, upload or post (it is tied to the
+Hayat Clinics channel). About 28 credits per 1000 characters, 150 a month. With a vidIQ file, scene cuts come from
+pauses in the voice (one sentence per scene); if a cut is wrong, set `"cuts"`.
 
 ## A spec
 

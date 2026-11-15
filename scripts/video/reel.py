@@ -299,7 +299,93 @@ def align(audio, subs, skip_before):
     return list(zip(bounds[:-1], bounds[1:])), total
 
 
+# ---------- Google Text-to-Speech: one clip per scene, so every cut lands exactly between sentences ----------
+SCENE_GAP = 0.45       # silence between sentences
+
+
+def google_key():
+    """The key from GOOGLE_TTS_KEY, or from the website's settings table (Admin > Connections) via DATABASE_URL."""
+    k = os.environ.get("GOOGLE_TTS_KEY", "").strip()
+    if k:
+        return k
+    url = os.environ.get("DATABASE_URL", "")
+    if url.startswith("postgres"):
+        try:
+            import psycopg2
+            with psycopg2.connect(url) as c, c.cursor() as cur:
+                cur.execute("select value from settings where key = 'google_tts_key'")
+                row = cur.fetchone()
+                return row[0] if row else ""
+        except Exception:
+            return ""
+    return ""
+
+
+def google_say(key, text, tts, out):
+    import base64, urllib.request, urllib.error
+    body = {"input": {"text": text},
+            "voice": {"languageCode": tts.get("lang", "en-GB"), **({"name": tts["voice"]} if tts.get("voice") else {})},
+            "audioConfig": {"audioEncoding": "LINEAR16", "sampleRateHertz": 44100, "speakingRate": tts.get("rate", 0.95)}}
+    req = urllib.request.Request("https://texttospeech.googleapis.com/v1/text:synthesize", data=json.dumps(body).encode(),
+                                 headers={"Content-Type": "application/json", "X-Goog-Api-Key": key}, method="POST")
+    try:
+        with urllib.request.urlopen(req, timeout=30) as r:
+            open(out, "wb").write(base64.b64decode(json.load(r)["audioContent"]))
+    except urllib.error.HTTPError as e:
+        sys.exit(f"Google Text-to-Speech refused ({e.code}): {e.read()[:300]!r}")
+
+
+def list_voices(lang):
+    """python3 reel.py --voices ur-IN : the Google voices for a language (pick a calm, clear female voice)."""
+    import urllib.request
+    key = google_key() or sys.exit("no Google key (GOOGLE_TTS_KEY, or Admin > Connections on the website)")
+    req = urllib.request.Request(f"https://texttospeech.googleapis.com/v1/voices?languageCode={lang}", headers={"X-Goog-Api-Key": key})
+    with urllib.request.urlopen(req, timeout=20) as r:
+        for v in json.load(r).get("voices", []):
+            print(v["name"], v["ssmlGender"], ",".join(v["languageCodes"]))
+
+
+def google_timeline(spec, work):
+    """Each scene's "say" (or its caption) spoken separately, then joined with short pauses: exact scene lengths."""
+    key = google_key()
+    if not key:
+        return None
+    tts = spec["tts"]
+    parts, bounds, t = [], [0.0], 0.0
+    g = os.path.join(A, "greeting-assalamu-alaikum.mp3")
+    for i, sc in enumerate(spec["scenes"]):
+        text = re.sub(r"<[^>]+>", " ", sc.get("say") or sc["sub"])
+        text = re.sub(r"(?i)(www\.)?nurulhudaacademy\.org", "Nurul Huda Academy dot org", text)
+        if i == 0 and spec.get("greeting", True):            # Dr Hayat's own greeting replaces the spoken one
+            text = re.sub(r"^\s*assalamu?\s*alaikum[.,!]?\s*", "", text, flags=re.I)
+        clip = os.path.join(work, f"say{i}.wav")
+        google_say(key, text, tts, clip)
+        parts.append((g, clip) if (i == 0 and spec.get("greeting", True)) else (clip,))
+    seg_files = []
+    for i, files in enumerate(parts):
+        seg = os.path.join(work, f"seg{i}.wav")
+        inputs = sum((["-i", f] for f in files), [])
+        n = len(files)
+        chain = "".join(f"[{j}:a]aresample=44100,aformat=channel_layouts=mono" + (f",apad=pad_dur={GAP_AFTER_GREETING}" if n == 2 and j == 0 else "") + f"[a{j}];" for j in range(n))
+        chain += "".join(f"[a{j}]" for j in range(n)) + f"concat=n={n}:v=0:a=1,apad=pad_dur={SCENE_GAP}[o]"
+        subprocess.run(["ffmpeg", "-y", "-loglevel", "error", *inputs, "-filter_complex", chain, "-map", "[o]", seg], check=True)
+        seg_files.append(seg)
+        t += duration(seg); bounds.append(round(t, 3))
+    lst = os.path.join(work, "segs.txt")
+    open(lst, "w").writelines(f"file '{f}'\n" for f in seg_files)
+    out = os.path.join(work, "voice_full.wav")
+    subprocess.run(["ffmpeg", "-y", "-loglevel", "error", "-f", "concat", "-safe", "0", "-i", lst, "-c", "copy", out], check=True)
+    bounds[-1] = round(bounds[-1] + TAIL, 3)
+    print("Google voice, scene cuts (s):", bounds[1:-1])
+    return list(zip(bounds[:-1], bounds[1:])), out
+
+
 def timeline(spec, work):
+    if spec.get("tts") and not spec.get("voice"):
+        g = google_timeline(spec, work)
+        if g:
+            return g
+        print("No Google key found: making this video caption-only.")
     audio, lead = voice_track(spec, work)
     n = len(spec["scenes"])
     if audio:
@@ -396,6 +482,8 @@ def build(spec, work, outdir):
 if __name__ == "__main__":
     if len(sys.argv) < 2:
         sys.exit(__doc__)
+    if sys.argv[1] == "--voices":
+        list_voices(sys.argv[2] if len(sys.argv) > 2 else "en-GB"); sys.exit()
     spec_path = os.path.abspath(sys.argv[1])
     spec = json.load(open(spec_path)); spec["_path"] = spec_path
     work = os.path.join(os.path.dirname(spec_path), f".work-{spec['slug']}")
