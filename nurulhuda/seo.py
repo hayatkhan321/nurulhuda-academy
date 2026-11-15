@@ -126,6 +126,8 @@ def organization() -> dict:
                 "url": base,
                 "logo": base + url_for("static", filename="icons/icon-512.png"),
                 "email": current_app.config["CONTACT_EMAIL"],
+                **({"telephone": "+" + current_app.config["WHATSAPP_PUBLIC_NUMBER"]}
+                   if current_app.config.get("WHATSAPP_PUBLIC_NUMBER") else {}),
                 "description": "Live one-to-one online Quran, Noorani Qaida, tajweed, hifz, Arabic and Islamic studies "
                                "classes for children, with tested teachers.",
                 "areaServed": ["AE", "QA", "SA", "CA", "US", "GB", "PK", "IN", "MY", "ID"],

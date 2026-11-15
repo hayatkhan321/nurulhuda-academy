@@ -64,6 +64,8 @@ class Config:
     # Claude as bookkeeping reviewer (https://console.anthropic.com). Without a key, the Books page works without it.
     ANTHROPIC_API_KEY = os.getenv("ANTHROPIC_API_KEY", "").strip()
     ANTHROPIC_MODEL = os.getenv("ANTHROPIC_MODEL", "claude-sonnet-5-5").strip()
+    # The academy's public WhatsApp number (digits only, with country code) for the "Chat on WhatsApp" links.
+    WHATSAPP_PUBLIC_NUMBER = os.getenv("WHATSAPP_PUBLIC_NUMBER", "971521765915").strip().lstrip("+")
     WHATSAPP_TOKEN = os.getenv("WHATSAPP_TOKEN", "").strip()
     WHATSAPP_PHONE_ID = os.getenv("WHATSAPP_PHONE_ID", "").strip()
     WHATSAPP_VERIFY_TOKEN = os.getenv("WHATSAPP_VERIFY_TOKEN", "").strip()

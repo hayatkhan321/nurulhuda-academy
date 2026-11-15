@@ -22,7 +22,37 @@ def _inject():
     if "csrf" not in session:
         session["csrf"] = secrets.token_urlsafe(24)
     return {"C": C, "site_url": current_app.config["SITE_URL"].rstrip("/"), "csrf": session["csrf"],
-            "contact_email": current_app.config["CONTACT_EMAIL"], "admin_email": current_app.config["ADMIN_EMAIL"]}
+            "contact_email": current_app.config["CONTACT_EMAIL"], "admin_email": current_app.config["ADMIN_EMAIL"],
+            **_whatsapp_links()}
+
+
+# First message typed for the family when they tap "Chat on WhatsApp" (they can change it before sending).
+WA_HELLO = {
+    "en": "Assalamu alaikum, I would like to know about Quran classes for my child.",
+    "ur": "السلام علیکم، میں اپنے بچے کے لیے قرآن کی کلاسوں کے بارے میں جاننا چاہتا ہوں۔",
+    "ar": "السلام عليكم، أود أن أعرف عن دروس القرآن لطفلي.",
+    "hi": "अस्सलामु अलैकुम, मैं अपने बच्चे के लिए क़ुरआन की कक्षाओं के बारे में जानना चाहता हूँ।",
+    "ms": "Assalamualaikum, saya ingin tahu tentang kelas al-Quran untuk anak saya.",
+    "id": "Assalamualaikum, saya ingin tahu tentang kelas mengaji Al-Quran untuk anak saya.",
+    "es": "Assalamu alaikum, me gustaría saber sobre las clases de Corán para mi hijo.",
+    "fr": "Assalamu alaikum, j'aimerais en savoir plus sur les cours de Coran pour mon enfant.",
+}
+# Pages where the floating WhatsApp button would get in the way (classroom, dashboards, admin).
+WA_HIDE = ("/admin", "/teacher", "/class", "/my", "/login", "/board", "/offline", "/cron", "/followups", "/pay", "/invoice")
+
+
+def _whatsapp_links() -> dict:
+    from urllib.parse import quote
+    num = current_app.config.get("WHATSAPP_PUBLIC_NUMBER", "")
+    if not num:
+        return {"wa_href": None, "wa_display": None, "wa_float": False}
+    lang = g.get("lang", "en")
+    display = "+" + num
+    if num.startswith("971") and len(num) == 12:          # +971 52 176 5915
+        display = f"+971 {num[3:5]} {num[5:8]} {num[8:]}"
+    return {"wa_href": f"https://wa.me/{num}?text={quote(WA_HELLO.get(lang, WA_HELLO['en']))}",
+            "wa_display": display,
+            "wa_float": not request.path.startswith(WA_HIDE)}
 
 
 def _check_form():
