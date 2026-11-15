@@ -1,0 +1,62 @@
+{
+  "slug": "surah-ikhlas",
+  "greeting": true,
+  "voice": null,
+  "scenes": [
+    {
+      "kind": "verse",
+      "kicker": "Surah Al-Ikhlas",
+      "ref": [
+        112,
+        1,
+        4
+      ],
+      "seconds": 9,
+      "sub": "In four short verses, Surah Al-Ikhlas teaches that Allah is One, and nothing is like Him.",
+      "translation": "Say, \"He is Allah, [who is] One, Allah, the Eternal Refuge. He neither begets nor is born, Nor is there to Him any equivalent.\"",
+      "translation_source": "Sahih International"
+    },
+    {
+      "kind": "headline",
+      "kicker": "How we teach",
+      "h1": "Slowly, <em>letter by letter</em>",
+      "chips": [
+        "Until it sounds right"
+      ],
+      "sub": "We teach every child slowly, letter by letter, until it sounds right."
+    },
+    {
+      "kind": "headline",
+      "kicker": "Every level",
+      "h1": "From <em>Qaida</em> to hifz",
+      "chips": [
+        "Noorani Qaida",
+        "Quran reading",
+        "Tajweed",
+        "Hifz"
+      ],
+      "sub": "Classes cover Noorani Qaida, Quran reading, tajweed and hifz."
+    },
+    {
+      "kind": "board",
+      "kicker": "Live class",
+      "tags": [
+        [
+          "1",
+          "One to one"
+        ],
+        [
+          "30",
+          "minutes"
+        ]
+      ],
+      "sub": "Every class is live and one to one, with a tested teacher."
+    },
+    {
+      "kind": "end",
+      "h1": "Your first class is <em>free</em>",
+      "ur": "پہلی کلاس مفت ہے",
+      "sub": "Book a free trial class at nurulhudaacademy.org"
+    }
+  ]
+}

@@ -1,0 +1,69 @@
+{
+  "slug": "female-teachers-ur",
+  "greeting": true,
+  "voice": null,
+  "scenes": [
+    {
+      "kind": "opener",
+      "h1": "A <em>female</em> Quran teacher for your child?",
+      "ur": "خواتین اساتذہ دستیاب ہیں",
+      "sub": "السلام علیکم۔ کیا آپ اپنے بچے کے لیے قرآن پڑھانے والی خاتون استاد چاہتے ہیں؟"
+    },
+    {
+      "kind": "headline",
+      "kicker": "On request",
+      "h1": "Female teachers <em>on request</em>",
+      "chips": [
+        "Live and online",
+        "One to one",
+        "30 minutes"
+      ],
+      "sub": "نورالہدیٰ اکیڈمی میں خواہش پر خاتون اساتذہ دستیاب ہیں۔",
+      "ur": "خواہش پر خاتون استاد"
+    },
+    {
+      "kind": "headline",
+      "kicker": "Our teachers",
+      "h1": "Led by a <em>Hafiza</em>",
+      "chips": [
+        "Every teacher passes her recitation test"
+      ],
+      "gold": "Head of Academics: a Hafiza",
+      "sub": "ہماری ہیڈ آف اکیڈمکس حافظہ ہیں، اور ہر استاد ان کا تلاوت کا امتحان پاس کرتا ہے۔",
+      "ur": "ہیڈ آف اکیڈمکس حافظہ ہیں"
+    },
+    {
+      "kind": "board",
+      "kicker": "Live class",
+      "tags": [
+        [
+          "1",
+          "One to one"
+        ],
+        [
+          "30",
+          "minutes"
+        ]
+      ],
+      "sub": "ہر کلاس براہِ راست اور ون ٹو ون ہوتی ہے، اور قرآن کا صفحہ اسکرین پر ہوتا ہے۔"
+    },
+    {
+      "kind": "phone",
+      "kicker": "When you book",
+      "img": "phone-trial.jpg",
+      "chips": [
+        "Teacher: Female teacher",
+        "Child's age",
+        "Times that suit you"
+      ],
+      "sub": "مفت آزمائشی کلاس بک کرتے وقت فارم میں خاتون استاد کا انتخاب کریں۔"
+    },
+    {
+      "kind": "end",
+      "h1": "Your first class is <em>free</em>",
+      "ur": "پہلی کلاس مفت ہے",
+      "sub": "مفت آزمائشی کلاس بک کریں: nurulhudaacademy.org"
+    }
+  ],
+  "lang": "ur-IN"
+}

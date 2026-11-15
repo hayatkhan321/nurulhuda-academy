@@ -1,0 +1,21 @@
+{
+  "slug": "female-teachers",
+  "greeting": true,
+  "voice": null,
+  "scenes": [
+    {"kind": "opener", "h1": "A <em>female</em> Quran teacher for your child?", "ur": "خواتین اساتذہ دستیاب ہیں",
+     "sub": "Assalamu alaikum. Would you like a female Quran teacher for your child?"},
+    {"kind": "headline", "kicker": "On request", "h1": "Female teachers <em>on request</em>",
+     "chips": ["Live and online", "One to one", "30 minutes"],
+     "sub": "At Nurul Huda Academy, female teachers are available on request."},
+    {"kind": "headline", "kicker": "Our teachers", "h1": "Led by a <em>Hafiza</em>",
+     "chips": ["Every teacher passes her recitation test"], "gold": "Head of Academics: a Hafiza",
+     "sub": "Our Head of Academics is a Hafiza, and every teacher passes her recitation test."},
+    {"kind": "board", "kicker": "Live class", "tags": [["1", "One to one"], ["30", "minutes"]],
+     "sub": "Every class is live and one to one, with the Quran page on screen."},
+    {"kind": "phone", "kicker": "When you book", "img": "phone-trial.jpg", "chips": ["Teacher: Female teacher", "Child's age", "Times that suit you"],
+     "sub": "When you book the free trial, just choose \"Female teacher\" on the form."},
+    {"kind": "end", "h1": "Your first class is <em>free</em>", "ur": "پہلی کلاس مفت ہے",
+     "sub": "Book a free trial class at nurulhudaacademy.org"}
+  ]
+}
