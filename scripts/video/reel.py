@@ -148,6 +148,8 @@ h1 em{font-style:normal;color:#f7cf6a}
 .url{display:inline-block;background:#e3a237;color:#132018;font-weight:780;font-size:46px;padding:18px 40px;border-radius:60px;margin-top:26px}
 .sub{position:absolute;left:70px;right:70px;bottom:430px;z-index:5;display:flex;justify-content:center}
 .sub span{background:rgba(2,20,14,.78);border:1px solid rgba(247,207,106,.35);color:#fff;font-size:40px;line-height:1.3;font-weight:560;text-align:center;padding:18px 28px;border-radius:22px;animation:sub .4s ease-out both}
+.rtlx{font-family:N,serif;direction:rtl;unicode-bidi:isolate;letter-spacing:0;line-height:1.9}
+h1 .rtlx{font-size:.72em;line-height:1.75}.chip .rtlx{line-height:1.7}.sub .rtlx{display:block;line-height:1.75;font-size:38px}
 @keyframes sub{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:none}}
 .prog{position:absolute;left:70px;right:70px;top:70px;height:6px;background:rgba(255,255,255,.14);border-radius:6px;overflow:hidden;z-index:6}
 .prog i{display:block;height:100%%;background:#e3a237;animation:grow linear both}
@@ -164,7 +166,10 @@ ARCH = ('<svg class="frame" viewBox="0 0 620 760"><path d="M40 740 V330 C40 170 
 def t(s):
     """Escape text but keep <em> and <br> (the only markup allowed in spec text)."""
     s = html.escape(s or "")
-    return re.sub(r"&lt;(/?em|br)&gt;", r"<\1>", s)
+    s = re.sub(r"&lt;(/?em|br)&gt;", r"<\1>", s)
+    if re.search(r"[\u0600-\u06FF]", s):     # Urdu / Arabic caption or headline: Nastaliq font, right to left
+        s = f'<span class="rtlx" dir="rtl">{s}</span>'
+    return s
 
 
 def chips(items, start=2, gold=None):

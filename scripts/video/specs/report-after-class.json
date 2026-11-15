@@ -1,0 +1,20 @@
+{
+  "slug": "report-after-class",
+  "greeting": true,
+  "voice": null,
+  "scenes": [
+    {"kind": "opener", "h1": "What did your child learn <em>today</em>?",
+     "sub": "Assalamu alaikum. Do you know what your child learned in today's Quran class?"},
+    {"kind": "board", "kicker": "Live class", "tags": [["1", "One to one"], ["30", "minutes"]],
+     "sub": "Every class is live and one to one, for 30 minutes."},
+    {"kind": "card", "kicker": "After every class", "img": "report.jpg", "ur": "ہر کلاس کے بعد رپورٹ",
+     "sub": "After every class, the teacher writes a short report."},
+    {"kind": "headline", "kicker": "In the report", "h1": "Where they reached, <em>what to practise</em>",
+     "chips": ["The lesson or surah reached", "What to practise next"],
+     "sub": "It tells you where your child reached and what to practise next."},
+    {"kind": "card", "kicker": "Your family page", "img": "dashboard.jpg",
+     "sub": "You can see every report on your family page."},
+    {"kind": "end", "h1": "Your first class is <em>free</em>", "ur": "پہلی کلاس مفت ہے",
+     "sub": "See it for yourself: book a free trial class at nurulhudaacademy.org"}
+  ]
+}

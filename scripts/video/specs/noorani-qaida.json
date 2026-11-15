@@ -1,0 +1,23 @@
+{
+  "slug": "noorani-qaida",
+  "greeting": true,
+  "voice": null,
+  "scenes": [
+    {"kind": "opener", "h1": "Where does reading the <em>Quran</em> begin?", "ur": "نورانی قاعدہ آن لائن",
+     "sub": "Assalamu alaikum. Reading the Quran begins with the Noorani Qaida."},
+    {"kind": "number", "kicker": "Noorani Qaida", "big": "17", "h1": "lessons, <em>step by step</em>",
+     "sub": "The Qaida has 17 lessons, from single letters to reading words of the Quran."},
+    {"kind": "headline", "kicker": "What your child learns", "h1": "Letters, sounds, then <em>words</em>",
+     "chips": ["Letters and their sounds", "Joined letters", "Vowels, sukoon, shaddah"],
+     "sub": "Your child learns the letters and their sounds, then joins them into words."},
+    {"kind": "number", "kicker": "From age 4", "big": "30", "h1": "minutes, right for <em>young children</em>",
+     "sub": "Classes are 30 minutes, which suits young children from age 4."},
+    {"kind": "card", "kicker": "After every class", "img": "report.jpg", "ur": "ہر کلاس کے بعد رپورٹ",
+     "sub": "After every class, the teacher records the lesson your child reached."},
+    {"kind": "headline", "kicker": "Free to download", "h1": "Practise <em>between</em> classes",
+     "chips": ["The Qaida on our Resources page"],
+     "sub": "You can download the Qaida free from our Resources page."},
+    {"kind": "end", "h1": "Your first class is <em>free</em>", "ur": "پہلی کلاس مفت ہے",
+     "sub": "Book a free trial class at nurulhudaacademy.org"}
+  ]
+}

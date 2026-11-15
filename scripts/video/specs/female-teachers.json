@@ -1,0 +1,22 @@
+{
+  "slug": "female-teachers",
+  "greeting": true,
+  "voice": null,
+  "scenes": [
+    {"kind": "opener", "h1": "Want a <em>female</em> Quran teacher?", "ur": "خاتون استانی کے ساتھ آن لائن قرآن کلاسیں",
+     "sub": "Assalamu alaikum. Would you like a female Quran teacher for your child?"},
+    {"kind": "headline", "kicker": "On request", "h1": "A <em>female teacher</em> for every class",
+     "chips": ["For girls", "For mothers and sisters", "For younger boys too"],
+     "sub": "At Nurul Huda Academy, you can ask for a female teacher for every class."},
+    {"kind": "headline", "kicker": "Who teaches", "h1": "Every teacher is <em>tested</em>",
+     "chips": ["Passes a recitation test"], "gold": "Head of Academics: a Hafiza",
+     "sub": "Our Head of Academics is a Hafiza, and every teacher passes a recitation test."},
+    {"kind": "headline", "kicker": "What she can teach", "h1": "From the <em>first letters</em> to hifz",
+     "chips": ["Noorani Qaida", "Reading", "Tajweed", "Hifz"],
+     "sub": "She can teach from the first letters of the Noorani Qaida to tajweed and hifz."},
+    {"kind": "board", "kicker": "Live class", "tags": [["1", "One to one"], ["30", "minutes"]],
+     "sub": "Classes are live and one to one, with the Quran page on screen."},
+    {"kind": "end", "h1": "Your first class is <em>free</em>", "ur": "پہلی کلاس مفت ہے",
+     "sub": "Ask for a female teacher when you book your free trial at nurulhudaacademy.org"}
+  ]
+}
