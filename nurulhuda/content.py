@@ -62,7 +62,13 @@ COUNTRIES = ["Canada", "United States", "United Kingdom", "United Arab Emirates"
 COURSE_CHOICES = [p["name"] for p in PATH] + [a["name"] for a in ALONGSIDE] + ["Not sure yet"]
 
 # Short videos (YouTube Shorts / TikTok). Add an entry once a video is uploaded; "youtube" is the video ID.
-VIDEOS: list[dict] = []
+# Short videos. Either a YouTube id ("youtube") or our own file in public/media ("file", "poster", "seconds").
+VIDEOS: list[dict] = [
+    {"file": "/media/how-your-child-learns-quran.mp4", "poster": "/media/how-your-child-learns-quran.jpg", "seconds": 39,
+     "uploaded": "2026-11-15",
+     "title": "How your child learns the Quran with us",
+     "text": "A free trial class, a tested teacher, live one-to-one lessons and a short report after every class."},
+]
 
 DAWAH_INTERESTS = ["I am curious about Islam", "I am thinking of becoming Muslim", "I would like to say the Shahada",
                    "I am a new Muslim", "I am asking for someone else"]

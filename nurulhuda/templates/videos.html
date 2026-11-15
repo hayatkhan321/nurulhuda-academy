@@ -1,16 +1,28 @@
 {% extends "base.html" %}
 {% block main %}
-{% with head="Short videos", sub="One-minute lessons and tips for children and parents, also on YouTube, TikTok and X." %}{% include "_page_head.html" %}{% endwith %}
+{% with head="Short videos", sub="Short videos for parents and children about learning the Quran and how our classes work." %}{% include "_page_head.html" %}{% endwith %}
 <section class="section"><div class="wrap">
   {% if C.VIDEOS %}
   <div class="video-grid">
     {% for v in C.VIDEOS %}
-    <figure style="margin:0">
+    <figure class="video-card">
+      {% if v.file %}
+      <video class="video-frame" controls playsinline preload="none" poster="{{ v.poster }}" aria-label="{{ v.title }}">
+        <source src="{{ v.file }}" type="video/mp4">
+      </video>
+      {% else %}
       <iframe class="video-frame" src="https://www.youtube-nocookie.com/embed/{{ v.youtube }}?rel=0" title="{{ v.title }}" loading="lazy" allow="accelerometer; encrypted-media; picture-in-picture" allowfullscreen></iframe>
-      <figcaption><b>{{ v.title }}</b></figcaption>
+      {% endif %}
+      <figcaption><b>{{ v.title }}</b>{% if v.text %}<span>{{ v.text }}</span>{% endif %}</figcaption>
     </figure>
     {% endfor %}
   </div>
+  <p style="margin-top:32px"><a class="btn green" href="{{ url_for('site.trial') }}">Book a free trial class</a></p>
+  {% for v in C.VIDEOS if v.file %}<script type="application/ld+json">{{ {"@context": "https://schema.org", "@type": "VideoObject",
+    "name": v.title, "description": v.text, "thumbnailUrl": site_url ~ v.poster, "contentUrl": site_url ~ v.file,
+    "uploadDate": v.uploaded, "duration": "PT" ~ v.seconds ~ "S",
+    "publisher": {"@type": "EducationalOrganization", "name": "Nurul Huda Academy", "url": site_url}}|tojson }}</script>
+  {% endfor %}
   {% else %}
   <div class="empty">
     <h2 style="font-size:1.5rem">The first videos are being recorded</h2>
