@@ -1,0 +1,22 @@
+{
+  "slug": "how-it-works",
+  "greeting": true,
+  "voice": null,
+  "scenes": [
+    {"kind": "opener", "h1": "Is your child ready to learn the <em>Quran</em>?", "ur": "کیا آپ کا بچہ قرآن سیکھنے کے لیے تیار ہے؟",
+     "sub": "Assalamu alaikum. Is your child ready to learn the Quran?"},
+    {"kind": "phone", "kicker": "Step 1", "img": "phone-home.jpg", "stamp": "FREE<br>trial",
+     "sub": "At Nurul Huda Academy, it starts with a free trial class."},
+    {"kind": "phone", "kicker": "Tell us", "img": "phone-trial.jpg", "chips": ["Child's age", "Their level", "Times that suit you"],
+     "ur": "مفت آزمائشی کلاس", "sub": "Just tell us your child's age, their level, and the times that suit you."},
+    {"kind": "headline", "kicker": "Step 2", "h1": "A <em>tested</em> teacher for your child",
+     "chips": ["Passes a recitation test", "Female teachers on request"], "gold": "Approved by a Hafiza",
+     "ur": "جانچے پرکھے اساتذہ، خواتین اساتذہ بھی دستیاب", "sub": "We match you with a tested teacher. Female teachers on request."},
+    {"kind": "board", "kicker": "Step 3 · Live class", "tags": [["1", "One to one"], ["30", "minutes"]],
+     "sub": "Every class is one to one, live, 30 minutes, with the Quran page on screen."},
+    {"kind": "card", "kicker": "After every class", "img": "report.jpg", "ur": "ہر کلاس کے بعد رپورٹ",
+     "sub": "After every class, a short report: where your child reached, and what to practise next."},
+    {"kind": "end", "h1": "Your first class is <em>free</em>", "ur": "پہلی کلاس مفت ہے",
+     "sub": "Your first class is free. Book today at nurulhudaacademy.org"}
+  ]
+}

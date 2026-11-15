@@ -1,0 +1,12 @@
+{
+  "slug": "example-verse",
+  "voice": null,
+  "scenes": [
+    {"kind": "verse", "kicker": "A verse to remember", "ref": [54, 17],
+     "sub": "Allah tells us He has made the Quran easy to remember."},
+    {"kind": "number", "kicker": "Every class", "big": "30", "h1": "minutes, one to one", "ur": "انفرادی کلاس، 30 منٹ",
+     "sub": "Every class is 30 minutes, live and one to one."},
+    {"kind": "end", "h1": "Your first class is <em>free</em>", "ur": "پہلی کلاس مفت ہے",
+     "sub": "Book a free trial class at nurulhudaacademy.org"}
+  ]
+}
