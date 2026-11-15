@@ -1,0 +1,32 @@
+{% extends "base.html" %}
+{% block main %}{% include "admin/_nav.html" %}
+<section class="section"><div class="wrap">
+  {% if msg %}<p class="alert">{{ msg }}</p>{% endif %}
+  <div class="form-card">
+    <h2>Google voices (Text-to-Speech)</h2>
+    <p>Natural narrator voices in English, Urdu, Arabic and more, paid from your Google Cloud credits. The weekly Video Producer uses this key to narrate the academy's videos. It is never used to recite the Quran.</p>
+    <p><b>Status: {% if tts_end %}key saved (ends in <!--nt-->…{{ tts_end }}<!--/nt-->){% else %}no key yet{% endif %}</b></p>
+    <form method="post"><input type="hidden" name="csrf" value="{{ csrf }}">
+      <div class="field"><label for="tts_key">{% if tts_end %}Replace the key{% else %}Paste the Google API key{% endif %}</label>
+        <input id="tts_key" name="tts_key" type="password" autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="AIza..."></div>
+      <button class="btn sm green" name="action" value="save_tts">Save key</button>
+      {% if tts_end %}<button class="btn sm outline-dark" name="action" value="remove_tts">Remove key</button>{% endif %}
+    </form>
+    {% if tts_end %}
+    <form method="post" class="inline-form" style="margin-top:18px"><input type="hidden" name="csrf" value="{{ csrf }}"><input type="hidden" name="action" value="test_tts">
+      <span>Test a voice:</span>
+      <button class="btn sm outline-dark" name="lang" value="en-GB">English</button>
+      <button class="btn sm outline-dark" name="lang" value="ur-IN">Urdu</button>
+      <button class="btn sm outline-dark" name="lang" value="ar-XA">Arabic</button>
+    </form>
+    {% if audio %}<audio controls autoplay src="{{ audio }}" style="margin-top:14px;width:100%;max-width:420px"></audio>{% endif %}
+    {% endif %}
+    <h3 style="margin-top:24px">Keep it safe</h3>
+    <ul class="tick-list">
+      <li>In Google Cloud, restrict the key to <b>Cloud Text-to-Speech API</b> only.</li>
+      <li>Set a budget alert (Billing &gt; Budgets &amp; alerts), for example $10.</li>
+      <li>Don't press Upgrade on the free trial: then Google can't charge your card.</li>
+    </ul>
+  </div>
+</div></section>
+{% endblock %}

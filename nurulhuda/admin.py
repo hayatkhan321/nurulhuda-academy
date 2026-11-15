@@ -1002,3 +1002,75 @@ def whatsapp_try():
 def current_app_url(endpoint):
     from flask import current_app
     return current_app.config["SITE_URL"].rstrip("/") + url_for(endpoint)
+
+
+# ---------------------------------------------------------------- Connections (keys for outside services)
+GOOGLE_TTS_KEY = "google_tts_key"
+# Voices used for the academy's videos; the test button speaks a short line in each.
+TTS_TEST = {
+    "en-GB": "Assalamu alaikum. Welcome to Nurul Huda Academy.",
+    "ur-IN": "السلام علیکم۔ نور الہدیٰ اکیڈمی میں خوش آمدید۔",
+    "ar-XA": "السلام عليكم. مرحبا بكم في أكاديمية نور الهدى.",
+}
+
+
+def google_tts(key: str, text: str, lang: str = "en-GB", voice: str | None = None, rate: float = 0.95) -> bytes:
+    """Speak text with Google Cloud Text-to-Speech; returns MP3 bytes. Raises RuntimeError with Google's reason."""
+    import base64
+    import json
+    import urllib.error
+    import urllib.request
+    body = {"input": {"text": text}, "voice": {"languageCode": lang, **({"name": voice} if voice else {})},
+            "audioConfig": {"audioEncoding": "MP3", "speakingRate": rate}}
+    req = urllib.request.Request("https://texttospeech.googleapis.com/v1/text:synthesize", data=json.dumps(body).encode(),
+                                 headers={"Content-Type": "application/json", "X-Goog-Api-Key": key}, method="POST")
+    try:
+        with urllib.request.urlopen(req, timeout=20) as r:
+            return base64.b64decode(json.load(r)["audioContent"])
+    except urllib.error.HTTPError as e:
+        try:
+            reason = json.load(e).get("error", {}).get("message", "")
+        except Exception:
+            reason = ""
+        raise RuntimeError(f"Google said {e.code}: {reason[:200]}")
+
+
+@admin_bp.route("/connections", methods=["GET", "POST"])
+@auth.admin_required
+def connections():
+    import base64
+    msg = audio = None
+    if request.method == "POST":
+        _check_form()
+        action = request.form.get("action")
+        if action == "save_tts":
+            key = "".join((request.form.get("tts_key") or "").split())
+            if not (20 <= len(key) <= 200) or not key.isascii():
+                msg = "That doesn't look like a Google API key. Copy it again from Google Cloud > APIs & Services > Credentials."
+            else:
+                ledger.set_setting(GOOGLE_TTS_KEY, key)
+                books.log("google_tts_key_saved", None, None, key_end=key[-4:])
+                db.session.commit()
+                msg = "Saved. Press Test to check it works."
+        elif action == "remove_tts":
+            from nurulhuda.models import Setting
+            s = db.session.get(Setting, GOOGLE_TTS_KEY)
+            if s:
+                db.session.delete(s)
+                books.log("google_tts_key_removed", None, None)
+                db.session.commit()
+            msg = "Removed."
+        elif action == "test_tts":
+            key = ledger.get_setting(GOOGLE_TTS_KEY, "")
+            lang = request.form.get("lang") if request.form.get("lang") in TTS_TEST else "en-GB"
+            if not key:
+                msg = "Save a key first."
+            else:
+                try:
+                    audio = "data:audio/mpeg;base64," + base64.b64encode(google_tts(key, TTS_TEST[lang], lang)).decode()
+                    msg = "It works. Listen below."
+                except Exception as e:      # show Google's own reason (e.g. API not enabled, key restricted)
+                    msg = f"The test didn't work. {e}"
+    key = ledger.get_setting(GOOGLE_TTS_KEY, "")
+    return render_template("admin/connections.html", title="Connections", tab="connections", msg=msg, audio=audio,
+                           tts_end=key[-4:] if key else None, tests=TTS_TEST)
