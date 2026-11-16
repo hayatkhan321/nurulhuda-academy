@@ -1,0 +1,71 @@
+{% extends "base.html" %}
+{% block main %}
+{% with head="Practice check", sub="A staff test of automatic recitation checking. Record one verse; the check suggests remarks per word; you mark each one right or wrong." %}{% include "_page_head.html" %}{% endwith %}
+<section class="section"><div class="wrap pc">
+  <p class="pc-warn"><b>For staff only, not for families yet.</b> The recording stays on this device and is never uploaded. The model was trained mostly on adult men's voices, so for children it only speaks when it is very sure. It never replaces the teacher.</p>
+
+  <form id="pc-form" class="pc-step" onsubmit="return false">
+    <fieldset class="pc-choose">
+      <legend>Who is reading?</legend>
+      <div class="pc-pick" role="radiogroup" aria-label="Age">
+        <label class="pc-opt"><input type="radio" name="reader" value="child" checked>
+          <svg viewBox="0 0 48 48" aria-hidden="true"><circle cx="24" cy="17" r="7"/><path d="M14 42c0-8 4-14 10-14s10 6 10 14"/></svg>
+          <span>Child</span><small>under 13</small></label>
+        <label class="pc-opt"><input type="radio" name="reader" value="adult">
+          <svg viewBox="0 0 48 48" aria-hidden="true"><circle cx="24" cy="12" r="6"/><path d="M12 44c0-12 5-20 12-20s12 8 12 20"/></svg>
+          <span>Adult</span><small>13 and over</small></label>
+      </div>
+      <div class="pc-pick" role="radiogroup" aria-label="Voice">
+        <label class="pc-opt"><input type="radio" name="gender" value="male" checked>
+          <svg viewBox="0 0 48 48" aria-hidden="true"><circle cx="20" cy="28" r="10"/><path d="M27 21l11-11M30 10h8v8"/></svg>
+          <span data-child="Boy" data-adult="Man">Boy</span></label>
+        <label class="pc-opt"><input type="radio" name="gender" value="female">
+          <svg viewBox="0 0 48 48" aria-hidden="true"><circle cx="24" cy="18" r="10"/><path d="M24 28v14M18 36h12"/></svg>
+          <span data-child="Girl" data-adult="Woman">Girl</span></label>
+      </div>
+    </fieldset>
+
+    <fieldset class="pc-verse">
+      <legend>Which verse?</legend>
+      <div class="pc-row">
+        <div class="field"><label for="pc-surah">Surah</label>
+          <select id="pc-surah">{% for n in SURAHS %}<option value="{{ loop.index }}" data-verses="{{ VERSES[loop.index0] }}"{% if loop.index == 112 %} selected{% endif %}>{{ loop.index }}. {{ n }}</option>{% endfor %}</select></div>
+        <div class="field"><label for="pc-ayah">Verse</label><select id="pc-ayah"></select></div>
+      </div>
+      <p class="small">Start with short verses (Al-Ikhlāṣ, Al-Fātiḥah). One verse per recording, up to {{ MAX_SECONDS }} seconds.</p>
+    </fieldset>
+  </form>
+
+  <div class="pc-board">
+    <div id="pc-text" class="pc-text" dir="rtl" lang="ar"></div>
+    <div class="pc-controls">
+      <button type="button" id="pc-rec" class="pc-rec" disabled><span class="dot" aria-hidden="true"></span><span class="lbl">Getting ready…</span></button>
+      <span id="pc-time" class="pc-time" aria-live="off"></span>
+    </div>
+    <p id="pc-status" class="pc-status" role="status">Loading the checker (about 23 MB, only the first time).</p>
+  </div>
+
+  <div id="pc-result" class="pc-result" hidden>
+    <h2>What the check says</h2>
+    <p class="small">For each remark, tap <b>Right</b> or <b>Wrong</b>. If the reader made a mistake the check did not catch, tap that word in the verse above and choose <b>Missed</b>.</p>
+    <ol id="pc-notes" class="pc-notes"></ol>
+    <div class="field"><label for="pc-note">Your note (optional)</label><textarea id="pc-note" rows="2" maxlength="500" placeholder="For example: child read quietly; check was right about the madd."></textarea></div>
+    <p><button type="button" id="pc-save" class="btn green">Save my review</button> <span id="pc-saved" class="small" role="status"></span></p>
+  </div>
+
+  <p class="small pc-foot"><a href="{{ url_for('recite.results') }}">{% if is_admin %}Results by group{% else %}My earlier checks{% endif %}</a> ·
+    Model: HisnLabs tajweed-v2 and its rule engine (Apache-2.0), built on Tarteel's Whisper model for Quran (Apache-2.0). Verse text and font: King Fahd Glorious Quran Printing Complex (Uthmanic Hafs v18).</p>
+</div></section>
+{% endblock %}
+{% block scripts %}
+<script src="https://cdn.jsdelivr.net/npm/onnxruntime-web@1.20.1/dist/ort.min.js"></script>
+<script src="{{ url_for('static', filename='check-mel.js') }}"></script>
+<script src="{{ url_for('static', filename='practice-check.js') }}"></script>
+<script>
+NHPracticeCheck.start({
+  checkUrl: "{{ url_for('recite.check') }}",
+  reviewUrl: "{{ url_for('recite.review', pid=0) }}".replace(/0\/review$/, ""),
+  csrf: "{{ csrf }}", maxSeconds: {{ MAX_SECONDS }}, dataUrl: "/quran/hafs-v18.json"
+});
+</script>
+{% endblock %}

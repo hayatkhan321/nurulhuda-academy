@@ -1,0 +1,28 @@
+{% extends "base.html" %}
+{% block main %}
+{% with head="Practice check results", sub="How often the automatic check was right, from your reviews." %}{% include "_page_head.html" %}{% endwith %}
+<section class="section"><div class="wrap pc">
+  <p><a class="btn green sm" href="{{ url_for('recite.page') }}">Record another verse</a></p>
+  {% if is_admin %}
+  <h2>By group</h2>
+  {% if rows %}
+  <div class="table-wrap"><table class="pc-table">
+    <thead><tr><th scope="col">Reader</th><th scope="col">Checks</th><th scope="col">Reviewed</th><th scope="col">Remarks right</th><th scope="col">Remarks wrong</th><th scope="col">Mistakes missed</th><th scope="col">Remarks you can trust</th></tr></thead>
+    <tbody>{% for g in rows %}<tr>
+      <th scope="row">{{ g.reader }}, {{ g.gender|lower }}</th><td>{{ g.checks }}</td><td>{{ g.reviewed }}</td>
+      <td>{{ g.right }}</td><td>{{ g.wrong }}</td><td>{{ g.missed }}</td>
+      <td>{% if g.precision is not none %}<b>{{ g.precision }}%</b>{% else %}–{% endif %}</td></tr>{% endfor %}</tbody>
+  </table></div>
+  <p class="small">"Remarks you can trust" = remarks marked right ÷ all remarks reviewed. Before families ever see the check, we would want this at 90% or more for children, with few mistakes missed.</p>
+  {% else %}<p>No checks yet.</p>{% endif %}
+  {% endif %}
+
+  <h2>{% if is_admin %}Recent checks{% else %}Your checks{% endif %}</h2>
+  {% if recent %}
+  <ul class="pc-recent">{% for x in recent %}
+    <li><b>{{ x.surah }} {{ x.r.ayah }}</b> · {{ READERS[x.r.reader] }}, {{ GENDERS[x.r.gender]|lower }} · {{ x.r.flagged }} remark{{ 's' if x.r.flagged != 1 }}
+      · {% if x.r.reviewed_at %}reviewed: {{ x.marks.values()|select('equalto','right')|list|length }} right, {{ x.marks.values()|select('equalto','wrong')|list|length }} wrong, {{ x.marks.values()|select('equalto','missed')|list|length }} missed{% else %}<span class="small">not reviewed</span>{% endif %}
+      {% if x.r.review_note %}<br><span class="small">“{{ x.r.review_note }}”</span>{% endif %}</li>{% endfor %}</ul>
+  {% else %}<p>No checks yet.</p>{% endif %}
+</div></section>
+{% endblock %}

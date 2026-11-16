@@ -16,6 +16,7 @@ def create_app(config_class=Config):
     from nurulhuda import models  # noqa: F401
     from nurulhuda.admin import admin_bp
     from nurulhuda.portal import portal_bp
+    from nurulhuda.recite import recite_bp
     from nurulhuda.routes import site_bp
 
     from nurulhuda import i18n
@@ -24,6 +25,7 @@ def create_app(config_class=Config):
     app.register_blueprint(site_bp)
     app.register_blueprint(portal_bp)
     app.register_blueprint(admin_bp)
+    app.register_blueprint(recite_bp)
 
     @app.errorhandler(413)
     def _too_large(_e):

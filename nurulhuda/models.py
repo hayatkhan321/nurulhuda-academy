@@ -434,3 +434,24 @@ class WaMessage(db.Model):
     direction = db.Column(db.String(6), nullable=False)                 # in / bot / staff
     body = db.Column(db.Text, nullable=False)
     wa_message_id = db.Column(db.String(120), unique=True)
+
+
+class PracticeCheck(db.Model):
+    """One staff test of the automatic recitation check (recite.py). No audio is kept: only what the model heard and
+    what it said, so the Head of Academics can judge how often it is right for children and adults, boys and girls."""
+    __tablename__ = "practice_checks"
+    id = db.Column(db.Integer, primary_key=True)
+    created_at = db.Column(db.DateTime(timezone=True), default=_now, nullable=False)
+    teacher_id = db.Column(db.Integer, db.ForeignKey("teachers.id"))    # empty when an admin ran it
+    reader = db.Column(db.String(6), nullable=False)                   # child / adult
+    gender = db.Column(db.String(6), nullable=False)                   # male / female
+    strictness = db.Column(db.String(10), nullable=False)              # gentle / standard
+    surah = db.Column(db.Integer, nullable=False)
+    ayah = db.Column(db.Integer, nullable=False)
+    seconds = db.Column(db.Float)
+    heard = db.Column(db.Text)                                          # the model's phonetic script
+    result = db.Column(db.Text)                                         # JSON: one entry per word
+    flagged = db.Column(db.Integer, default=0, nullable=False)          # words the check marked
+    review = db.Column(db.Text)                                         # JSON: {word index: "right" / "wrong" / "missed"}
+    review_note = db.Column(db.String(500))
+    reviewed_at = db.Column(db.DateTime(timezone=True))
