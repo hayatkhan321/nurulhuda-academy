@@ -240,12 +240,16 @@
       current = { id: j.id, marks: {} };
       spans.forEach(function (s) { s.classList.remove("flag", "ok", "missed"); s.classList.add("ok"); });
       var list = $("pc-notes"); list.innerHTML = "";
-      var flagged = 0;
+      var maybeList = $("pc-maybe"); maybeList.innerHTML = "";
+      var flagged = 0, maybe = 0;
+      spans.forEach(function (s) { s.classList.remove("maybe", "skip"); });
+      if (aligned) j.result.forEach(function (w, k) { var i = w.i != null ? w.i : k; if (w.skipped && spans[i]) { spans[i].classList.remove("ok"); spans[i].classList.add("skip"); } });
       j.result.forEach(function (w, k) {
         var i = w.i != null ? w.i : k;
         if (w.ok) return;
-        flagged++;
-        if (aligned && spans[i]) { spans[i].classList.remove("ok"); spans[i].classList.add("flag"); }
+        var sure = !!w.sure;
+        if (sure) flagged++; else maybe++;
+        if (aligned && spans[i]) { spans[i].classList.remove("ok"); spans[i].classList.add(sure ? "flag" : "maybe"); }
         var li = document.createElement("li"); li.dataset.i = i;
         var word = aligned && spans[i] ? spans[i].textContent : "Word " + (i + 1);
         li.innerHTML = '<span class="pc-nw" dir="rtl" lang="ar"></span><div class="pc-nt"></div>' +
@@ -253,12 +257,15 @@
         li.querySelector(".pc-nw").textContent = word;
         var nt = li.querySelector(".pc-nt");
         w.notes.forEach(function (n) {
+          if (sure && !n.sure) return;
           var p = document.createElement("p"); p.textContent = n.en;
           var ar = document.createElement("span"); ar.className = "ar"; ar.dir = "rtl"; ar.lang = "ar"; ar.textContent = n.ar;
           p.appendChild(ar); nt.appendChild(p);
         });
-        list.appendChild(li);
+        (sure ? list : maybeList).appendChild(li);
       });
+      $("pc-maybe-box").hidden = !maybe;
+      $("pc-maybe-n").textContent = maybe;
       if (!flagged) {
         var li0 = document.createElement("li"); li0.className = "pc-none";
         li0.textContent = j.strictness === "gentle"
@@ -268,10 +275,17 @@
       }
       $("pc-saved").textContent = ""; $("pc-note").value = "";
       $("pc-result").hidden = false;
-      if (j.words > 2 && flagged >= j.words) { say("Every word has a remark: was the verse recited the one chosen above? If not, choose it and record again.", "bad"); return; }
+      if (j.words > 2 && flagged >= j.words && !j.result.some(function (w) { return w.skipped; })) { say("Every word has a remark: was the verse recited the one chosen above? If not, choose it and record again.", "bad"); return; }
       say(flagged ? flagged + " word" + (flagged > 1 ? "s" : "") + " with a remark. Please review them below." : "Done. Please review below.", "good");
     }
 
+    $("pc-maybe").addEventListener("click", function (e) { $("pc-notes").onclickShared(e); });
+    $("pc-notes").onclickShared = function (e) {
+      var b = e.target.closest("button[data-v]"); if (!b || !current) return;
+      var li = b.closest("li");
+      current.marks[li.dataset.i] = b.dataset.v;
+      li.querySelectorAll("button[data-v]").forEach(function (x) { x.setAttribute("aria-pressed", x === b ? "true" : "false"); });
+    };
     $("pc-notes").addEventListener("click", function (e) {
       var b = e.target.closest("button[data-v]"); if (!b || !current) return;
       var li = b.closest("li");
@@ -279,7 +293,7 @@
       li.querySelectorAll("button[data-v]").forEach(function (x) { x.setAttribute("aria-pressed", x === b ? "true" : "false"); });
     });
     textEl.addEventListener("click", function (e) {
-      var w = e.target.closest(".pc-w"); if (!w || !current || w.classList.contains("flag")) return;
+      var w = e.target.closest(".pc-w"); if (!w || !current || w.classList.contains("flag") || w.classList.contains("maybe") || w.classList.contains("skip")) return;
       var i = w.dataset.i;
       if (current.marks[i] === "missed") { delete current.marks[i]; w.classList.remove("missed"); }
       else { current.marks[i] = "missed"; w.classList.add("missed"); }

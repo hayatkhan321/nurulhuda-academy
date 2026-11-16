@@ -2,7 +2,7 @@
 {% block main %}
 {% with head="Practice check", sub="A staff test of automatic recitation checking. Record one verse; the check suggests remarks per word; you mark each one right or wrong." %}{% include "_page_head.html" %}{% endwith %}
 <section class="section"><div class="wrap pc">
-  <p class="pc-warn"><b>For staff only, not for families yet.</b> The recording stays on this device and is never uploaded. The model was trained mostly on adult men's voices, so for children it only speaks when it is very sure. It never replaces the teacher.</p>
+  <p class="pc-warn"><b>For staff only, not for families yet.</b> In our test on 159 recordings, its remarks on <b>qalqalah, ghunnah and ikhfa</b> were nearly always right; remarks on letters and madd lengths often were not, so those are shown apart as "less sure". The recording stays on this device and is never uploaded. The model was trained mostly on adult men's voices, so for children it only speaks when it is very sure. It never replaces the teacher.</p>
 
   <form id="pc-form" class="pc-step" onsubmit="return false">
     <fieldset class="pc-choose">
@@ -49,6 +49,11 @@
     <h2>What the check says</h2>
     <p class="small">For each remark, tap <b>Right</b> or <b>Wrong</b>. If the reader made a mistake the check did not catch, tap that word in the verse above and choose <b>Missed</b>.</p>
     <ol id="pc-notes" class="pc-notes"></ol>
+    <details id="pc-maybe-box" class="pc-maybe" hidden>
+      <summary>Less sure: <span id="pc-maybe-n">0</span> more (letters, dropped sounds, madd length)</summary>
+      <p class="small">In our test on 159 reciters these remarks were usually wrong: the check misheard, not the reader. Please still mark them, so we learn whether they improve.</p>
+      <ol id="pc-maybe" class="pc-notes"></ol>
+    </details>
     <div class="field"><label for="pc-note">Your note (optional)</label><textarea id="pc-note" rows="2" maxlength="500" placeholder="For example: child read quietly; check was right about the madd."></textarea></div>
     <p><button type="button" id="pc-save" class="btn green">Save my review</button> <span id="pc-saved" class="small" role="status"></span></p>
   </div>

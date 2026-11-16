@@ -742,3 +742,8 @@ tr.corrected td { color: var(--muted); text-decoration: line-through; text-decor
   .pc-notes li { grid-template-columns: 1fr; }
   .pc-text { font-size: 1.6rem; }
 }
+.pc-w.maybe { text-decoration: underline dotted #8a9a94; text-underline-offset: 12px; }
+.pc-maybe { margin: 14px 0 18px; }
+.pc-maybe summary { cursor: pointer; font-weight: 600; color: var(--muted); }
+.pc-maybe .pc-notes li { background: #f7f9f8; }
+.pc-w.skip { color: #b5c2bc; }

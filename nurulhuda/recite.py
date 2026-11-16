@@ -23,6 +23,11 @@ READERS = {"child": "Child", "adult": "Adult"}
 GENDERS = {"male": "Male", "female": "Female"}
 # How sure the model must be before it says anything (see imam.listen): fine points / clear mistakes.
 STRICTNESS = {"standard": (0.3, 0.7), "gentle": (0.6, 0.85)}
+# Remarks the check gets right. Measured 17 Nov 2026 on the qdat_bench benchmark (159 reciters of 5:109, Apache-2.0):
+# qalqalah 48/48, ghunnah 30/31, ikhfa 17/17 right. Iqlab and idgham (same nasal family) are not in that verse.
+# Wrong letter, dropped or added sound, vowel, shadda and madd-length remarks were mostly wrong (2-18 %): the model
+# misheard rather than the reciter erred. Those are still shown, apart and greyed, as "less sure".
+SURE_RULES = {"qalqalah", "ghunnah", "ikhfa", "iqlab", "idgham"}
 MAX_SECONDS = 28
 
 
@@ -49,14 +54,28 @@ def analyse(surah, ayah, heard, probs, times, strictness="standard"):
     out = []
     for w in imam.listen(ref, heard, heard_probs=probs or None, min_prob=lo, min_prob_jali=jali,
                          langs=("en", "ar"), heard_times=times or None):
+        notes = [{"en": n["msg"]["en"], "ar": n["msg"]["ar"], "rule": n.get("rule"), "severity": n.get("severity"),
+                  "sure": (n.get("rule") or "").split(":")[0] in SURE_RULES} for n in w["notes"]]
         out.append({
             "i": w.get("index"),
             "ok": bool(w["ok"]),
-            "notes": [{"en": n["msg"]["en"], "ar": n["msg"]["ar"], "rule": n.get("rule"), "severity": n.get("severity")}
-                      for n in w["notes"]],
+            "sure": any(n["sure"] for n in notes),
+            "notes": notes,
             "madd": [{"en": m["name"]["en"], "ar": m["name"]["ar"], "heard": m["heard"]} for m in w.get("madd", [])],
         })
-    return {"words": len(words), "result": out}
+    # Reading only part of a long verse is normal: words before the first and after the last word recited are
+    # "not recited", not mistakes.
+    def unread(w):
+        return w["notes"] and all((n["rule"] or "") in ("word", "dropped") for n in w["notes"])
+    lo_i, hi_i = 0, len(out)
+    while lo_i < hi_i and unread(out[lo_i]):
+        lo_i += 1
+    while hi_i > lo_i and unread(out[hi_i - 1]):
+        hi_i -= 1
+    for k, w in enumerate(out):
+        if k < lo_i or k >= hi_i:
+            w.update(ok=True, sure=False, notes=[], madd=[], skipped=True)
+    return {"words": len(words), "result": out, "recited": hi_i - lo_i}
 
 
 @recite_bp.route("/")
@@ -99,11 +118,13 @@ def check():
     try:
         res = analyse(surah, ayah, heard, probs, times, strictness)
     except Exception:  # noqa: BLE001 - a recitation of another verse can confuse the aligner
+        res = None
+    if not res or not res["recited"]:
         return jsonify(error="The check could not match this recording to the verse. Was it the verse chosen above?"), 422
     row = PracticeCheck(teacher_id=teacher.id if teacher else None, reader=reader, gender=gender, strictness=strictness,
                         surah=surah, ayah=ayah, seconds=min(float(d.get("seconds") or 0), 60), heard=heard,
                         result=json.dumps(res["result"], ensure_ascii=False),
-                        flagged=sum(1 for w in res["result"] if not w["ok"]))
+                        flagged=sum(1 for w in res["result"] if w.get("sure")))
     db.session.add(row)
     db.session.commit()
     return jsonify(id=row.id, strictness=strictness, words=res["words"], result=res["result"])
