@@ -3,7 +3,10 @@
 // connection (Daily app messages), so nothing new is stored or paid for. On the practice page they travel between
 // browser tabs instead.
 //
-// NHBoard.start(el, {role: "teacher"|"student"|"observer", send: fn(msg), dataUrl})  -> returns {receive(msg, from)}
+// NHBoard.start(el, {role: "teacher"|"student"|"observer", send: fn(msg), dataUrl, mistakesUrl?, csrf?})
+//   -> returns {receive(msg, from)}
+// Mistakes: with the "Mistake" tool the teacher taps a word on the Quran page. In a real class (mistakesUrl given)
+// each tap is saved for the child's "words to practise"; on the practice page it is only shown.
 (function () {
   var W = 760;                       // every board is laid out 760 units wide, then scaled to fit the screen,
   var BLANK_H = 1000;                // so marks land on the same word on every device
@@ -14,8 +17,10 @@
     { id: "hl-blue", kind: "hl", color: "rgba(52, 152, 219, 0.36)", w: 22, label: "Blue highlighter" },
     { id: "pen-red", kind: "pen", color: "#d62828", w: 3.5, label: "Red pen" },
     { id: "pen-blue", kind: "pen", color: "#1d4ed8", w: 3.5, label: "Blue pen" },
-    { id: "eraser", kind: "eraser", label: "Eraser: tap a mark to remove it" }
+    { id: "eraser", kind: "eraser", label: "Eraser: tap a mark to remove it" },
+    { id: "mistake", kind: "mistake", label: "Mistake: tap a word the student got wrong", teacherOnly: true }
   ];
+  var KINDS = [["word", "Word"], ["tajweed", "Tajweed"], ["harakah", "Vowel marks"]];
   var MAX_PTS = 250;                 // points per message, to stay well under the message size limit
 
   function h(tag, attrs, kids) {
@@ -27,7 +32,8 @@
 
   function start(root, opt) {
     var teacher = opt.role === "teacher";
-    var state = { view: "p1", page: 1, studentDraws: false, tool: TOOLS[0], strokes: {}, data: null };
+    var state = { view: "p1", page: 1, studentDraws: false, tool: TOOLS[0], strokes: {}, data: null,
+                  mist: {}, kind: "word" };   // mist: "surah:ayah:word" -> {st: "now"|"open"|"fixed", kind}
     var mine = []; // ids of strokes I drew on each view, newest last, for Undo
     var dataPromise = null;
 
@@ -70,8 +76,10 @@
 
     var toolBtns = {};
     TOOLS.forEach(function (t) {
+      if (t.teacherOnly && !teacher) return;
       var b = h("button", { type: "button", class: "tool tool-" + t.kind, title: t.label, "aria-label": t.label, "aria-pressed": "false" });
-      if (t.kind !== "eraser") b.style.setProperty("--c", t.color.replace(/0\.\d+\)/, "1)"));
+      if (t.kind === "mistake") b.innerHTML = '<svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path d="M4 8h16M4 13h10" stroke="currentColor" stroke-width="2"/><path d="M3 19c2-2 3 2 5 0s3 2 5 0 3 2 5 0" fill="none" stroke="#d62828" stroke-width="2"/></svg>';
+      else if (t.kind !== "eraser") b.style.setProperty("--c", t.color.replace(/0\.\d+\)/, "1)"));
       else b.innerHTML = '<svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path d="M16 3l5 5-11 11H5v-5L16 3z" fill="none" stroke="currentColor" stroke-width="2"/></svg>';
       b.onclick = function () { state.tool = t; paintTools(); };
       tools.appendChild(b); toolBtns[t.id] = b;
@@ -83,14 +91,23 @@
       if (teacher) { state.strokes[state.view] = []; mine = []; redraw(); opt.send({ k: "clear", v: state.view }); }
       else { mine.forEach(function (id) { remove(id); opt.send({ k: "del", v: state.view, id: id }); }); mine = []; }
     };
+    var kindSel = null;
+    if (teacher) {
+      kindSel = h("select", { "aria-label": "Kind of mistake", class: "board-kind" }, KINDS.map(function (k) { return h("option", { value: k[0], text: k[1] }); }));
+      kindSel.onchange = function () { state.kind = kindSel.value; };
+      tools.appendChild(kindSel);
+    }
     tools.appendChild(undo); tools.appendChild(clear);
     function paintTools() {
       for (var id in toolBtns) toolBtns[id].setAttribute("aria-pressed", String(id === state.tool.id));
       var can = canDraw();
       tools.hidden = !can;
-      canvas.style.cursor = can ? (state.tool.kind === "eraser" ? "pointer" : "crosshair") : "default";
+      canvas.style.cursor = can ? (state.tool.kind === "eraser" || state.tool.kind === "mistake" ? "pointer" : "crosshair") : "default";
       canvas.style.touchAction = can ? "none" : "auto";
-      info.textContent = teacher ? "" : can ? "Your teacher has let you mark the board." : "Your teacher's board. Marks appear here as your teacher writes.";
+      if (kindSel) kindSel.hidden = state.tool.kind !== "mistake";
+      info.textContent = teacher ? (state.tool.kind === "mistake"
+        ? "Tap a word to mark a mistake; tap it again to undo. Tap a dotted word (an earlier mistake) when it is read correctly."
+        : "") : can ? "Your teacher has let you mark the board." : "Your teacher's board. Marks appear here as your teacher writes.";
     }
     function canDraw() { return teacher || (opt.role === "student" && state.studentDraws); }
 
@@ -106,6 +123,17 @@
       });
       return dataPromise;
     }
+    // Each word becomes its own span (data-s surah, data-a ayah, data-w word number) so a mistake can be marked on it.
+    // The verse number is joined to the last word by a no-break space in the King Fahd text.
+    function words(a) {
+      var parts = a[2].split(" "), out = [];
+      parts.forEach(function (p, i) {
+        var num = "";
+        if (i === parts.length - 1 && p.indexOf("\u00a0") > 0) { num = p.slice(p.indexOf("\u00a0")); p = p.slice(0, p.indexOf("\u00a0")); }
+        out.push('<span class="q-w" data-s="' + a[0] + '" data-a="' + a[1] + '" data-w="' + (i + 1) + '">' + p + "</span>" + num);
+      });
+      return out.join(" ");
+    }
     function renderPage(n) {
       var d = state.data, html = [];
       d.pages[n - 1].forEach(function (a) {
@@ -114,10 +142,58 @@
           html.push('<div class="q-head"><span>سُورَةُ ' + s[0] + "</span></div>");
           if (a[0] !== 1 && a[0] !== 9) html.push('<div class="q-bism">' + d.pages[0][0][2].split(" ")[0] + "</div>");
         }
-        html.push('<span class="q-aya">' + a[2] + " </span>");
+        html.push('<span class="q-aya">' + words(a) + " </span>");
       });
       sheet.className = "board-sheet q-page";
       sheet.innerHTML = '<div class="q-text">' + html.join("") + '</div><p class="q-foot">' + n + "</p>";
+      paintMistakes();
+    }
+
+    // --- mistakes ------------------------------------------------------------------------------------------
+    function keyOf(el) { return el.getAttribute("data-s") + ":" + el.getAttribute("data-a") + ":" + el.getAttribute("data-w"); }
+    function paintMistakes() {
+      var spans = sheet.querySelectorAll(".q-w");
+      for (var i = 0; i < spans.length; i++) {
+        var m = state.mist[keyOf(spans[i])];
+        spans[i].className = "q-w" + (m ? " m-" + m.st + " k-" + m.kind : "");
+      }
+    }
+    function setMistake(key, m) {
+      if (m && m.st) state.mist[key] = m; else delete state.mist[key];
+      var p = key.split(":");
+      var el = sheet.querySelector('.q-w[data-s="' + p[0] + '"][data-a="' + p[1] + '"][data-w="' + p[2] + '"]');
+      if (el) el.className = "q-w" + (m && m.st ? " m-" + m.st + " k-" + m.kind : "");
+    }
+    function tapWord(e) {
+      var el = null, hits = document.elementsFromPoint ? document.elementsFromPoint(e.clientX, e.clientY) : [];
+      for (var i = 0; i < hits.length && !el; i++) { if (hits[i].classList && hits[i].classList.contains("q-w")) el = hits[i]; }
+      if (!el) return;
+      var key = keyOf(el), cur = state.mist[key], next, action;
+      if (!cur) { next = { st: "now", kind: state.kind }; action = "add"; }
+      else if (cur.st === "now") { next = null; action = "remove"; }
+      else if (cur.st === "open") { next = { st: "fixed", kind: cur.kind }; action = "fix"; }
+      else { next = { st: "open", kind: cur.kind }; action = "unfix"; }
+      var before = cur;
+      setMistake(key, next);
+      opt.send({ k: "mist", key: key, m: next });
+      if (!opt.mistakesUrl) return;
+      var p = key.split(":").map(Number);
+      fetch(opt.mistakesUrl, { method: "POST", headers: { "X-CSRF": opt.csrf, "Content-Type": "application/json" },
+        body: JSON.stringify({ action: action, s: p[0], a: p[1], w: p[2], kind: next ? next.kind : state.kind, text: el.textContent }) })
+        .then(function (r) { if (!r.ok) throw new Error(r.status); return r.json(); })
+        .then(function (d) {
+          // the server knows the child's history (e.g. a word removed today may still be open from an earlier class)
+          var now = d.state ? { st: d.state, kind: next ? next.kind : (before ? before.kind : state.kind) } : null;
+          setMistake(key, now); opt.send({ k: "mist", key: key, m: now });
+        })
+        .catch(function () { setMistake(key, before); opt.send({ k: "mist", key: key, m: before || null }); info.textContent = "That mark was not saved. Please check the connection and tap the word again."; });
+    }
+    function loadMistakes() {
+      if (!opt.mistakesUrl) return;
+      fetch(opt.mistakesUrl, { headers: { "Accept": "application/json" } }).then(function (r) { return r.json(); }).then(function (d) {
+        (d.items || []).forEach(function (m) { state.mist[m.s + ":" + m.a + ":" + m.w] = { st: m.state, kind: m.kind }; });
+        paintMistakes();
+      }).catch(function () {});
     }
 
     // --- views and drawing -----------------------------------------------------------------------------
@@ -183,6 +259,7 @@
     canvas.addEventListener("pointerdown", function (e) {
       if (!canDraw()) return;
       e.preventDefault(); canvas.setPointerCapture(e.pointerId);
+      if (state.tool.kind === "mistake") { tapWord(e); return; }
       var xy = pos(e);
       if (state.tool.kind === "eraser") { eraseAt(xy); return; }
       cur = { id: Math.random().toString(36).slice(2, 9), kind: state.tool.kind, c: state.tool.color, w: state.tool.w, p: xy };
@@ -227,6 +304,9 @@
       opt.send({ k: "view", v: state.view });
       opt.send({ k: "perm", draw: state.studentDraws });
       (state.strokes[state.view] || []).forEach(function (s) { opt.send({ k: "stroke", v: state.view, s: s }); });
+      var all = [];
+      for (var key in state.mist) all.push([key, state.mist[key]]);
+      for (var i = 0; i < all.length; i += 60) opt.send({ k: "mists", items: all.slice(i, i + 60) });
     }
     function receive(m) {
       if (!m || typeof m !== "object") return;
@@ -235,10 +315,16 @@
       if (m.k === "perm" && !teacher) { state.studentDraws = !!m.draw; paintTools(); return; }
       if (m.k === "stroke" && m.s && m.s.p) { add(m.v, m.s); return; }
       if (m.k === "del") { remove(m.id, m.v); return; }
-      if (m.k === "clear") { state.strokes[m.v] = []; if (m.v === state.view) redraw(); }
+      if (m.k === "clear") { state.strokes[m.v] = []; if (m.v === state.view) redraw(); return; }
+      if (m.k === "mist" && !teacher && typeof m.key === "string") { setMistake(m.key, m.m && m.m.st ? { st: String(m.m.st), kind: String(m.m.kind) } : null); return; }
+      if (m.k === "mists" && !teacher && m.items && m.items.forEach) {
+        m.items.forEach(function (x) { if (x && typeof x[0] === "string" && x[1]) state.mist[x[0]] = { st: String(x[1].st), kind: String(x[1].kind) }; });
+        paintMistakes();
+      }
     }
 
     paintTools();
+    loadMistakes();
     show(state.view);
     if (!teacher) opt.send({ k: "hello" });
     return { receive: receive, sendState: sendState, refit: fit };

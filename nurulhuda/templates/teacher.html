@@ -14,7 +14,7 @@
 
   {% if to_mark %}
   <h2 style="margin-top:36px">Please mark these classes</h2>
-  <p class="small">You are paid once a class is marked. Write two lines on what you covered; parents read them.</p>
+  <p class="small">You are paid once a class is marked. Write two lines on what you covered and set homework; parents read both.</p>
   {% for c in to_mark %}
   <form class="class-note" method="post" action="{{ url_for('portal.mark', cid=c.id) }}">
     <input type="hidden" name="csrf" value="{{ csrf }}">
@@ -35,6 +35,23 @@
       <div class="field"><label for="l{{ c.id }}">Qaida lesson</label><input id="l{{ c.id }}" name="lesson" type="number" min="1" max="{{ QAIDA }}" value="{{ lp.prog_lesson if lp and lp.prog_lesson else '' }}"></div>
       <div class="field" style="grid-column: span 2"><label for="f{{ c.id }}">Working on</label><input id="f{{ c.id }}" name="focus" maxlength="120" placeholder="e.g. ikhfa, madd, letters with kasra" value="{{ lp.prog_focus if lp and lp.prog_focus else '' }}"></div>
     </div>
+    {% set k = counts.get(c.id) %}
+    {% if k and (k.marked or k.fixed or k.open) %}<p class="small hw-note">Mistakes marked on the board in this class: <b>{{ k.marked }}</b>{% if k.fixed %}, corrected: <b>{{ k.fixed }}</b>{% endif %}. Still to practise for {{ c.student.first_name }}: <b>{{ k.open }}</b>. The parent sees these as "Words to practise".</p>{% endif %}
+    {% set ph = last_hw.get(c.student_id) %}
+    {% if ph %}<p class="small hw-note"><b>Last homework</b> ({{ ph.set_on }}): {{ ph.task }}{% if ph.portion %} · {{ ph.portion }}{% endif %}. The family ticked <b>{{ ph.days_since }}</b> day{{ 's' if ph.days_since != 1 }} of practice. Ask {{ c.student.first_name }} how it went.</p>{% endif %}
+    <fieldset class="hw-fields">
+      <legend><b>Homework until the next class</b> <span class="small">(the parent sees it and ticks each day practised)</span></legend>
+      <div class="field"><label for="hw{{ c.id }}">What to practise</label><textarea id="hw{{ c.id }}" name="hw_task" maxlength="300" rows="2" placeholder="e.g. Read verses 10 to 12 five times a day, slowly, holding the madd for 2 counts."></textarea></div>
+      <div class="prog-fields">
+        <div class="field"><label for="hm{{ c.id }}">Minutes a day</label><select id="hm{{ c.id }}" name="hw_minutes"><option value="">Not set</option>{% for m in HW_MINUTES %}<option value="{{ m }}"{% if m == 10 %} selected{% endif %}>{{ m }} minutes</option>{% endfor %}</select></div>
+        <div class="field"><label for="hs{{ c.id }}">Surah (Quran)</label><select id="hs{{ c.id }}" name="hw_surah"><option value="">No surah</option>
+          {% for nm in SURAHS %}<option value="{{ loop.index }}"{% if lp and lp.prog_book == 'quran' and lp.prog_surah == loop.index %} selected{% endif %}>{{ loop.index }}. {{ nm }}</option>{% endfor %}</select></div>
+        <div class="field hw-range"><label for="hf{{ c.id }}">Verses</label><span><input id="hf{{ c.id }}" name="hw_from" type="number" min="1" max="286" aria-label="From verse"> to <input name="hw_to" type="number" min="1" max="286" aria-label="To verse"></span></div>
+      </div>
+      <div class="prog-fields">
+        <div class="field"><label for="hl{{ c.id }}">or Qaida lesson</label><input id="hl{{ c.id }}" name="hw_lesson" type="number" min="1" max="{{ QAIDA }}"></div>
+      </div>
+    </fieldset>
     <div class="choices">
       <button class="btn green sm" name="status" value="completed" type="submit">Class completed</button>
       <button class="btn sm outline-dark" name="status" value="student_missed" type="submit">Student did not come</button>

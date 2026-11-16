@@ -77,6 +77,27 @@
       {% else %}<p class="small">Progress appears after the teacher's first class report.</p>{% endif %}
       {% if c.focus %}<p class="small"><b>Working on:</b> {{ c.focus }}</p>{% endif %}
       {% if c.note %}<p class="small"><b>Last note:</b> {{ c.note }}</p>{% endif %}
+      {% if c.homework %}{% set hw = c.homework %}
+      <div class="hw-card" id="homework">
+        <div class="dash-row"><p class="dash-label">Homework</p><p class="small">Set {{ hw.set_on }}{% if hw.teacher %} by {{ hw.teacher }}{% endif %}</p></div>
+        <p class="hw-task"><!--nt-->{{ hw.task }}<!--/nt--></p>
+        {% if hw.portion or hw.minutes %}<p class="small hw-meta">{% if hw.portion %}<b>{{ hw.portion }}</b>{% endif %}{% if hw.minutes %}<span>{{ hw.minutes }} minutes a day</span>{% endif %}</p>{% endif %}
+        <div class="hw-week" role="img" aria-label="Days practised this week">{% for d in hw.week %}<span class="{{ 'done' if d.done }}{{ ' today' if d.today }}" title="{{ d.label }}"><i>{{ d.label[:1] }}</i></span>{% endfor %}</div>
+        <p class="small">{% if hw.streak > 1 %}{{ hw.streak }} days in a row. Keep going!{% elif hw.days_since %}Practised on {{ hw.days_since }} of {{ hw.days_open }} days.{% else %}Tick each day your child practises.{% endif %}</p>
+        {% if hw.today_done %}<p class="hw-done">Practised today. Well done!</p>
+        {% else %}<form method="post" action="{{ url_for('portal.homework_practised', hid=hw.id) if not D.demo else '#' }}">{% if not D.demo %}<input type="hidden" name="csrf" value="{{ csrf }}">{% endif %}<button class="btn green sm" type="{{ 'button' if D.demo else 'submit' }}">We practised today</button></form>{% endif %}
+      </div>
+      {% endif %}
+      {% if c.words and (c.words['items'] or c.words.fixed) %}
+      <div class="words-card">
+        <div class="dash-row"><p class="dash-label">Words to practise</p>{% if c.words.fixed %}<p class="small">{{ c.words.fixed }} corrected so far</p>{% endif %}</div>
+        {% if c.words['items'] %}
+        <ul class="words-list">{% for w in c.words['items'] %}<li><span class="q-word" lang="ar" dir="rtl"><!--nt-->{{ w.text }}<!--/nt--></span><span class="small word-meta"><span>{{ w.kind }}</span><span dir="ltr"><!--nt-->{{ w.where }}<!--/nt--></span>{% if w.times > 1 %}<span>marked {{ w.times }} times</span>{% endif %}</span></li>{% endfor %}</ul>
+        {% if c.words.more %}<p class="small">And {{ c.words.more }} more.</p>{% endif %}
+        <p class="small dash-meta">Marked by the teacher on the lesson board. Each word stays here until your child reads it correctly in class.</p>
+        {% else %}<p class="small">All marked words have been corrected. Well done!</p>{% endif %}
+      </div>
+      {% endif %}
       <p class="small dash-meta">{{ c.classes }} class{{ 'es' if c.classes != 1 }} so far{% if c.next %} · next {{ c.next }}{% endif %}</p>
     </div>
     {% endfor %}

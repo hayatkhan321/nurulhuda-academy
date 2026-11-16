@@ -5,7 +5,7 @@ from collections import Counter
 from datetime import date, datetime, timedelta
 from zoneinfo import ZoneInfo
 
-from nurulhuda import db, ledger, quran_index
+from nurulhuda import db, ledger, practice, quran_index
 from nurulhuda.models import ClassReview, ClassSession, CreditEntry, TeacherCheckin
 
 CHECKIN_AFTER = 6          # classes with a teacher before the family is asked "keep or try another?"
@@ -115,6 +115,8 @@ def family_dashboard(family) -> dict:
             "progress": progress_of(with_progress), "focus": with_progress.prog_focus if with_progress else None,
             "note": last.teacher_note if last else None, "classes": len(taken),
             "next": _local(nxt.starts_at, tz).strftime("%a %d %b, %I:%M %p").replace(" 0", " ") if nxt else None,
+            "homework": (lambda hw: practice.homework_view(hw, family.timezone) if hw else None)(practice.current_homework(s.id)),
+            "words": practice.words_to_practise(s.id),
         })
         if teacher:
             with_teacher = [c for c in taken if c.teacher_id == teacher.id and c.status == "completed"]
@@ -164,10 +166,25 @@ def demo_dashboard() -> dict:
         "children": [
             {"name": "Yusuf", "age": "10", "course": "Tajweed", "teacher": "Ustadh Bilal", "classes": 18,
              "progress": quran_progress(67, 26),
-             "focus": "Ikhfa and madd", "note": "Clear reading today. Practise verses 10 to 12 twice a day.", "next": "Thu 13 Nov, 5:00 PM"},
+             "focus": "Ikhfa and madd", "note": "Clear reading today. Practise verses 10 to 12 twice a day.", "next": "Thu 13 Nov, 5:00 PM",
+             "homework": {"id": 0, "task": "Read verses 10 to 12 five times a day, slowly, holding the madd for 2 counts.",
+                          "portion": "Surah Al-Mulk, verses 10 to 12", "minutes": 10, "teacher": "Ustadh Bilal",
+                          "set_on": f"{(today - timedelta(days=3)).day} {(today - timedelta(days=3)):%b}", "days_since": 3, "days_open": 4,
+                          "today_done": False, "streak": 3,
+                          "week": [{"label": (today - timedelta(days=i)).strftime("%a"), "done": i in (1, 2, 3), "today": i == 0} for i in range(6, -1, -1)]},
+             "words": {"open": 3, "more": 0, "fixed": 9, "items": [
+                 {"text": "سَمَٰوَٰتٖ", "kind": "Tajweed", "where": "Al-Mulk 67:3", "times": 2},
+                 {"text": "ٱرۡجِعِ", "kind": "Vowel marks", "where": "Al-Mulk 67:4", "times": 1},
+                 {"text": "نَعۡقِلُ", "kind": "Word", "where": "Al-Mulk 67:10", "times": 1}]}},
             {"name": "Maryam", "age": "6", "course": "Noorani Qaida", "teacher": "Ustadha Sana", "classes": 6,
              "progress": {"where": "Noorani Qaida, lesson 8 of 17", "pct": 47, "sub": "9 lessons to finish the Qaida"},
-             "focus": "Letters with fatha", "note": "Lovely effort. Revise lesson 7 before Saturday.", "next": "Sat 15 Nov, 10:00 AM"},
+             "focus": "Letters with fatha", "note": "Lovely effort. Revise lesson 7 before Saturday.", "next": "Sat 15 Nov, 10:00 AM",
+             "homework": {"id": 0, "task": "Say the letters of lesson 7 aloud with fatha, pointing to each one.",
+                          "portion": "Noorani Qaida, lesson 7", "minutes": 5, "teacher": "Ustadha Sana",
+                          "set_on": f"{(today - timedelta(days=1)).day} {(today - timedelta(days=1)):%b}", "days_since": 2, "days_open": 2,
+                          "today_done": True, "streak": 2,
+                          "week": [{"label": (today - timedelta(days=i)).strftime("%a"), "done": i in (0, 1), "today": i == 0} for i in range(6, -1, -1)]},
+             "words": {"open": 0, "more": 0, "fixed": 0, "items": []}},
         ],
         "to_review": [{"id": 0, "student": "Yusuf", "teacher": "Ustadh Bilal", "when": "Tue"}],
         "presence": {"classes": 18, "teacher": 98, "view": 95, "student": 96},

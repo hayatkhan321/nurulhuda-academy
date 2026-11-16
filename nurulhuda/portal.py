@@ -4,7 +4,7 @@ from datetime import timedelta
 
 from flask import Blueprint, abort, current_app, jsonify, redirect, render_template, request, url_for
 
-from nurulhuda import auth, books, dashboard, db, ledger, mail, pricing, quran_index, video
+from nurulhuda import auth, books, dashboard, db, ledger, mail, practice, pricing, quran_index, video
 from nurulhuda.ledger import STATUS_LABELS, aware, now
 from nurulhuda.models import ClassReview, ClassSession, CreditEntry, Invoice, Student, Teacher, TeacherCheckin, TeacherEarning
 from nurulhuda.routes import _check_form, _f, calculator_input, guess_currency
@@ -252,9 +252,17 @@ def teacher_home(teacher):
     last_prog = {}
     for c in ClassSession.query.filter(ClassSession.teacher_id == teacher.id, ClassSession.prog_book.isnot(None)).order_by(ClassSession.starts_at):
         last_prog[c.student_id] = c
+    tz = teacher.timezone
+    last_hw = {}
+    for c in to_mark:
+        hw = practice.current_homework(c.student_id)
+        if hw and c.student_id not in last_hw:
+            last_hw[c.student_id] = practice.homework_view(hw, c.student.family.timezone if c.student.family else tz)
+    counts = {c.id: practice.class_counts(c) for c in to_mark}
     return render_template("teacher.html", title="My teaching", teacher=teacher, upcoming=upcoming, to_mark=to_mark,
                            past=past, owed=owed, held=held, paid=paid, joinable=_joinable, last_prog=last_prog,
-                           SURAHS=quran_index.NAMES, QAIDA=dashboard.QAIDA_LESSONS)
+                           SURAHS=quran_index.NAMES, QAIDA=dashboard.QAIDA_LESSONS, last_hw=last_hw, counts=counts,
+                           HW_MINUTES=practice.MINUTES)
 
 
 @portal_bp.route("/teacher/class/<int:cid>/mark", methods=["POST"])
@@ -278,6 +286,7 @@ def mark(teacher, cid):
             elif book == "qaida" and num("lesson"):
                 cs.prog_book, cs.prog_lesson = "qaida", max(1, min(dashboard.QAIDA_LESSONS, num("lesson")))
             cs.prog_focus = _f("focus", 120)
+            practice.save_homework(cs, request.form)
         db.session.commit()
         after = ledger.balance(cs.student.family_id)
         if after < before:
@@ -374,3 +383,39 @@ def joined(cid):
         cs.student_joined_at = now()
     db.session.commit()
     return jsonify(ok=True)
+
+
+# --- practice between classes: homework ticks and mistakes on the lesson board -----------------------------------
+@portal_bp.route("/my/homework/<int:hid>/practised", methods=["POST"])
+@auth.login_required("family")
+def homework_practised(family, hid):
+    _check_form()
+    from nurulhuda.models import Homework
+    hw = db.session.get(Homework, hid) or abort(404)
+    if hw.student_id not in {s.id for s in family.students}:
+        abort(403)
+    if practice.mark_practised(hw, family.timezone):
+        db.session.commit()
+    return redirect(url_for("portal.family_home") + "#homework")
+
+
+def _mistake_window(cs) -> bool:
+    """The teacher can mark mistakes from 15 minutes before the class until 12 hours after it starts."""
+    start = aware(cs.starts_at)
+    return start - timedelta(minutes=15) <= now() <= start + timedelta(hours=12)
+
+
+@portal_bp.route("/class/<int:cid>/mistakes", methods=["GET", "POST"])
+def mistakes(cid):
+    from flask import session
+    cs = db.session.get(ClassSession, cid) or abort(404)
+    role, _ = _who_for(cs)
+    if request.method == "GET":
+        return jsonify(items=practice.board_mistakes(cs))
+    if request.headers.get("X-CSRF") != session.get("csrf"):
+        abort(400)
+    if role != "teacher" or not _mistake_window(cs):
+        abort(403)
+    out = practice.apply_mistake(cs, request.get_json(silent=True) or {})
+    db.session.commit()
+    return jsonify(out)

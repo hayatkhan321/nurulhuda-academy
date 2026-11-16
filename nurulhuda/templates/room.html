@@ -19,7 +19,7 @@
     <div class="board-panel" aria-label="Lesson board"><div id="board"></div></div>
   </div>
   <p class="small wrap" style="color:#b9d8cb;padding:10px 0">If the camera or microphone does not start, allow them when your browser asks, or tap the lock icon by the address and allow camera and microphone.</p>
-  <p class="small wrap" style="color:#b9d8cb;padding:0 0 10px">{% if role == 'teacher' %}The lesson board shows the page you choose to your student. Highlight or write with the colours; your student sees every mark. Tick "Student can mark" to let them point or underline too.{% else %}The lesson board shows the page your teacher has chosen, with their highlights and corrections.{% endif %}</p>
+  <p class="small wrap" style="color:#b9d8cb;padding:0 0 10px">{% if role == 'teacher' %}The lesson board shows the page you choose to your student. Highlight or write with the colours; your student sees every mark. Tick "Student can mark" to let them point or underline too. With the Mistake tool, tap a word your student got wrong: it is saved to the parent's "Words to practise".{% else %}The lesson board shows the page your teacher has chosen, with their highlights and corrections.{% endif %}</p>
 </section>
 {% else %}
 {% with head="Classroom" %}{% include "_page_head.html" %}{% endwith %}
@@ -45,6 +45,7 @@
   function send(m) { if (joined) { frame.sendAppMessage({ nhb: m }, "*"); } else { queue.push(m); } }
   var marks = 0;
   var board = window.NHBoard.start(document.getElementById("board"), { role: {{ role|tojson }}, dataUrl: "/quran/hafs-v18.json",
+    mistakesUrl: "{{ url_for('portal.mistakes', cid=cs.id) }}", csrf: "{{ csrf }}",
     send: function (m) { if (m && m.k === "stroke" && !/~/.test(m.s.id)) { marks++; } send(m); } });
   // Presence: every 30 seconds, tell the academy we're in the call, whether this window is in view, and whether the camera is on.
   function camOn() {

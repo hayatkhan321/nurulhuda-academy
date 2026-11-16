@@ -284,6 +284,44 @@ class ClassSession(db.Model):
     teacher = db.relationship("Teacher", lazy="joined")
 
 
+class Homework(db.Model):
+    """What the teacher asks the child to practise until the next class, set when marking a class."""
+    __tablename__ = "homework"
+    id = db.Column(db.Integer, primary_key=True)
+    created_at = db.Column(db.DateTime(timezone=True), default=_now, nullable=False)
+    class_id = db.Column(db.Integer, db.ForeignKey("class_sessions.id"), nullable=False, unique=True)
+    student_id = db.Column(db.Integer, db.ForeignKey("students.id"), nullable=False, index=True)
+    teacher_id = db.Column(db.Integer, db.ForeignKey("teachers.id"), nullable=False)
+    task = db.Column(db.String(300), nullable=False)
+    minutes = db.Column(db.Integer)                 # minutes a day, optional
+    book = db.Column(db.String(10))                 # "quran" / "qaida" / None
+    surah = db.Column(db.Integer)
+    verse_from = db.Column(db.Integer)
+    verse_to = db.Column(db.Integer)
+    lesson = db.Column(db.Integer)
+    days = db.Column(db.Text, default="", nullable=False)   # dates the family ticked "we practised", YYYY-MM-DD, comma-separated
+    teacher = db.relationship("Teacher", lazy="joined")
+
+
+class Mistake(db.Model):
+    """A word the teacher marked on the lesson board. Stays open until the teacher marks it corrected."""
+    __tablename__ = "mistakes"
+    id = db.Column(db.Integer, primary_key=True)
+    created_at = db.Column(db.DateTime(timezone=True), default=_now, nullable=False)
+    student_id = db.Column(db.Integer, db.ForeignKey("students.id"), nullable=False, index=True)
+    teacher_id = db.Column(db.Integer, db.ForeignKey("teachers.id"), nullable=False)
+    class_id = db.Column(db.Integer, db.ForeignKey("class_sessions.id"), nullable=False, index=True)       # first marked in
+    last_class_id = db.Column(db.Integer, db.ForeignKey("class_sessions.id"), nullable=False)              # last marked in
+    surah = db.Column(db.Integer, nullable=False)
+    ayah = db.Column(db.Integer, nullable=False)
+    word = db.Column(db.Integer, nullable=False)        # word number in the verse, from 1
+    text = db.Column(db.String(80), nullable=False)     # the word as shown on the board (King Fahd Hafs text)
+    kind = db.Column(db.String(10), nullable=False)     # word / tajweed / harakah
+    times = db.Column(db.Integer, default=1, nullable=False)
+    fixed_at = db.Column(db.DateTime(timezone=True))
+    fixed_class_id = db.Column(db.Integer, db.ForeignKey("class_sessions.id"))
+
+
 class TeacherEarning(db.Model):
     """What the academy owes a teacher for one class. Paid in weekly payouts."""
     __tablename__ = "teacher_earnings"
