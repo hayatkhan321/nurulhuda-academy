@@ -4,9 +4,15 @@
 (function () {
   "use strict";
   // Our own copy first (works behind office and school web filters), then the original on Hugging Face.
-  var MODEL_URLS = ["/models/tajweed-v2-int8.onnx", "https://huggingface.co/Hisnlabs/tajweed-v2/resolve/main/onnx/model-int8.onnx"];
-  var MODEL_URL = MODEL_URLS[1];  // the cache key, whichever copy was downloaded
-  var MODEL_CACHE = "nh-model-tajweed-v2-int8";
+  // Our own browser-friendly build (public/models/NOTICE.md). The int8 file on Hugging Face cannot run in browsers.
+  var MODEL_URLS = ["/models/tajweed-v2-int8.onnx"];
+  var MODEL_URL = location.origin + MODEL_URLS[0];  // the cache key, whichever copy was downloaded
+  var MODEL_CACHE = "nh-model-tajweed-v2-web-1";  // change the name whenever the model file changes
+  if ("caches" in window) {  // drop copies of older model files (the first one could not run in browsers)
+    caches.keys().then(function (keys) {
+      keys.forEach(function (k) { if (k.indexOf("nh-model-") === 0 && k !== MODEL_CACHE) caches.delete(k); });
+    }).catch(function () {});
+  }
   var ORT_DIST = "https://cdn.jsdelivr.net/npm/onnxruntime-web@1.20.1/dist/";
   var PHONEMES = ["ء", "ب", "ت", "ث", "ج", "ح", "خ", "د", "ذ", "ر",
     "ز", "س", "ش", "ص", "ض", "ط", "ظ", "ع", "غ", "ف", "ق",
@@ -65,6 +71,7 @@
     ort.env.wasm.numThreads = self.crossOriginIsolated ? Math.min(4, navigator.hardwareConcurrency || 1) : 1;
     return fetchModel(onProgress).then(function (buf) {
       return ort.InferenceSession.create(buf, { executionProviders: ["wasm"] }).catch(function (e) {
+        if ("caches" in window) caches.delete(MODEL_CACHE).catch(function () {});  // a bad copy is not kept
         var err = new Error(String(e && e.message || e)); err.stage = "start"; throw err;
       });
     });
