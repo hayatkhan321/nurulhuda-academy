@@ -3,7 +3,9 @@
    which returns remarks per word. The audio never leaves this device. */
 (function () {
   "use strict";
-  var MODEL_URL = "https://huggingface.co/Hisnlabs/tajweed-v2/resolve/main/onnx/model-int8.onnx";
+  // Our own copy first (works behind office and school web filters), then the original on Hugging Face.
+  var MODEL_URLS = ["/models/tajweed-v2-int8.onnx", "https://huggingface.co/Hisnlabs/tajweed-v2/resolve/main/onnx/model-int8.onnx"];
+  var MODEL_URL = MODEL_URLS[1];  // the cache key, whichever copy was downloaded
   var MODEL_CACHE = "nh-model-tajweed-v2-int8";
   var ORT_DIST = "https://cdn.jsdelivr.net/npm/onnxruntime-web@1.20.1/dist/";
   var PHONEMES = ["ء", "ب", "ت", "ث", "ج", "ح", "خ", "د", "ذ", "ر",
@@ -20,8 +22,19 @@
     var cached = cacheOk ? caches.open(MODEL_CACHE).then(function (c) { return c.match(MODEL_URL); }).catch(function () { return null; }) : Promise.resolve(null);
     return cached.then(function (hit) {
       if (hit) return hit.arrayBuffer();
-      return fetch(MODEL_URL).then(function (res) {
-        if (!res.ok) throw new Error("model " + res.status);
+      var tried = [];
+      function tryFrom(i) {
+        if (i >= MODEL_URLS.length) {
+          var err = new Error(tried.join("; ")); err.stage = "download"; throw err;
+        }
+        var where = MODEL_URLS[i].charAt(0) === "/" ? "this website" : MODEL_URLS[i].split("/")[2];
+        return fetch(MODEL_URLS[i]).then(function (res) {
+          var type = res.headers.get("Content-Type") || "";
+          if (!res.ok || type.indexOf("text/html") === 0) { tried.push(where + " " + (res.ok ? "no file" : res.status)); return tryFrom(i + 1); }
+          return res;
+        }, function (e) { tried.push(where + " blocked (" + e.message + ")"); return tryFrom(i + 1); });
+      }
+      return tryFrom(0).then(function (res) {
         var total = +res.headers.get("Content-Length") || 23e6, got = 0, parts = [];
         if (!res.body || !res.body.getReader) return res.arrayBuffer();
         var reader = res.body.getReader();
@@ -45,10 +58,15 @@
   }
 
   function loadSession(onProgress) {
+    if (typeof ort === "undefined") {
+      var e0 = new Error("cdn.jsdelivr.net blocked"); e0.stage = "engine"; return Promise.reject(e0);
+    }
     ort.env.wasm.wasmPaths = ORT_DIST;
-    ort.env.wasm.numThreads = Math.min(4, navigator.hardwareConcurrency || 1);
+    ort.env.wasm.numThreads = self.crossOriginIsolated ? Math.min(4, navigator.hardwareConcurrency || 1) : 1;
     return fetchModel(onProgress).then(function (buf) {
-      return ort.InferenceSession.create(buf, { executionProviders: ["wasm"] });
+      return ort.InferenceSession.create(buf, { executionProviders: ["wasm"] }).catch(function (e) {
+        var err = new Error(String(e && e.message || e)); err.stage = "start"; throw err;
+      });
     });
   }
 
@@ -155,8 +173,13 @@
     loadSession(function (p) { say("Loading the checker: " + p + "%"); }).then(function (s) {
       session = s; rec.disabled = false; lbl.textContent = "Record the verse";
       say("Ready. Press the button, recite the verse, then press it again.");
-    }).catch(function () {
-      say("The checker could not be loaded. Check the internet connection and reload the page.", "bad");
+    }).catch(function (e) {
+      var why = e && e.stage === "download" ? "The checker could not be downloaded. A web filter on this network may be blocking it."
+        : e && e.stage === "engine" ? "The checker's engine could not be loaded. A web filter on this network may be blocking it."
+        : e && e.stage === "start" ? "The checker downloaded but could not start in this browser."
+        : "The checker could not be loaded.";
+      say(why + " Please send a screenshot of this message. (Details: " + (e && e.message || e) + ")", "bad");
+      if (window.console) console.error("Practice check:", e);
     });
 
     function stopRec() {
