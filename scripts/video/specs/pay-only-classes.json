@@ -1,0 +1,23 @@
+{
+  "slug": "pay-only-classes",
+  "greeting": true,
+  "voice": null,
+  "tts": {"lang": "en-GB", "rate": 0.95},
+  "scenes": [
+    {"kind": "opener", "h1": "Paying for classes that <em>never happen</em>?",
+     "sub": "Assalamu alaikum. Have you ever paid for a Quran class that never happened?"},
+    {"kind": "headline", "kicker": "Fair for families", "h1": "Pay only for classes that <em>take place</em>",
+     "chips": ["One to one", "Live and online", "30 minutes"],
+     "sub": "At Nurul Huda Academy, you pay only for classes that take place."},
+    {"kind": "headline", "kicker": "If the teacher misses", "h1": "A missed class is <em>not charged</em>",
+     "chips": ["Nothing to chase", "Nothing to ask for"],
+     "sub": "If the teacher misses a class, that class is not charged."},
+    {"kind": "headline", "kicker": "If plans change", "h1": "Cancel <em>12 hours</em> before",
+     "chips": ["No charge for that class"],
+     "sub": "If you cancel at least 12 hours before, there is no charge either."},
+    {"kind": "card", "kicker": "Every class that happens", "img": "report.jpg",
+     "sub": "And after every class that does happen, you get a short report."},
+    {"kind": "end", "h1": "Your first class is <em>free</em>", "ur": "پہلی کلاس مفت ہے",
+     "sub": "Book a free trial class at nurulhudaacademy.org"}
+  ]
+}

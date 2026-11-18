@@ -1,0 +1,24 @@
+{
+  "slug": "uae-school-day",
+  "greeting": true,
+  "voice": null,
+  "tts": {"lang": "en-GB", "rate": 0.95},
+  "scenes": [
+    {"kind": "opener", "h1": "Quran classes that fit a <em>UAE school day</em>",
+     "sub": "Assalamu alaikum to families in Dubai, Sharjah, Abu Dhabi and across the Emirates."},
+    {"kind": "headline", "kicker": "UAE time", "h1": "After school, <em>3 pm to 8 pm</em>",
+     "chips": ["Or Saturday and Sunday mornings"],
+     "sub": "Popular times are after school, between 3 pm and 8 pm UAE time, or weekend mornings."},
+    {"kind": "phone", "kicker": "At home, one to one", "img": "phone-home.jpg",
+     "chips": ["Live", "One to one", "30 minutes"],
+     "sub": "Every class is live, one to one and 30 minutes, from your own home."},
+    {"kind": "headline", "kicker": "Your language", "h1": "Explained in <em>English, Arabic or Urdu</em>",
+     "chips": ["Female teachers on request"],
+     "sub": "Teachers explain in English, Arabic or Urdu, and female teachers are available on request."},
+    {"kind": "headline", "kicker": "In Ramadan", "h1": "After iftar or <em>before suhoor</em>",
+     "chips": ["Just let us know"],
+     "sub": "In Ramadan, many families move classes to after iftar or before suhoor."},
+    {"kind": "end", "h1": "Your first class is <em>free</em>", "ur": "پہلی کلاس مفت ہے",
+     "sub": "Book a free trial class at nurulhudaacademy.org"}
+  ]
+}

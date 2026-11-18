@@ -1,0 +1,23 @@
+{
+  "slug": "same-teacher",
+  "greeting": true,
+  "voice": null,
+  "tts": {"lang": "en-GB", "rate": 0.95},
+  "scenes": [
+    {"kind": "opener", "h1": "Will my child have the <em>same teacher</em>?",
+     "sub": "Assalamu alaikum. Will my child have the same Quran teacher each week?"},
+    {"kind": "headline", "kicker": "Matched to your family", "h1": "A tested teacher whose hours <em>fit yours</em>",
+     "chips": ["Every teacher passes a recitation test", "Female teachers on request"],
+     "sub": "We match your child with a tested teacher whose hours fit yours."},
+    {"kind": "headline", "kicker": "Week after week", "h1": "The <em>same teacher</em> wherever possible",
+     "chips": ["Your child gets to know one teacher"],
+     "sub": "And we keep the same teacher wherever possible, week after week."},
+    {"kind": "headline", "kicker": "After 6 classes", "h1": "Keep the teacher, or <em>try another</em>",
+     "chips": ["Same standard", "No charge to change"],
+     "sub": "After six classes, you can keep the teacher or try another of the same standard, at no charge."},
+    {"kind": "card", "kicker": "You can follow along", "img": "dashboard.jpg",
+     "sub": "Every report from that teacher is on your family page."},
+    {"kind": "end", "h1": "Meet your teacher in a <em>free</em> class", "ur": "پہلی کلاس مفت ہے",
+     "sub": "Book a free trial class at nurulhudaacademy.org"}
+  ]
+}

@@ -1,0 +1,24 @@
+{
+  "slug": "pay-only-classes-ur",
+  "greeting": true,
+  "voice": null,
+  "lang": "ur-IN",
+  "tts": {"lang": "ur-IN", "rate": 0.95},
+  "scenes": [
+    {"kind": "opener", "h1": "Paying for classes that <em>never happen</em>?",
+     "sub": "السلام علیکم۔ کیا آپ نے کبھی ایسی قرآن کلاس کی ادائیگی کی جو ہوئی ہی نہیں؟"},
+    {"kind": "headline", "kicker": "Fair for families", "h1": "Pay only for classes that <em>take place</em>",
+     "chips": ["One to one", "Live and online", "30 minutes"],
+     "sub": "نور الہدیٰ اکیڈمی میں آپ صرف انہی کلاسوں کی ادائیگی کرتے ہیں جو ہوں۔"},
+    {"kind": "headline", "kicker": "If the teacher misses", "h1": "A missed class is <em>not charged</em>",
+     "chips": ["Nothing to chase"],
+     "sub": "جو کلاس استاد چھوڑ دے، اس کا چارج نہیں ہوتا۔"},
+    {"kind": "headline", "kicker": "If plans change", "h1": "Cancel <em>12 hours</em> before",
+     "chips": ["No charge for that class"],
+     "sub": "اگر آپ 12 گھنٹے پہلے منسوخ کر دیں، تو اس کا بھی چارج نہیں ہوتا۔"},
+    {"kind": "card", "kicker": "Every class that happens", "img": "report.jpg", "ur": "ہر کلاس کے بعد رپورٹ",
+     "sub": "ہر کلاس کے بعد استاد لکھتے ہیں کہ بچہ کہاں تک پہنچا اور کیا مشق کرنی ہے۔"},
+    {"kind": "end", "h1": "Your first class is <em>free</em>", "ur": "پہلی کلاس مفت ہے",
+     "sub": "مفت آزمائشی کلاس بک کریں: nurulhudaacademy.org"}
+  ]
+}
