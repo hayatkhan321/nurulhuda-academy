@@ -3,3 +3,7 @@ __pycache__/
 *.db
 .env
 .venv/
+
+# generated video renders and work files
+scripts/video/specs/.work-*/
+scripts/video/specs/out/
