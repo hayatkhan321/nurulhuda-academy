@@ -1,4 +1,4 @@
-"""E-mail through Resend, the same way hayatclinics.com sends its newsletter."""
+"""E-mail through Resend."""
 import html
 import json
 import urllib.error

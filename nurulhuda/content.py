@@ -1,4 +1,4 @@
-"""Site copy that changes often lives here, like site_content.py on hayatclinics.com."""
+"""Site copy that changes often lives here."""
 
 BRAND = "Nurul Huda Academy"
 BRAND_AR = "نور الهدى"

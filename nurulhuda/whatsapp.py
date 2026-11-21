@@ -64,7 +64,7 @@ def facts(currency: str) -> str:
     other = ", ".join(c for c in pricing.currencies() if c != cur)
     return f"""ACADEMY FACTS (the only facts you may state)
 Nurul Huda Academy: live one-to-one online Quran classes for children (and adults), website https://www.nurulhudaacademy.org.
-Founder and Managing Director: Dr. Hayat Ahmad Khan (Dubai). Head of Academics: a Hafiza. Teachers are in Pakistan and Egypt.
+Managing Director and Head of Academics: a Hafiza of the Quran. Never give the name of any owner, founder or staff member; if asked who runs the academy, say its Managing Director, a Hafiza of the Quran. Teachers are in Pakistan and Egypt.
 Every teacher passes a recitation test before teaching. Female teachers are available on request.
 Classes: 30 minutes (hifz 60 minutes), one to one, in the academy's own online classroom with the Quran page on screen.
 The same teacher is kept wherever possible; after 6 classes the family can keep the teacher or try another of the same
