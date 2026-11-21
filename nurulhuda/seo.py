@@ -41,7 +41,7 @@ META = {
                    "personal information."),
     "site.vision": ("Our Vision: Jamia Nurul Huda",
                     "Our vision: world-class Islamic education that joins Deen and Dunya, grounded in knowledge, open to "
-                    "all, and growing into Jamia Nurul Huda, an online university."),
+                    "all, and growing step by step into Jamia Nurul Huda."),
     "site.islam": ("Discover Islam: Free Private Classes",
                    "Discover Islam: clear, friendly answers about what Muslims believe, and free private classes with a "
                    "teacher for anyone who is curious, considering Islam, or new to Islam."),
