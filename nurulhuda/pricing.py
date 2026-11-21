@@ -109,7 +109,7 @@ def find_package(plan: str, currency: str):
     return Package.query.filter_by(plan=plan, currency=currency, active=True).first()
 
 
-def check_code(code: str):
+def check_code(code: str, tier: str = "standard"):
     """Return (PromoCode or None, error message or None)."""
     code = (code or "").strip().upper()
     if not code:
@@ -117,6 +117,8 @@ def check_code(code: str):
     p = PromoCode.query.filter(db.func.upper(PromoCode.code) == code).first()
     if not p or not p.active:
         return None, "That code is not valid."
+    if p.tiers and tier not in [t.strip() for t in p.tiers.split(",") if t.strip()]:
+        return None, "That code is not for this membership."
     if p.expires_on and p.expires_on < date.today():
         return None, "That code has expired."
     if p.max_uses:
@@ -135,6 +137,7 @@ class Line:
     total: Decimal
     parts: list = field(default_factory=list)   # e.g. ["Sibling 10%", "3 months upfront 5%"]
     floored: bool = False
+    minutes: int = 30                           # length of each class (a Gold or Diamond family may choose 60)
 
 
 @dataclass
@@ -144,6 +147,7 @@ class Quote:
     lines: list
     code: PromoCode | None = None
     error: str | None = None
+    tier: str = "standard"
 
     @property
     def subtotal(self):
@@ -162,11 +166,17 @@ class Quote:
         return sum(l.package.classes * self.months for l in self.lines)
 
 
-def quote(currency: str, choices: list[tuple[str, str]], months: int = 1, code: str = "") -> Quote:
-    """choices: [(child name, plan key), ...]. Unknown plans are skipped."""
+def quote(currency: str, choices: list[tuple[str, str]], months: int = 1, code: str = "", tier: str = "standard",
+          minutes: int | None = None) -> Quote:
+    """choices: [(child name, plan key), ...]. Unknown plans are skipped.
+    tier: standard / gold / diamond. The plan's price is multiplied by the membership's multiplier, and by the
+    class length when a member chooses 60-minute classes on a 30-minute plan (memberships.py, all admin settings)."""
+    from nurulhuda import memberships as M
     currency = (currency or "USD").upper()
     months = months if months in MONTH_CHOICES else 1
-    promo, error = check_code(code)
+    tier = tier if tier in M.TIERS else "standard"
+    cfg = M.config(tier)
+    promo, error = check_code(code, tier)
     picked = []
     for order, (child, plan) in enumerate(choices):
         pkg = find_package(plan, currency)
@@ -178,9 +188,15 @@ def quote(currency: str, choices: list[tuple[str, str]], months: int = 1, code: 
     floor = floors().get(currency)
     lines = []
     for i, (order, child, pkg) in enumerate(picked):
-        base = (Decimal(pkg.price) * months).quantize(CENT)
+        mins = pkg.minutes
+        if minutes and minutes != pkg.minutes and pkg.minutes == 30 and minutes in M.minutes_allowed(tier):
+            mins = minutes
+        unit = Decimal(pkg.price) * cfg["multiplier"] * Decimal(mins) / Decimal(pkg.minutes)
+        base = (unit * months).quantize(CENT)
         parts, wanted = [], Decimal("0")
+        offer = cfg["offer_pct"]
         for label, p in (("Sibling", sibling_pct(i)), (f"{months} months upfront", upfront_pct(months)),
+                         (cfg["offer_label"] or f"{cfg['label']} offer", offer),
                          (f"Code {promo.code}" if promo else "", Decimal(promo.percent) if promo else Decimal("0"))):
             if p:
                 parts.append(f"{label} {pnum(p)}%")
@@ -189,15 +205,15 @@ def quote(currency: str, choices: list[tuple[str, str]], months: int = 1, code: 
         total = (base * (100 - given) / 100).quantize(CENT, ROUND_HALF_UP)
         floored = False
         if floor:
-            lowest = (floor * pkg.minutes / 30 * pkg.classes * months).quantize(CENT)
+            lowest = (floor * mins / 30 * pkg.classes * months).quantize(CENT)
             lowest = min(lowest, base)        # never charge more than the plain price
             if total < lowest:
                 total, floored = lowest, True
         percent = ((base - total) / base * 100).quantize(Decimal("0.1")) if base else Decimal("0")
         lines.append((order, Line(child=child, package=pkg, base=base, percent=percent, total=total, parts=parts,
-                                  floored=floored or given < wanted)))
+                                  floored=floored or given < wanted, minutes=mins)))
     lines = [line for _, line in sorted(lines, key=lambda ol: ol[0])]     # back in the order the family entered
-    return Quote(currency=currency, months=months, lines=lines, code=promo, error=error)
+    return Quote(currency=currency, months=months, lines=lines, code=promo, error=error, tier=tier)
 
 
 def new_number() -> str:
@@ -209,10 +225,10 @@ def new_number() -> str:
 
 def make_invoice(family, q: Quote) -> Invoice:
     inv = Invoice(number=new_number(), family_id=family.id, currency=q.currency, months=q.months, classes=q.classes,
-                  subtotal=q.subtotal, discount=q.discount, total=q.total,
+                  subtotal=q.subtotal, discount=q.discount, total=q.total, tier=q.tier,
                   promo_code=q.code.code if q.code else None,
                   lines=json.dumps([{"child": l.child, "plan": l.package.name, "package_id": l.package.id,
-                                     "classes": l.package.classes * q.months, "minutes": l.package.minutes,
+                                     "classes": l.package.classes * q.months, "minutes": l.minutes, "tier": q.tier,
                                      "base": str(l.base), "percent": str(l.percent), "total": str(l.total),
                                      "parts": l.parts} for l in q.lines]))
     db.session.add(inv)

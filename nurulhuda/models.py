@@ -99,6 +99,8 @@ class Family(db.Model):
     site_lang = db.Column(db.String(5), default="en")
     # "same": keep the same teacher where possible; "open": happy to try teachers of the same standard
     teacher_pref = db.Column(db.String(10), default="same")
+    membership = db.Column(db.String(10), default="standard", nullable=False)   # standard / gold / diamond (memberships.py)
+    membership_since = db.Column(db.DateTime(timezone=True))
     students = db.relationship("Student", backref="family", lazy=True, order_by="Student.id")
 
 
@@ -111,6 +113,7 @@ class Student(db.Model):
     course = db.Column(db.String(60))
     level = db.Column(db.String(120))
     active = db.Column(db.Boolean, default=True, nullable=False)
+    lesson_format = db.Column(db.String(10), default="academic", nullable=False)   # academic (30) / combined (20 + 10 Islamic)
 
 
 class Teacher(db.Model):
@@ -135,6 +138,15 @@ class Teacher(db.Model):
     arabic_level = db.Column(db.String(20))
     site_lang = db.Column(db.String(5), default="en")
     application_id = db.Column(db.Integer, db.ForeignKey("teacher_applications.id"))
+    conduct_version = db.Column(db.String(20))                          # Code of Conduct version accepted (content.CONDUCT_VERSION)
+    conduct_accepted_at = db.Column(db.DateTime(timezone=True))
+    tier = db.Column(db.String(10), default="standard", nullable=False)  # standard / gold / diamond teacher (memberships.py)
+    qualifications_verified = db.Column(db.Boolean, default=False, nullable=False)
+    experience_years = db.Column(db.Integer)
+    english_verified = db.Column(db.Boolean, default=False, nullable=False)   # an admin heard the teacher speak it
+    urdu_verified = db.Column(db.Boolean, default=False, nullable=False)
+    arabic_verified = db.Column(db.Boolean, default=False, nullable=False)
+    lang_note = db.Column(db.String(200))
 
 
 class Package(db.Model):
@@ -168,6 +180,7 @@ class PromoCode(db.Model):
     max_uses = db.Column(db.Integer)
     active = db.Column(db.Boolean, default=True, nullable=False)
     note = db.Column(db.String(200))
+    tiers = db.Column(db.String(40))                                    # e.g. "gold,diamond"; empty = every membership
 
 
 class ClassReview(db.Model):
@@ -216,6 +229,7 @@ class Invoice(db.Model):
     lines = db.Column(db.Text, nullable=False)                          # JSON: one line per child
     # pending (not paid yet) / reported (family says they paid) / paid / cancelled
     status = db.Column(db.String(12), default="pending", nullable=False)
+    tier = db.Column(db.String(10), default="standard", nullable=False)   # membership bought with this invoice
     method = db.Column(db.String(20))                                   # paypal / wise / bank / card / cash
     payer_reference = db.Column(db.String(200))
     reported_at = db.Column(db.DateTime(timezone=True))
@@ -455,3 +469,90 @@ class PracticeCheck(db.Model):
     review = db.Column(db.Text)                                         # JSON: {word index: "right" / "wrong" / "missed"}
     review_note = db.Column(db.String(500))
     reviewed_at = db.Column(db.DateTime(timezone=True))
+
+
+class ClassroomEvent(db.Model):
+    """What happened in a class, as times only (never sound or video): microphone or camera off and back on, a raised
+    hand, a lost connection, joining and leaving. classroom.py decides what is reportable."""
+    __tablename__ = "classroom_events"
+    id = db.Column(db.Integer, primary_key=True)
+    created_at = db.Column(db.DateTime(timezone=True), default=_now, nullable=False)
+    class_id = db.Column(db.Integer, db.ForeignKey("class_sessions.id"), nullable=False, index=True)
+    role = db.Column(db.String(10), nullable=False)                     # teacher / student
+    person = db.Column(db.String(120), nullable=False)
+    kind = db.Column(db.String(10), nullable=False)                     # mic / camera / hand / network / join / leave
+    started_at = db.Column(db.DateTime(timezone=True), nullable=False)
+    ended_at = db.Column(db.DateTime(timezone=True))
+    seconds = db.Column(db.Integer)
+    cause = db.Column(db.String(20))                                    # user / device / network / left / unknown
+    announced = db.Column(db.Boolean, default=False, nullable=False)    # a hand was raised just before
+
+
+class ConductReport(db.Model):
+    """A parent's concern about a teacher's behaviour (e.g. personal questions), and how the academy handled it."""
+    __tablename__ = "conduct_reports"
+    id = db.Column(db.Integer, primary_key=True)
+    created_at = db.Column(db.DateTime(timezone=True), default=_now, nullable=False)
+    family_id = db.Column(db.Integer, db.ForeignKey("families.id"), nullable=False, index=True)
+    teacher_id = db.Column(db.Integer, db.ForeignKey("teachers.id"), nullable=False, index=True)
+    class_id = db.Column(db.Integer, db.ForeignKey("class_sessions.id"))
+    category = db.Column(db.String(20), nullable=False)
+    details = db.Column(db.Text, nullable=False)
+    status = db.Column(db.String(12), default="open", nullable=False)  # open / looking / upheld / not_upheld
+    admin_notes = db.Column(db.Text)
+    closed_at = db.Column(db.DateTime(timezone=True))
+    family = db.relationship("Family")
+    teacher = db.relationship("Teacher")
+
+
+class SupportApplication(db.Model):
+    """A family asking for sponsored lessons for a child. Private: never shown to sponsors or teachers."""
+    __tablename__ = "support_applications"
+    id = db.Column(db.Integer, primary_key=True)
+    created_at = db.Column(db.DateTime(timezone=True), default=_now, nullable=False)
+    family_id = db.Column(db.Integer, db.ForeignKey("families.id"), nullable=False, index=True)
+    student_id = db.Column(db.Integer, db.ForeignKey("students.id"), nullable=False, index=True)
+    reason = db.Column(db.Text, nullable=False)
+    lessons_asked = db.Column(db.Integer, nullable=False)
+    status = db.Column(db.String(10), default="pending", nullable=False)  # pending / approved / rejected / closed
+    lessons_approved = db.Column(db.Integer, default=0, nullable=False)
+    share = db.Column(db.Integer, default=100, nullable=False)           # % of each lesson sponsored (100 = free)
+    admin_note = db.Column(db.String(500))
+    decided_at = db.Column(db.DateTime(timezone=True))
+    family = db.relationship("Family")
+    student = db.relationship("Student")
+
+
+class SponsorPurchase(db.Model):
+    """A member buying sponsored lessons (coins), paid like an invoice. One coin = one 30-minute lesson."""
+    __tablename__ = "sponsor_purchases"
+    id = db.Column(db.Integer, primary_key=True)
+    created_at = db.Column(db.DateTime(timezone=True), default=_now, nullable=False)
+    number = db.Column(db.String(20), nullable=False, unique=True)       # SP-123456, the payment reference
+    family_id = db.Column(db.Integer, db.ForeignKey("families.id"), nullable=False, index=True)
+    coins = db.Column(db.Integer, nullable=False)
+    currency = db.Column(db.String(3), nullable=False)
+    unit_price = db.Column(db.Numeric(10, 2), nullable=False)
+    total = db.Column(db.Numeric(10, 2), nullable=False)
+    status = db.Column(db.String(12), default="pending", nullable=False)  # pending / reported / paid / cancelled
+    method = db.Column(db.String(20))
+    payer_reference = db.Column(db.String(200))
+    reported_at = db.Column(db.DateTime(timezone=True))
+    paid_at = db.Column(db.DateTime(timezone=True))
+    amount_received = db.Column(db.Numeric(10, 2))
+    credit_entry_id = db.Column(db.Integer, db.ForeignKey("credit_entries.id"))   # the receipt in the books
+    family = db.relationship("Family")
+
+
+class SponsorEntry(db.Model):
+    """The sponsorship wallet, kept apart from class credits. Coins in: purchase / promo; coins out: allocate (to an
+    approved application); corrections: refund / adjust. Never edited; mistakes are corrected with a new entry."""
+    __tablename__ = "sponsor_entries"
+    id = db.Column(db.Integer, primary_key=True)
+    created_at = db.Column(db.DateTime(timezone=True), default=_now, nullable=False)
+    family_id = db.Column(db.Integer, db.ForeignKey("families.id"), index=True)         # the sponsor
+    coins = db.Column(db.Integer, nullable=False)
+    kind = db.Column(db.String(12), nullable=False)
+    purchase_id = db.Column(db.Integer, db.ForeignKey("sponsor_purchases.id"))
+    application_id = db.Column(db.Integer, db.ForeignKey("support_applications.id"), index=True)
+    note = db.Column(db.String(300))

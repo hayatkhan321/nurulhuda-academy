@@ -1,0 +1,88 @@
+{% extends "base.html" %}
+{% block main %}{% include "admin/_nav.html" %}
+<section class="section"><div class="wrap">
+  {% if error %}<p class="alert" role="alert">{{ error }}</p>{% endif %}
+  {% if saved %}<p class="alert" style="background:#e9f4ee" role="status">{{ saved }}</p>{% endif %}
+  {% if not S.on() %}<p class="alert" style="background:#fff4df">Switched off: families do not see this yet. UAE Federal Law No. 3 of 2021 makes collecting donations from the public without a permit an offence, so switch it on only after a lawyer confirms in writing that selling sponsored lessons this way is allowed for the academy.</p>{% endif %}
+  <div class="stats">
+    <div class="stat"><b>{{ rep.pool }}</b><span>coins in the wallet{% if rep.academy %} ({{ rep.academy }} the academy's own){% endif %}</span></div>
+    <div class="stat"><b>{{ rep.bought }}</b><span>lessons bought by members</span></div>
+    <div class="stat"><b>{{ rep.allocated }}</b><span>lessons given to {{ rep.children }} child{{ 'ren' if rep.children != 1 }}</span></div>
+    <div class="stat"><b>{{ rep.taught }}</b><span>sponsored lessons already taught</span></div>
+    <div class="stat"><b>{{ rep.pending }}</b><span>applications waiting</span></div>
+  </div>
+
+  <h2 style="margin-top:30px">Payments to check</h2>
+  {% if waiting %}
+  {% for p in waiting %}
+  <form class="class-note" method="post">
+    <input type="hidden" name="csrf" value="{{ csrf }}"><input type="hidden" name="purchase_id" value="{{ p.id }}">
+    <p><b>{{ p.number }}</b> · {{ p.family.parent_name }} · {{ p.coins }} lessons · <b>{{ P.money(p.total, p.currency) }}</b> · {{ S.PURCHASE_STATUS[p.status] }}{% if p.payer_reference %} · their reference: {{ p.payer_reference }}{% endif %}</p>
+    <div class="grid3">
+      <div class="field"><label>Amount received ({{ p.currency }})</label><input name="amount_received" value="{{ p.total }}" inputmode="decimal"></div>
+      {% if p.currency != 'AED' %}<div class="field"><label>AED rate for 1 {{ p.currency }}</label><input name="aed_rate" inputmode="decimal" value="{{ last_rate(p.currency) or '' }}" placeholder="e.g. 3.6725"></div>{% endif %}
+      <div class="field"><label>Paid by</label><select name="method">{% for k, m in P.METHODS.items() %}<option value="{{ k }}"{% if p.method == k %} selected{% endif %}>{{ m.name }}</option>{% endfor %}</select></div>
+    </div>
+    <button class="btn sm green" name="action" value="confirm" type="submit">Money arrived: confirm</button>
+    <button class="btn sm outline-dark" name="action" value="cancel" type="submit">Cancel</button>
+  </form>
+  {% endfor %}
+  {% else %}<p>Nothing waiting.</p>{% endif %}
+
+  <h2 style="margin-top:30px">Applications</h2>
+  <p class="small">Private. Never shown to members or teachers. One open application per child; lessons can only be given up to the number approved.</p>
+  {% if apps %}
+  {% for a in apps %}{% set given = rep.allocated_by_app.get(a.id, 0) %}
+  <div class="class-note">
+    <p><b>{{ a.student.first_name }}</b> ({{ a.family.parent_name }}) · asked for {{ a.lessons_asked }} lessons · {{ fmt_time(a.created_at, 'Asia/Dubai', False) }} · <span class="status {{ 's-flag' if a.status == 'pending' else 's-completed' if a.status == 'approved' else 's-cancelled' }}">{{ S.APP_STATUS[a.status] }}</span>{% if a.status in ('approved', 'closed') %} · {{ given }} of {{ a.lessons_approved }} given{% endif %}</p>
+    <p class="small">{{ a.reason }}</p>
+    {% if a.admin_note %}<p class="small">Note: {{ a.admin_note }}</p>{% endif %}
+    {% if a.status == 'pending' %}
+    <form method="post" class="inline-form"><input type="hidden" name="csrf" value="{{ csrf }}"><input type="hidden" name="action" value="decide"><input type="hidden" name="application_id" value="{{ a.id }}">
+      <input name="lessons" type="number" min="1" max="500" value="{{ a.lessons_asked }}" aria-label="Lessons to approve" style="width:90px">
+      <input name="note" placeholder="Note (private)" aria-label="Note">
+      <button class="btn sm green" name="decision" value="approve" type="submit">Approve</button>
+      <button class="btn sm outline-dark" name="decision" value="reject" type="submit">Reject</button></form>
+    {% elif a.status == 'approved' %}
+    <form method="post" class="inline-form"><input type="hidden" name="csrf" value="{{ csrf }}"><input type="hidden" name="application_id" value="{{ a.id }}">
+      <input name="coins" type="number" min="1" max="{{ a.lessons_approved - given }}" value="{{ [a.lessons_approved - given, rep.pool]|min }}" aria-label="Lessons to give" style="width:90px">
+      <button class="btn sm green" name="action" value="allocate" type="submit"{% if given >= a.lessons_approved or rep.pool <= 0 %} disabled{% endif %}>Give lessons</button>
+      <button class="btn sm outline-dark" name="action" value="close" type="submit">Close</button></form>
+    {% endif %}
+  </div>
+  {% endfor %}
+  {% else %}<p>No applications yet.</p>{% endif %}
+
+  <h2 style="margin-top:30px">Members who bought lessons</h2>
+  {% if donors %}
+  <div class="table-wrap"><table class="data"><tr><th>Member</th><th>Bought</th><th>Given</th><th>Children</th><th>Taught</th><th>Waiting</th></tr>
+  {% for d in donors %}<tr><td>{{ d.family.parent_name }}</td><td>{{ d.bought }}</td><td>{{ d.funded }}</td><td>{{ d.children }}</td><td>{{ d.taught }}</td><td>{{ d.balance }}</td></tr>{% endfor %}
+  </table></div>
+  {% else %}<p>None yet.</p>{% endif %}
+
+  <form class="form-card" method="post" style="max-width:none;margin-top:30px">
+    <input type="hidden" name="csrf" value="{{ csrf }}"><input type="hidden" name="action" value="promo">
+    <h2>Add the academy's own lessons</h2>
+    <p class="small">Promotional coins from the academy itself (no member pays for them). They are used after members' coins.</p>
+    <div class="grid3"><div class="field"><label>Coins</label><input name="coins" type="number" min="1" max="1000"></div>
+      <div class="field" style="grid-column: span 2"><label>Note</label><input name="note" placeholder="e.g. Ramadan gift from the academy"></div></div>
+    <button class="btn sm outline-dark" type="submit">Add</button>
+  </form>
+
+  <form class="form-card" method="post" style="max-width:none;margin-top:30px">
+    <input type="hidden" name="csrf" value="{{ csrf }}"><input type="hidden" name="action" value="settings">
+    <h2>Settings</h2>
+    <label class="check"><input type="checkbox" name="support_on"{% if S.on() %} checked{% endif %}> Switched on (families see it on their page)</label>
+    <div class="grid2">
+      <div class="field"><label>Name shown to families</label><input name="support_name" value="{{ raw.support_name }}"></div>
+      <div class="field"><label>Who can buy sponsored lessons</label><select name="support_who"><option value="diamond">Diamond members only</option><option value="all"{% if raw.support_who == 'all' %} selected{% endif %}>Every family</option></select></div>
+      <div class="field"><label>Lessons in "sponsor one child"</label><input name="support_lessons_per_child" value="{{ raw.support_lessons_per_child }}"></div>
+      <div class="field"><label>Packs (children, comma-separated)</label><input name="support_packs" value="{{ raw.support_packs }}"></div>
+      <div class="field"><label>Price of one coin (one 30-minute lesson), per currency</label><input name="support_coin_prices" value="{{ raw.support_coin_prices }}"></div>
+      <div class="field"><label>Most lessons a family can ask for</label><input name="support_max_asked" value="{{ raw.support_max_asked }}"></div>
+    </div>
+    <p class="small">Keep the coin price at the academy's cost (teacher pay plus fees), not a profit: the default equals the Standard 3-days-a-week price per lesson. Wording to families always says: a purchase of lessons, not a donation, not tax-deductible.</p>
+    <button class="btn green" type="submit">Save settings</button>
+  </form>
+</div></section>
+{% endblock %}

@@ -82,6 +82,22 @@
   </div>
 
   <form class="form-card" method="post" style="margin-top:30px">
+    <input type="hidden" name="csrf" value="{{ csrf }}"><input type="hidden" name="action" value="learning">
+    <h2>Membership, language and how classes are taught</h2>
+    <div class="grid2">
+      <div class="field"><label for="membership">Membership</label><select id="membership" name="membership">{% for t in M.TIERS %}<option value="{{ t }}"{% if t == fam.membership %} selected{% endif %}>{{ M.config(t).label }}</option>{% endfor %}</select></div>
+      <div class="field"><label for="ilang">Teacher must speak</label><select id="ilang" name="instruction_language"><option value="">No preference</option>{% for l in C.INSTRUCTION_LANGS if l != 'Any' %}<option value="{{ l }}"{% if l == fam.instruction_language %} selected{% endif %}>{{ l }}</option>{% endfor %}</select></div>
+    </div>
+    {% for st in fam.students %}
+    <fieldset class="pref-row"><legend>{{ st.first_name }}</legend>
+      <label><input type="radio" name="format_{{ st.id }}" value="academic"{% if st.lesson_format != 'combined' %} checked{% endif %}> 30 min teaching</label>
+      <label><input type="radio" name="format_{{ st.id }}" value="combined"{% if st.lesson_format == 'combined' %} checked{% endif %}> 20 min teaching + 10 min Islamic learning</label>
+    </fieldset>{% endfor %}
+    <p class="small">The family can change the language and the teaching structure themselves; the membership changes automatically when they pay an invoice for another membership.</p>
+    <button class="btn green" type="submit">Save</button>
+  </form>
+
+  <form class="form-card" method="post" style="margin-top:30px">
     <input type="hidden" name="csrf" value="{{ csrf }}"><input type="hidden" name="action" value="details">
     <h2>Family details</h2>
     <div class="grid2">

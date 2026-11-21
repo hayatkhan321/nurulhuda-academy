@@ -22,7 +22,7 @@ EXPENSE_CATEGORIES = ["Teaching platform (video)", "Website and hosting", "Licen
                       "Salaries and contractors", "Marketing", "Books and materials", "Accounting and legal",
                       "Office and equipment", "Other"]
 KIND_LABELS = {"purchase": "Payment", "used": "Class used", "returned": "Class returned", "adjustment": "Adjustment",
-               "refund": "Refund", "reversal": "Correction"}
+               "refund": "Refund", "reversal": "Correction", "sponsored": "Sponsored lessons"}
 
 
 # --- activity log ---------------------------------------------------------------------------------

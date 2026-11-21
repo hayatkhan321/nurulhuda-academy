@@ -16,6 +16,24 @@
     </select>
     <noscript><button class="btn sm outline-dark" type="submit">Save</button></noscript>
   </form>
+  <section id="learning" class="pref-card">
+    <h2>How each class is taught</h2>
+    <p class="small">Every class is 30 minutes. Choose for each child: all 30 minutes on Quran or Arabic, or 20 minutes of Quran or Arabic and then 10 minutes of Islamic learning: duas, hadith, stories of the prophets, manners and values, suited to their age. The teacher sees your choice before every class.</p>
+    {% if saved == 'learning' %}<p class="alert" style="background:#e9f4ee" role="status">Saved. Your child's teacher will see this before the next class.</p>{% endif %}
+    <form method="post" action="{{ url_for('portal.learning') }}">
+      <input type="hidden" name="csrf" value="{{ csrf }}">
+      {% for st in family.students %}
+      <fieldset class="pref-row"><legend><b>{{ st.first_name }}</b></legend>
+        <label><input type="radio" name="format_{{ st.id }}" value="academic"{% if st.lesson_format != 'combined' %} checked{% endif %}> 30 minutes of Quran or Arabic</label>
+        <label><input type="radio" name="format_{{ st.id }}" value="combined"{% if st.lesson_format == 'combined' %} checked{% endif %}> 20 minutes of Quran or Arabic + 10 minutes of Islamic learning</label>
+      </fieldset>
+      {% endfor %}
+      <div class="field" style="max-width:360px"><label for="instruction_language">Language your child's teacher should speak with you and your child</label>
+        <select id="instruction_language" name="instruction_language">{% for l in C.INSTRUCTION_LANGS %}<option value="{{ l }}"{% if l == family.instruction_language %} selected{% endif %}>{{ 'No preference' if l == 'Any' else l }}</option>{% endfor %}</select></div>
+      <p class="small">If you choose English or Urdu, we only match you with teachers who speak it fluently and clearly.</p>
+      <button class="btn green sm" type="submit">Save</button>
+    </form>
+  </section>
   {% if balance <= 2 %}<p class="alert" style="background:#fff4df;color:var(--ink)">{% if balance <= 0 %}You have no classes left.{% else %}Only {{ balance }} class{{ 'es' if balance != 1 }} left.{% endif %} <a href="{{ url_for('portal.pay') }}">Pay for more classes</a> to continue.</p>{% endif %}
   <p style="margin-top:16px"><a class="btn green sm" href="{{ url_for('portal.pay') }}">Pay for classes</a></p>
   {% if invoices %}
@@ -54,6 +72,68 @@
   </div>
   {% endfor %}
   {% else %}<p>Your child's class notes will appear here.</p>{% endif %}
+
+  {% if S.on() %}
+  <section id="support" class="pref-card" style="margin-top:36px">
+    <h2>{{ S.name() }}</h2>
+    {% if support_state == 'applied' %}<p class="alert" style="background:#e9f4ee" role="status">Thank you. Your application has been received. Only the academy's management sees it, and we will reply by e-mail.</p>
+    {% elif support_state == 'exists' %}<p class="alert" role="alert">This child already has an application in progress.</p>
+    {% elif support_state in ('missing', 'invalid') %}<p class="alert" role="alert">Please fill in every field.</p>{% endif %}
+    {% if donor %}
+    <p class="small">Buy lessons for children whose families cannot afford classes. One coin is one 30-minute lesson. The academy chooses the children privately and never shares who they are. This is a purchase of lessons, not a charitable donation, and it is not tax-deductible.</p>
+    <div class="stats">
+      <div class="stat"><b>{{ donor.children }}</b><span>children supported</span></div>
+      <div class="stat"><b>{{ donor.funded }}</b><span>lessons funded</span></div>
+      <div class="stat"><b>{{ donor.taught }}</b><span>of them already taught</span></div>
+      <div class="stat"><b>{{ donor.balance }}</b><span>coins waiting to be given</span></div>
+    </div>
+    {% set price = S.coin_prices().get(cur) %}
+    {% if price %}
+    <form method="post" action="{{ url_for('portal.support_buy') }}" class="support-buy">
+      <input type="hidden" name="csrf" value="{{ csrf }}"><input type="hidden" name="cur" value="{{ cur }}">
+      <p><b>Sponsor children for a month</b> ({{ S.lessons_per_child() }} lessons each, <!--nt-->{{ P.money(price, cur) }}<!--/nt--> a lesson):</p>
+      <div class="choices">{% for n in S.packs() %}<button class="btn sm outline-dark" name="pack" value="{{ n }}" type="submit">{{ n }} children: <!--nt-->{{ P.money(price * n * S.lessons_per_child(), cur) }}<!--/nt--></button>{% endfor %}</div>
+      <div class="field" style="max-width:300px;margin-top:10px"><label for="coins">Or choose a number of lessons</label><input id="coins" name="coins" type="number" min="1" max="10000"></div>
+      <button class="btn green sm" type="submit">Buy these lessons</button>
+    </form>
+    {% endif %}
+    {% if donor.purchases %}<p class="small" style="margin-top:12px">Your orders: {% for p in donor.purchases %}<a href="{{ url_for('portal.support_purchase', number=p.number) }}"><!--nt-->{{ p.number }}<!--/nt--></a> ({{ p.coins }} lessons, {{ S.PURCHASE_STATUS[p.status] }}){{ ', ' if not loop.last }}{% endfor %}</p>{% endif %}
+    {% endif %}
+    <details{% if support_state in ('missing',) %} open{% endif %}><summary>Can't afford classes? Apply for sponsored lessons</summary>
+      <p class="small">Tell us a little about your situation. Only the academy's management reads it; your child's teacher and other families never know.</p>
+      {% for a in my_apps %}<p class="small">{{ a.student.first_name }}: {{ S.APP_STATUS[a.status] }}{% if a.status == 'approved' %}, {{ a.lessons_approved }} lessons{% endif %}.</p>{% endfor %}
+      <form method="post" action="{{ url_for('portal.support_apply') }}">
+        <input type="hidden" name="csrf" value="{{ csrf }}">
+        <div class="grid2">
+          <div class="field"><label for="s_child">For which child</label><select id="s_child" name="student_id" required>{% for st in family.students %}<option value="{{ st.id }}">{{ st.first_name }}</option>{% endfor %}</select></div>
+          <div class="field"><label for="s_lessons">How many lessons a month would help</label><input id="s_lessons" name="lessons" type="number" min="1" max="48" value="{{ S.lessons_per_child() }}"></div>
+        </div>
+        <div class="field"><label for="s_reason">Your situation</label><textarea id="s_reason" name="reason" required maxlength="3000"></textarea></div>
+        <button class="btn green sm" type="submit">Send my application</button>
+      </form>
+    </details>
+  </section>
+  {% endif %}
+
+  <section id="concern" class="pref-card" style="margin-top:36px">
+    <h2>Report a concern about a teacher</h2>
+    <p class="small">Teachers must keep to the lesson and must never ask your child about your family's private life: your jobs or income, brothers and sisters, or home matters. If anything worried you, tell us here. Only the academy's management sees it, and we look into every report.</p>
+    {% if concern_state == 'sent' %}<p class="alert" style="background:#e9f4ee" role="status">Thank you. We have received your report and will look into it. We may contact you for more details.</p>
+    {% elif concern_state == 'missing' %}<p class="alert" role="alert">Please choose the teacher and what happened, and tell us a little about it.</p>{% endif %}
+    {% if taught %}
+    <details{% if concern_state == 'missing' %} open{% endif %}><summary>Write to the academy</summary>
+    <form method="post" action="{{ url_for('portal.concern') }}">
+      <input type="hidden" name="csrf" value="{{ csrf }}">
+      <div class="grid2">
+        <div class="field"><label for="c_teacher">Teacher</label><select id="c_teacher" name="teacher_id" required><option value="">Choose</option>{% for t in taught %}<option value="{{ t.id }}">{{ t.full_name }}</option>{% endfor %}</select></div>
+        <div class="field"><label for="c_cat">What happened</label><select id="c_cat" name="category" required><option value="">Choose</option>{% for k, v in C.CONDUCT_CATEGORIES.items() %}<option value="{{ k }}">{{ v }}</option>{% endfor %}</select></div>
+      </div>
+      <div class="field"><label for="c_details">Tell us more</label><textarea id="c_details" name="details" required maxlength="3000" placeholder="What was said or done, and in which class if you remember."></textarea></div>
+      <button class="btn green sm" type="submit">Send to the academy</button>
+    </form>
+    </details>
+    {% else %}<p class="small">You can use this once your child has had a class.</p>{% endif %}
+  </section>
 
   <h2 style="margin-top:36px">Classes bought and used</h2>
   {% if entries %}

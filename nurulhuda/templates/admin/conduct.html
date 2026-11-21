@@ -1,0 +1,35 @@
+{% extends "base.html" %}
+{% block main %}{% include "admin/_nav.html" %}
+<section class="section"><div class="wrap">
+  <h2>Concerns from parents</h2>
+  <p class="small">Every report is kept with what you decided. Upheld reports count against a teacher's Gold and Diamond eligibility for a year. Only admins see this page.</p>
+  {% if reports %}
+  {% for r in reports %}
+  <div class="class-note">
+    <p><b>{{ fmt_time(r.created_at, 'Asia/Dubai', False) }}</b> · {{ r.family.parent_name }} about <b>{{ r.teacher.full_name }}</b> · {{ C.CONDUCT_CATEGORIES.get(r.category, r.category) }} · <span class="status {{ 's-flag' if r.status in ('open', 'looking') else 's-completed' }}">{{ CONDUCT_STATUS[r.status] }}</span></p>
+    <p>{{ r.details }}</p>
+    {% if r.class_id %}<p class="small">Class: <a href="{{ url_for('admin.class_activity', cid=r.class_id) }}">activity report</a></p>{% endif %}
+    {% if r.admin_notes %}<p class="small" style="white-space:pre-line">{{ r.admin_notes }}</p>{% endif %}
+    <form method="post" class="inline-form">
+      <input type="hidden" name="csrf" value="{{ csrf }}"><input type="hidden" name="report_id" value="{{ r.id }}">
+      <select name="status" aria-label="Status">{% for k, v in CONDUCT_STATUS.items() %}<option value="{{ k }}"{% if k == r.status %} selected{% endif %}>{{ v }}</option>{% endfor %}</select>
+      <input name="note" placeholder="What you found or decided" aria-label="Note" style="min-width:260px">
+      {% if r.teacher.active %}<label class="small"><input type="checkbox" name="pause"> Pause this teacher</label>{% endif %}
+      <button class="btn sm outline-dark" type="submit">Record</button>
+    </form>
+  </div>
+  {% endfor %}
+  {% else %}<p>No concerns reported.</p>{% endif %}
+
+  <h2 style="margin-top:34px">Code of Conduct: who has accepted version <!--nt-->{{ C.CONDUCT_VERSION }}<!--/nt--></h2>
+  <p class="small">Teachers cannot join a class until they accept the current version. To change the text, edit CONDUCT in content.py and raise CONDUCT_VERSION: everyone is asked again.</p>
+  <div class="table-wrap"><table class="data">
+    <tr><th>Teacher</th><th>Active</th><th>Accepted</th></tr>
+    {% for t in teachers %}<tr><td>{{ t.full_name }}</td><td>{{ 'Yes' if t.active else 'Paused' }}</td>
+      <td>{% if t.conduct_version == C.CONDUCT_VERSION and t.conduct_accepted_at %}<span class="status s-completed">{{ fmt_time(t.conduct_accepted_at, 'Asia/Dubai', False) }}</span>{% else %}<span class="status s-flag">Not yet</span>{% endif %}</td></tr>{% endfor %}
+  </table></div>
+  <details style="margin-top:18px"><summary>Read the Code of Conduct</summary>
+    {% for heading, points in C.CONDUCT %}<h3>{{ heading }}</h3><ul>{% for p in points %}<li>{{ p }}</li>{% endfor %}</ul>{% endfor %}
+  </details>
+</div></section>
+{% endblock %}

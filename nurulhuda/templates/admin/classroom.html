@@ -1,0 +1,33 @@
+{% extends "base.html" %}
+{% block main %}{% include "admin/_nav.html" %}
+<section class="section"><div class="wrap">
+  {% if saved %}<p class="alert" style="background:#e9f4ee" role="status">{{ saved }}</p>{% endif %}
+  <h2>Classroom activity, last {{ days }} days</h2>
+  <p class="small">Times only: microphones off for more than 15 seconds, every camera-off, raised hands and lost connections, with attendance and punctuality. "To review" means someone should look; it is not a finding on its own.</p>
+  {% if rows %}
+  <div class="table-wrap"><table class="data">
+    <tr><th>When (Dubai)</th><th>Student</th><th>Teacher</th><th>Status</th><th>Joined</th><th>Report</th></tr>
+    {% for c in rows %}<tr>
+      <td>{{ fmt_time(c.starts_at, 'Asia/Dubai', False) }}</td><td>{{ c.student.first_name }}{% if c.student.lesson_format == 'combined' %} <span class="small">(+ Islamic)</span>{% endif %}</td><td>{{ c.teacher.full_name }}</td>
+      <td>{{ STATUS_LABELS[c.status] }}</td>
+      <td class="small">{% if c.teacher_joined_at %}Teacher ✓{% endif %} {% if c.student_joined_at %}Student ✓{% endif %}</td>
+      <td><a href="{{ url_for('admin.class_activity', cid=c.id) }}">Open</a>{% if review.get(c.id) %} <span class="status s-flag">{{ review[c.id] }} to review</span>{% endif %}</td>
+    </tr>{% endfor %}
+  </table></div>
+  {% else %}<p>No classes in this period.</p>{% endif %}
+
+  <form class="form-card" method="post" style="max-width:none;margin-top:34px">
+    <input type="hidden" name="csrf" value="{{ csrf }}">
+    <h2>Classroom background</h2>
+    <p class="small">Applied automatically when anyone joins a class on a computer browser (Chrome, Edge, Firefox, Safari). Phones and tablets cannot blur or replace the background; they see a note asking for a plain wall. Everyone can switch between the academy background, blur and no effect in the classroom.</p>
+    <div class="grid3">
+      <div class="field"><label for="mode">Default for every class</label><select id="mode" name="mode">{% for k, v in BG_MODES.items() %}<option value="{{ k }}"{% if k == bg.mode %} selected{% endif %}>{{ v }}</option>{% endfor %}</select></div>
+      <div class="field"><label for="strength">Blur strength (0.1 to 1)</label><input id="strength" name="strength" type="number" step="0.1" min="0.1" max="1" value="{{ bg.strength }}"></div>
+      <div class="field"><label for="image">Academy background</label><select id="image" name="image">{% for k, v in BACKGROUNDS.items() %}<option value="{{ k }}"{% if k == image %} selected{% endif %}>{{ v }}</option>{% endfor %}</select></div>
+    </div>
+    <div class="bg-previews">{% for k, v in BACKGROUNDS.items() %}<figure><img src="{{ url_for('static', filename='img/classroom/' ~ k ~ '.jpg') }}" alt="{{ v }} background" loading="lazy" width="240" height="135"><figcaption class="small">{{ v }}</figcaption></figure>{% endfor %}</div>
+    <div class="field"><label for="custom_url">Or your own image (https link to a .jpg or .png, 1920 × 1080; leave empty to use the one above)</label><input id="custom_url" name="custom_url" value="{{ custom }}" placeholder="https://"></div>
+    <button class="btn green" type="submit">Save</button>
+  </form>
+</div></section>
+{% endblock %}

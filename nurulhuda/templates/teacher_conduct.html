@@ -1,0 +1,22 @@
+{% extends "base.html" %}
+{% block main %}
+{% with head="Teacher Code of Conduct", sub="Every Nurul Huda teacher accepts this before teaching. Families trust us with their children; this is how we keep that trust." %}{% include "_page_head.html" %}{% endwith %}
+<section class="section white"><div class="wrap prose conduct">
+  {% for heading, points in C.CONDUCT %}
+  <h2>{{ heading }}</h2>
+  <ul>{% for p in points %}<li>{{ p }}</li>{% endfor %}</ul>
+  {% endfor %}
+  <p class="small">Parents can report a concern about a teacher from their page. The academy looks into every report, records what it decides, and may pause a teacher while it does. Version <!--nt-->{{ C.CONDUCT_VERSION }}<!--/nt-->.</p>
+  {% if accepted %}
+  <p class="alert" style="background:#e9f4ee">You accepted this Code of Conduct on {{ fmt_time(teacher.conduct_accepted_at, teacher.timezone, False) }}. JazakAllahu khairan.</p>
+  <p><a class="btn green" href="{{ url_for('portal.teacher_home') }}">Back to my teaching</a></p>
+  {% else %}
+  <form method="post" class="form-card">
+    <input type="hidden" name="csrf" value="{{ csrf }}">
+    {% if error %}<p class="alert" role="alert">{{ error }}</p>{% endif %}
+    <label class="check"><input type="checkbox" name="accept" value="yes" required> I have read the Teacher Code of Conduct and I will follow it in every class.</label>
+    <p style="margin-top:14px"><button class="btn green" type="submit">Accept and continue</button></p>
+  </form>
+  {% endif %}
+</div></section>
+{% endblock %}

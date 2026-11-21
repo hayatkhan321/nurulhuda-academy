@@ -8,6 +8,10 @@
     <a href="{{ url_for('admin.problems') }}" {% if tab == 'problems' %}aria-current="page"{% endif %}>Problems</a>
     <a href="{{ url_for('admin.payouts') }}" {% if tab == 'payouts' %}aria-current="page"{% endif %}>Payouts</a>
     <a href="{{ url_for('admin.quality') }}" {% if tab == 'quality' %}aria-current="page"{% endif %}>Quality</a>
+    <a href="{{ url_for('admin.classroom') }}" {% if tab == 'classroom' %}aria-current="page"{% endif %}>Classroom</a>
+    <a href="{{ url_for('admin.conduct') }}" {% if tab == 'conduct' %}aria-current="page"{% endif %}>Conduct</a>
+    <a href="{{ url_for('admin.memberships') }}" {% if tab == 'memberships' %}aria-current="page"{% endif %}>Memberships</a>
+    <a href="{{ url_for('admin.support_home') }}" {% if tab == 'support' %}aria-current="page"{% endif %}>Education support</a>
     <a href="{{ url_for('recite.page') }}">Practice check</a>
     <a href="{{ url_for('admin.payments') }}" {% if tab == 'payments' %}aria-current="page"{% endif %}>Payments</a>
     <a href="{{ url_for('admin.packages') }}" {% if tab == 'packages' %}aria-current="page"{% endif %}>Prices</a>

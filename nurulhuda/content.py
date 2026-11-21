@@ -199,3 +199,35 @@ DUA_RESOURCES = [
     {"lang": "Español", "url": "https://d1.islamhouse.com/data/es/ih_books/single/risala_es_hisnul_muslim.pdf", "size": "2 MB"},
     {"lang": "Français", "url": "https://d1.islamhouse.com/data/fr/ih_books/single/risala_fr_hisnulmuslim.pdf", "size": "2 MB"},
 ]
+
+# --- Teacher Code of Conduct (portal: teachers accept it before teaching; Admin > Conduct) --------------------------
+# Change CONDUCT_VERSION whenever the text changes: every teacher is then asked to accept it again.
+CONDUCT_VERSION = "2026-11"
+CONDUCT = [
+    ("Teach the lesson", [
+        "Keep every class on the subject: Quran, tajweed, Qaida, Arabic or Islamic studies, as booked.",
+        "Follow the structure the parent chose for each child: 30 minutes of teaching, or 20 minutes of teaching then 10 minutes of Islamic learning. It is shown before every class.",
+        "Start on time, end on time, and mark every class with a short note and homework.",
+    ]),
+    ("Respect the family's privacy", [
+        "Do not ask a student about their parents' jobs, income or personal details.",
+        "Do not ask about brothers, sisters or other relatives.",
+        "Do not ask about the family's home life, money, social standing or any private family matter.",
+        "You may ask what helps the teaching: what the student already knows, how they practise, which language they understand best, and how the lesson is going.",
+        "If a child shares something worrying about their safety, do not question them further: tell the academy the same day.",
+    ]),
+    ("Keep the classroom professional", [
+        "Keep your camera on, use the academy background or blur, and sit in a quiet place.",
+        "Raise your hand in the classroom before muting your microphone. The academy notes microphones off for more than 15 seconds and every time a camera is off.",
+        "Speak kindly. Never shout, mock, threaten or use harsh words.",
+        "Speak in the language agreed with the family, clearly enough for the student and the parent to follow.",
+    ]),
+    ("Stay within the academy", [
+        "Contact families only through the academy, never privately (no personal phone numbers or social media).",
+        "Never record, photograph or share a class or a child's image.",
+        "Do not offer private classes or take payments outside the academy.",
+    ]),
+]
+CONDUCT_CATEGORIES = {"personal": "Asked personal or family questions", "language": "Unkind or harsh words",
+                      "offtopic": "Did not keep to the lesson", "contact": "Contacted us outside the academy",
+                      "other": "Something else"}

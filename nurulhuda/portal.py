@@ -4,10 +4,11 @@ from datetime import timedelta
 
 from flask import Blueprint, abort, current_app, jsonify, redirect, render_template, request, url_for
 
-from nurulhuda import auth, books, dashboard, db, ledger, mail, practice, pricing, quran_index, video
+from nurulhuda import auth, books, classroom, dashboard, db, ledger, mail, practice, pricing, quran_index, support, video
 from nurulhuda.ledger import STATUS_LABELS, aware, now
-from nurulhuda.models import ClassReview, ClassSession, CreditEntry, Invoice, Student, Teacher, TeacherCheckin, TeacherEarning
-from nurulhuda.routes import _check_form, _f, calculator_input, guess_currency
+from nurulhuda import content as C
+from nurulhuda.models import ClassReview, ClassSession, ConductReport, CreditEntry, Invoice, Student, Teacher, TeacherCheckin, TeacherEarning
+from nurulhuda.routes import _check_form, _f, calculator_input, guess_currency, membership_input
 from nurulhuda.i18n import tr
 from nurulhuda.timefmt import ZONE_NAMES, fmt
 
@@ -84,10 +85,21 @@ def family_home(family):
     entries = CreditEntry.query.filter_by(family_id=family.id).order_by(CreditEntry.created_at.desc()).limit(20).all()
     invoices = (Invoice.query.filter(Invoice.family_id == family.id, Invoice.status != "cancelled")
                 .order_by(Invoice.created_at.desc()).limit(10).all())
+    taught = (Teacher.query.join(ClassSession, ClassSession.teacher_id == Teacher.id)
+              .filter(ClassSession.student_id.in_(student_ids or [0])).distinct().all())
     return render_template("family.html", title="My classes", family=family, upcoming=upcoming, past=past,
+                           taught=taught, C=C, concern_state=request.args.get("concern"), saved=request.args.get("saved"),
+                           S=support, support_state=request.args.get("support"), cur=guess_currency(),
+                           donor=support.donor_view(family) if support.can_sponsor(family) else None,
+                           my_apps=support_apps(family),
                            balance=ledger.balance(family.id), entries=entries, can_flag=ledger.can_flag,
                            joinable=_joinable, invoices=invoices, P=pricing, D=dashboard.family_dashboard(family),
                            presence_of=dashboard.presence_of)
+
+
+def support_apps(family):
+    from nurulhuda.models import SupportApplication
+    return SupportApplication.query.filter_by(family_id=family.id).order_by(SupportApplication.created_at.desc()).all()
 
 
 @portal_bp.route("/my/class/<int:cid>/review", methods=["POST"])
@@ -147,6 +159,96 @@ def teacher_pref(family):
     return redirect(url_for("portal.family_home") + "#dashboard")
 
 
+@portal_bp.route("/my/learning", methods=["POST"])
+@auth.login_required("family")
+def learning(family):
+    """For each child: 30 minutes of teaching, or 20 minutes of teaching then 10 minutes of Islamic learning."""
+    _check_form()
+    changed = {}
+    for st in family.students:
+        want = request.form.get(f"format_{st.id}")
+        if want in ("academic", "combined") and want != st.lesson_format:
+            changed[st.first_name] = want
+            st.lesson_format = want
+    lang = request.form.get("instruction_language")
+    if lang in C.INSTRUCTION_LANGS and lang != family.instruction_language:
+        changed["language"] = lang
+        family.instruction_language = lang
+    if changed:
+        books.log("learning_preferences_changed", "family", family.id, **changed)
+        db.session.commit()
+    return redirect(url_for("portal.family_home", saved="learning") + "#learning")
+
+
+# --- education support: buying lessons for other children, and applying for them -------------------------
+@portal_bp.route("/my/support/buy", methods=["POST"])
+@auth.login_required("family")
+def support_buy(family):
+    _check_form()
+    if not support.can_sponsor(family):
+        abort(403)
+    pack = request.form.get("pack", type=int)
+    coins = pack * support.lessons_per_child() if pack in support.packs() else request.form.get("coins", type=int) or 0
+    cur = (request.form.get("cur") or guess_currency()).upper()
+    p = support.make_purchase(family, coins, cur)
+    if not p:
+        return redirect(url_for("portal.family_home", support="invalid") + "#support")
+    db.session.commit()
+    link = url_for("portal.support_purchase", number=p.number, _external=True)
+    mail.send_email(family.email, f"Your sponsored lessons {p.number}: {pricing.money(p.total, p.currency)}",
+                    f"<p>Assalamu alaikum {html.escape(family.parent_name)},</p><p>Thank you. Your order <b>{p.number}</b> "
+                    f"is for <b>{p.coins} sponsored lessons</b>, {pricing.money(p.total, p.currency)}. Please write "
+                    f"<b>{p.number}</b> as the reference when you pay. The ways to pay are here: <a href=\"{link}\">{link}</a></p>"
+                    "<p>This is a purchase of lessons that the academy gives to children whose families cannot afford them. "
+                    "It is not a charitable donation and is not tax-deductible.</p>")
+    return redirect(url_for("portal.support_purchase", number=p.number))
+
+
+@portal_bp.route("/my/support/<number>", methods=["GET", "POST"])
+@auth.login_required("family")
+def support_purchase(family, number):
+    from nurulhuda.models import SponsorPurchase
+    p = SponsorPurchase.query.filter_by(number=number).first() or abort(404)
+    if p.family_id != family.id:
+        abort(404)
+    if request.method == "POST":
+        _check_form()
+        action = request.form.get("action")
+        if action == "reported" and p.status in ("pending", "reported"):
+            method = request.form.get("method", "")
+            p.method = method if method in pricing.METHODS else "other"
+            p.payer_reference, p.status, p.reported_at = _f("reference", 200), "reported", now()
+            db.session.commit()
+            mail.send_email(current_app.config.get("NOTIFY_EMAIL"), f"Payment to check: {p.number} (sponsored lessons)",
+                            f"<p>{html.escape(family.parent_name)} says they paid {p.number}, "
+                            f"{pricing.money(p.total, p.currency)} for {p.coins} sponsored lessons.</p>"
+                            "<p>Confirm it in Admin &gt; Education support.</p>")
+        elif action == "cancel" and p.status == "pending":
+            p.status = "cancelled"
+            db.session.commit()
+            return redirect(url_for("portal.family_home") + "#support")
+        return redirect(url_for("portal.support_purchase", number=p.number))
+    return render_template("support_purchase.html", title=f"Sponsored lessons {p.number}", family=family, p=p,
+                           P=pricing, S=support, methods=pricing.methods_on())
+
+
+@portal_bp.route("/my/support/apply", methods=["POST"])
+@auth.login_required("family")
+def support_apply(family):
+    _check_form()
+    st = db.session.get(Student, request.form.get("student_id", type=int) or 0)
+    reason = _f("reason", 3000)
+    if not (support.on() and st and st.family_id == family.id and reason):
+        return redirect(url_for("portal.family_home", support="missing") + "#support")
+    app = support.apply(family, st, request.form.get("lessons", type=int) or support.lessons_per_child(), reason)
+    if not app:
+        return redirect(url_for("portal.family_home", support="exists") + "#support")
+    db.session.commit()
+    mail.send_email(current_app.config.get("NOTIFY_EMAIL"), "New application for sponsored lessons",
+                    "<p>A family has applied for sponsored lessons. See Admin &gt; Education support.</p>")
+    return redirect(url_for("portal.family_home", support="applied") + "#support")
+
+
 # --- paying for classes --------------------------------------------------------------------------
 STATUS_WORDS = {"pending": "Waiting for payment", "reported": "Payment being checked", "paid": "Paid",
                 "cancelled": "Cancelled"}
@@ -157,8 +259,10 @@ STATUS_WORDS = {"pending": "Waiting for payment", "reported": "Payment being che
 def pay(family):
     cur = guess_currency()
     kids = [k for k in family.students if k.active] or family.students
+    from nurulhuda import memberships as M
     choices, months, code = calculator_input(max_children=max(4, len(kids)))
-    q = pricing.quote(cur, choices, months, code) if choices else None
+    tier, minutes = membership_input(family.membership or "standard")
+    q = pricing.quote(cur, choices, months, code, tier, minutes) if choices else None
     if request.method == "POST":
         _check_form()
         if request.form.get("action") == "create" and q and q.lines and not q.error:
@@ -173,7 +277,8 @@ def pay(family):
                             f'on your invoice page: <a href="{link}">{link}</a></p><p>JazakAllahu khairan,<br>Nurul Huda Academy</p>')
             return redirect(url_for("portal.invoice", number=inv.number))
     return render_template("pay.html", title="Pay for classes", family=family, kids=kids, P=pricing, cur=cur,
-                           plans=pricing.price_list(cur), q=q, months=months, code=code, choices=choices)
+                           plans=pricing.price_list(cur), q=q, months=months, code=code, choices=choices,
+                           M=M, tier=tier, minutes=minutes, tiers_list=M.offered())
 
 
 @portal_bp.route("/my/invoice/<number>", methods=["GET", "POST"])
@@ -205,6 +310,32 @@ def invoice(family, number):
         return redirect(url_for("portal.invoice", number=inv.number))
     return render_template("invoice.html", title=f"Invoice {inv.number}", family=family, inv=inv, P=pricing,
                            lines=pricing.invoice_lines(inv), methods=pricing.methods_on(), STATUS_WORDS=STATUS_WORDS)
+
+
+@portal_bp.route("/my/concern", methods=["POST"])
+@auth.login_required("family")
+def concern(family):
+    """A parent reports a teacher's behaviour (for example, personal questions). Goes to Admin > Conduct."""
+    _check_form()
+    student_ids = [s.id for s in family.students] or [0]
+    teacher = db.session.get(Teacher, request.form.get("teacher_id", type=int) or 0)
+    taught = teacher and ClassSession.query.filter(ClassSession.teacher_id == teacher.id,
+                                                   ClassSession.student_id.in_(student_ids)).first()
+    category = request.form.get("category")
+    details = _f("details", 3000)
+    if not (taught and category in C.CONDUCT_CATEGORIES and details):
+        return redirect(url_for("portal.family_home", concern="missing") + "#concern")
+    cs = db.session.get(ClassSession, request.form.get("class_id", type=int) or 0)
+    r = ConductReport(family_id=family.id, teacher_id=teacher.id, category=category, details=details,
+                      class_id=cs.id if cs and cs.student_id in student_ids and cs.teacher_id == teacher.id else None)
+    db.session.add(r)
+    db.session.flush()
+    books.log("conduct_reported", "conduct_report", r.id, teacher=teacher.full_name, category=category)
+    db.session.commit()
+    mail.send_email(current_app.config.get("NOTIFY_EMAIL"), f"Conduct concern about {teacher.full_name}",
+                    f"<p>{html.escape(family.parent_name)} reported: <b>{html.escape(C.CONDUCT_CATEGORIES[category])}</b>.</p>"
+                    f"<p>{html.escape(details)}</p><p>Look into it in Admin &gt; Conduct and record what you decide.</p>")
+    return redirect(url_for("portal.family_home", concern="sent") + "#concern")
 
 
 @portal_bp.route("/my/class/<int:cid>/report", methods=["POST"])
@@ -260,9 +391,31 @@ def teacher_home(teacher):
             last_hw[c.student_id] = practice.homework_view(hw, c.student.family.timezone if c.student.family else tz)
     counts = {c.id: practice.class_counts(c) for c in to_mark}
     return render_template("teacher.html", title="My teaching", teacher=teacher, upcoming=upcoming, to_mark=to_mark,
+                           conduct_ok=conduct_ok(teacher),
                            past=past, owed=owed, held=held, paid=paid, joinable=_joinable, last_prog=last_prog,
                            SURAHS=quran_index.NAMES, QAIDA=dashboard.QAIDA_LESSONS, last_hw=last_hw, counts=counts,
                            HW_MINUTES=practice.MINUTES)
+
+
+def conduct_ok(teacher) -> bool:
+    return teacher.conduct_version == C.CONDUCT_VERSION and teacher.conduct_accepted_at is not None
+
+
+@portal_bp.route("/teacher/conduct", methods=["GET", "POST"])
+@auth.login_required("teacher")
+def teacher_conduct(teacher):
+    """The Teacher Code of Conduct. Teachers accept each version before they can join classes."""
+    error = None
+    if request.method == "POST":
+        _check_form()
+        if request.form.get("accept") == "yes":
+            teacher.conduct_version, teacher.conduct_accepted_at = C.CONDUCT_VERSION, now()
+            books.log("conduct_accepted", "teacher", teacher.id, version=C.CONDUCT_VERSION)
+            db.session.commit()
+            return redirect(url_for("portal.teacher_home"))
+        error = "Please tick the box to accept the Code of Conduct."
+    return render_template("teacher_conduct.html", title="Teacher Code of Conduct", teacher=teacher, C=C,
+                           accepted=conduct_ok(teacher), error=error)
 
 
 @portal_bp.route("/teacher/class/<int:cid>/mark", methods=["POST"])
@@ -318,6 +471,8 @@ def room(cid):
     if not (auth.current_teacher() or auth.current_family() or auth.is_admin()):
         return redirect(url_for("portal.login"))
     role, name = _who_for(cs)
+    if role == "teacher" and not conduct_ok(cs.teacher):
+        return redirect(url_for("portal.teacher_conduct"))
     if role != "observer" and not _joinable(cs):
         return render_template("room.html", title="Classroom", cs=cs, role=role, state="closed")
     if not video.configured():
@@ -333,7 +488,43 @@ def room(cid):
     except video.VideoError:
         current_app.logger.exception("Classroom could not open for class %s", cs.id)
         return render_template("room.html", title="Classroom", cs=cs, role=role, state="error"), 503
-    return render_template("room.html", title="Classroom", cs=cs, role=role, state="open", url=url, token=tok)
+    return render_template("room.html", title="Classroom", cs=cs, role=role, state="open", url=url, token=tok,
+                           bg=classroom.background(), BG_MODES=classroom.BG_MODES, fmt_split=lesson_split(cs))
+
+
+def lesson_split(cs) -> dict:
+    """The parent's choice for a class: all academic, or academic then Islamic learning (20 + 10 in 30 minutes)."""
+    total = cs.minutes or 30
+    if cs.student.lesson_format != "combined":
+        return {"academic": total, "islamic": 0}
+    islamic = round(total / 3)
+    return {"academic": total - islamic, "islamic": islamic}
+
+
+@portal_bp.route("/class/<int:cid>/events", methods=["POST"])
+def class_events(cid):
+    """Microphone, camera, raised-hand and connection intervals from the classroom page (times only)."""
+    from flask import session
+    if request.headers.get("X-CSRF") != session.get("csrf"):
+        abort(400)
+    cs = db.session.get(ClassSession, cid) or abort(404)
+    role, name = _who_for(cs)
+    if role not in ("teacher", "student"):
+        return jsonify(ok=True, kept=0)
+    d = request.get_json(silent=True) or {}
+    kept = classroom.record(cs, role, name, d.get("items") or [])
+    db.session.commit()
+    return jsonify(ok=True, kept=kept)
+
+
+@portal_bp.route("/teacher/class/<int:cid>/activity")
+@auth.login_required("teacher")
+def teacher_activity(teacher, cid):
+    cs = db.session.get(ClassSession, cid) or abort(404)
+    if cs.teacher_id != teacher.id:
+        abort(403)
+    return render_template("class_activity.html", title="Class activity", cs=cs, r=classroom.report(cs),
+                           zone=teacher.timezone, viewer="teacher", hm=classroom.clock(teacher.timezone))
 
 
 @portal_bp.route("/class/<int:cid>/beat", methods=["POST"])

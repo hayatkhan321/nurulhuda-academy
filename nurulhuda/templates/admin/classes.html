@@ -7,8 +7,9 @@
     <input type="hidden" name="csrf" value="{{ csrf }}"><input type="hidden" name="action" value="schedule">
     <h2>Schedule classes</h2>
     <div class="grid3">
-      <div class="field"><label for="student_id">Student</label><select id="student_id" name="student_id" required><option value="">Choose</option>{% for s in students %}<option value="{{ s.id }}">{{ s.first_name }} ({{ s.family.parent_name }})</option>{% endfor %}</select></div>
-      <div class="field"><label for="teacher_id">Teacher</label><select id="teacher_id" name="teacher_id" required><option value="">Choose</option>{% for t in teachers %}<option value="{{ t.id }}">{{ t.full_name }} ({{ t.gender or '' }})</option>{% endfor %}</select></div>
+      <div class="field"><label for="student_id">Student</label><select id="student_id" name="student_id" required><option value="">Choose</option>{% for s in students %}<option value="{{ s.id }}" data-fit="{% for t in teachers %}{% if match.get((s.id, t.id)) %}{{ t.id }},{% endif %}{% endfor %}">{{ s.first_name }} ({{ s.family.parent_name }}{% if s.family.membership != 'standard' %}, {{ s.family.membership|title }}{% endif %}{% if s.family.instruction_language %}, {{ s.family.instruction_language }}{% endif %}{% if s.lesson_format == 'combined' %}, + Islamic{% endif %})</option>{% endfor %}</select></div>
+      <div class="field"><label for="teacher_id">Teacher</label><select id="teacher_id" name="teacher_id" required><option value="">Choose</option>{% for t in teachers %}<option value="{{ t.id }}">{{ t.full_name }} ({{ t.gender or '' }}{% if t.tier != 'standard' %}, {{ t.tier|title }}{% endif %})</option>{% endfor %}</select>
+        <span class="small" id="fit-note"></span></div>
       <div class="field"><label for="minutes">Minutes</label><input id="minutes" name="minutes" type="number" value="30"></div>
       <div class="field"><label for="date">First class date</label><input id="date" name="date" type="date" required></div>
       <div class="field"><label for="time">Time</label><input id="time" name="time" type="time" required></div>
@@ -23,6 +24,22 @@
     <label class="check"><input type="checkbox" name="notify" checked> E-mail the family and the teacher their times</label>
     <p style="margin-top:16px"><button class="btn green" type="submit">Schedule</button></p>
   </form>
+  <script>
+  (function () {
+    // Grey out teachers who do not match the chosen student's language or membership (the server checks again).
+    var st = document.getElementById("student_id"), te = document.getElementById("teacher_id"), note = document.getElementById("fit-note");
+    function update() {
+      var opt = st.options[st.selectedIndex], fit = opt && opt.dataset.fit ? opt.dataset.fit.split(",") : null, bad = 0;
+      Array.prototype.forEach.call(te.options, function (o) {
+        if (!o.value) { return; }
+        var ok = !fit || !st.value || fit.indexOf(o.value) >= 0;
+        o.disabled = !ok; if (!ok) { bad++; if (o.selected) { te.value = ""; } }
+      });
+      note.textContent = bad ? bad + " teacher" + (bad > 1 ? "s" : "") + " hidden: language or membership level does not match this family." : "";
+    }
+    st.addEventListener("change", update); update();
+  })();
+  </script>
 
   <h2 style="margin-top:34px">From two days ago onwards (Dubai time)</h2>
   {% if rows %}
@@ -31,7 +48,8 @@
     {% for c in rows %}<tr>
       <td>{{ fmt_time(c.starts_at, 'Asia/Dubai', False) }}</td><td>{{ c.student.first_name }}</td><td>{{ c.teacher.full_name }}</td>
       <td>{{ STATUS_LABELS[c.status] }}{% if c.flagged_at and not c.flag_resolution %} <b>(reported)</b>{% endif %}</td>
-      <td class="small">{% if c.teacher_joined_at %}Teacher ✓{% endif %} {% if c.student_joined_at %}Student ✓{% endif %}</td>
+      <td class="small">{% if c.teacher_joined_at %}Teacher ✓{% endif %} {% if c.student_joined_at %}Student ✓{% endif %}
+        {% if c.teacher_joined_at or c.student_joined_at %}<br><a href="{{ url_for('admin.class_activity', cid=c.id) }}">Activity</a>{% if review.get(c.id) %} <span class="status s-flag">{{ review[c.id] }} to review</span>{% endif %}{% endif %}</td>
       <td class="actions">
         {% if c.status == 'scheduled' %}<a class="btn sm green" href="{{ url_for('portal.room', cid=c.id) }}">Observe</a>{% endif %}
         <form method="post"><input type="hidden" name="csrf" value="{{ csrf }}"><input type="hidden" name="action" value="status"><input type="hidden" name="class_id" value="{{ c.id }}">

@@ -12,7 +12,7 @@
   {% if q and q.lines and not q.error %}
   <form method="post" style="margin-top:20px">
     <input type="hidden" name="csrf" value="{{ csrf }}"><input type="hidden" name="action" value="create">
-    <input type="hidden" name="cur" value="{{ cur }}"><input type="hidden" name="months" value="{{ months }}"><input type="hidden" name="code" value="{{ code }}">
+    <input type="hidden" name="cur" value="{{ cur }}"><input type="hidden" name="months" value="{{ months }}"><input type="hidden" name="code" value="{{ code }}"><input type="hidden" name="tier" value="{{ tier }}"><input type="hidden" name="minutes" value="{{ minutes }}">
     {% for child, plan in choices %}<input type="hidden" name="child{{ loop.index }}" value="{{ child }}"><input type="hidden" name="plan{{ loop.index }}" value="{{ plan }}">{% endfor %}
     <button class="btn green" type="submit">Get my invoice for <!--nt-->{{ P.money(q.total, q.currency) }}<!--/nt--></button>
     <p class="small">Nothing is charged now. Your invoice shows the ways to pay, and your classes are added when your payment arrives.</p>

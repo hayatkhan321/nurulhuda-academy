@@ -51,6 +51,7 @@
         <div class="field"><label for="expires_on">Ends on</label><input id="expires_on" name="expires_on" type="date"></div>
         <div class="field"><label for="max_uses">Most uses</label><input id="max_uses" name="max_uses" type="number" min="1"></div>
         <div class="field"><label for="cnote">Note</label><input id="cnote" name="note"></div>
+        <fieldset class="field"><legend>Only for these memberships (none ticked = all)</legend><div class="choices"><label><input type="checkbox" name="tiers" value="standard"> Standard</label><label><input type="checkbox" name="tiers" value="gold"> Gold</label><label><input type="checkbox" name="tiers" value="diamond"> Diamond</label></div></fieldset>
       </div>
       <label class="small"><input type="checkbox" name="beyond_cap"> May go past the discount cap (community or hardship rate; the floor still applies)</label>
       <p><button class="btn green" type="submit">Add code</button></p>
@@ -60,7 +61,7 @@
   <h2 style="margin-top:30px">Discount codes</h2>
   {% if codes %}
   <div class="table-wrap"><table class="data"><tr><th>Code</th><th>% off</th><th>Type</th><th>Ends</th><th>Paid uses</th><th>Note</th><th></th></tr>
-  {% for c in codes %}<tr><td><b>{{ c.code }}</b>{% if not c.active %} (off){% endif %}</td><td>{{ P.pnum(c.percent) }}%{% if c.beyond_cap %}<br><span class="small">past the cap</span>{% endif %}</td><td>{{ c.kind }}</td><td>{{ c.expires_on.strftime('%d %b %Y') if c.expires_on else '' }}</td><td>{{ used[c.code] }}{% if c.max_uses %} / {{ c.max_uses }}{% endif %}</td><td>{{ c.note or '' }}</td>
+  {% for c in codes %}<tr><td><b>{{ c.code }}</b>{% if not c.active %} (off){% endif %}</td><td>{{ P.pnum(c.percent) }}%{% if c.beyond_cap %}<br><span class="small">past the cap</span>{% endif %}</td><td>{{ c.kind }}</td><td>{{ c.expires_on.strftime('%d %b %Y') if c.expires_on else '' }}</td><td>{{ used[c.code] }}{% if c.max_uses %} / {{ c.max_uses }}{% endif %}</td><td>{{ c.note or '' }}{% if c.tiers %} <span class="small">({{ c.tiers.replace(',', ', ') }} only)</span>{% endif %}</td>
     <td><form method="post"><input type="hidden" name="csrf" value="{{ csrf }}"><input type="hidden" name="action" value="code_toggle"><input type="hidden" name="code_id" value="{{ c.id }}"><button class="btn sm outline-dark" type="submit">{{ 'Switch off' if c.active else 'Switch on' }}</button></form></td></tr>{% endfor %}
   </table></div>
   {% else %}<p>No codes yet.</p>{% endif %}

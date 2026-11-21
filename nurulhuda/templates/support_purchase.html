@@ -1,0 +1,45 @@
+{% extends "base.html" %}
+{% block main %}
+<section class="page-head lattice"><div class="wrap">
+  <h1>Sponsored lessons <!--nt-->{{ p.number }}<!--/nt--></h1>
+  <p>{{ S.PURCHASE_STATUS[p.status] }}. <a href="{{ url_for('portal.family_home') }}#support" style="color:var(--gold-1)">Back to my page</a></p>
+</div></section>
+<section class="section white"><div class="wrap">
+  <div class="stats">
+    <div class="stat"><b><!--nt-->{{ P.money(p.total, p.currency) }}<!--/nt--></b><span>to pay</span></div>
+    <div class="stat"><b class="ref-box"><!--nt-->{{ p.number }}<!--/nt--></b><span>write this as the payment reference</span></div>
+    <div class="stat"><b>{{ p.coins }}</b><span>lessons for children who need them</span></div>
+  </div>
+  <p class="small" style="margin-top:16px">{{ S.name() }}: you are buying {{ p.coins }} lessons of 30 minutes at <!--nt-->{{ P.money(p.unit_price, p.currency) }}<!--/nt--> each. The academy gives them privately to children whose families cannot afford classes, and shows you how many children and lessons they supported. This is a purchase of lessons, not a charitable donation, and it is not tax-deductible. Your receipt comes when the payment arrives.</p>
+  {% if p.status == 'paid' %}
+    <p class="alert" style="background:#e6f4ee;color:var(--ink)">Paid, JazakAllahu khairan. Your {{ p.coins }} lessons are in the sponsorship wallet.</p>
+  {% elif p.status == 'reported' %}
+    <p class="alert" style="background:#fff4df;color:var(--ink)">Thank you. We are checking your payment.</p>
+  {% endif %}
+  {% if p.status in ('pending', 'reported') %}
+  <h2 style="margin-top:30px">Ways to pay</h2>
+  {% if methods %}
+  <p>Please pay exactly <b><!--nt-->{{ P.money(p.total, p.currency) }}<!--/nt--></b> and write <b><!--nt-->{{ p.number }}<!--/nt--></b> as the reference.</p>
+  <div class="pay-methods">
+    {% for m in methods %}
+    <div class="pay-method">
+      <h3>{{ m.name }}</h3>
+      {% if m.details %}<!--nt--><pre>{{ m.details }}</pre><!--/nt-->{% endif %}
+      {% if m.link %}<p><a class="btn green sm" href="{{ P.paypal_link(m.link, p.total, p.currency) if m.key == 'paypal' else m.link }}" target="_blank" rel="noopener">Pay with {{ m.name }}</a></p>{% endif %}
+    </div>
+    {% endfor %}
+  </div>
+  {% else %}<p class="alert" style="background:#fff4df;color:var(--ink)">Our payment details are being set up. Please write to <a href="mailto:{{ contact_email }}">{{ contact_email }}</a>.</p>{% endif %}
+  <form class="form-card" method="post" style="margin-top:24px">
+    <input type="hidden" name="csrf" value="{{ csrf }}"><input type="hidden" name="action" value="reported">
+    <h2>{% if p.status == 'reported' %}Update your payment details{% else %}I have paid{% endif %}</h2>
+    <div class="grid2">
+      <div class="field"><label for="method">How did you pay?</label><select id="method" name="method">{% for k, m in P.METHODS.items() %}<option value="{{ k }}"{% if p.method == k %} selected{% endif %}>{{ m.name }}</option>{% endfor %}<option value="other">Other</option></select></div>
+      <div class="field"><label for="reference">Transaction number or sender name</label><input id="reference" name="reference" value="{{ p.payer_reference or '' }}"></div>
+    </div>
+    <button class="btn green" type="submit">Tell the academy</button>
+  </form>
+  {% if p.status == 'pending' %}<form method="post" style="margin-top:14px"><input type="hidden" name="csrf" value="{{ csrf }}"><input type="hidden" name="action" value="cancel"><button class="btn sm outline-dark" type="submit">Cancel this order</button></form>{% endif %}
+  {% endif %}
+</div></section>
+{% endblock %}

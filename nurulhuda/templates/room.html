@@ -10,6 +10,19 @@
       <a class="btn outline sm" href="{{ url_for('portal.teacher_home' if role == 'teacher' else 'portal.family_home' if role == 'student' else 'admin.classes') }}">Leave</a>
     </span>
   </div>
+  <div class="classroom-tools wrap">
+    {% if cs.student.lesson_format == 'combined' %}<p class="lesson-format"><b>This class:</b> {{ fmt_split.academic }} minutes of Quran or Arabic, then {{ fmt_split.islamic }} minutes of Islamic learning (duas, stories, manners), as the parent chose.</p>
+    {% else %}<p class="lesson-format"><b>This class:</b> {{ cs.minutes }} minutes of Quran or Arabic teaching, as the parent chose.</p>{% endif %}
+    <span class="cls-controls">
+      {% if role != 'observer' %}<button class="btn sm outline" type="button" id="cls-hand" aria-pressed="false">&#9995; Raise hand</button>{% endif %}
+      <label class="cls-bg-label" for="cls-bg">Background</label>
+      <select id="cls-bg">{% for k, v in BG_MODES.items() %}<option value="{{ k }}"{% if k == bg.mode %} selected{% endif %}>{{ v }}</option>{% endfor %}</select>
+    </span>
+    <p id="cls-bg-note" class="small cls-note" hidden>Background effects work on computer browsers only. On a phone or tablet, please sit in front of a plain wall.</p>
+    <p id="cls-hands" class="cls-hands" role="status" aria-live="polite" hidden></p>
+    <p id="cls-status" class="small cls-status" aria-live="polite"></p>
+    <p id="cls-toast" class="cls-toast" role="status" hidden></p>
+  </div>
   <div id="call-error" class="call-error wrap" role="alert" hidden>
     <p><b>The video could not start.</b> <span id="call-error-text"></span></p>
     <p>Please try again in a moment. If it keeps happening, write to <a href="mailto:{{ contact_email }}">{{ contact_email }}</a>.</p>
@@ -18,6 +31,7 @@
     <div id="call" class="classroom-frame"></div>
     <div class="board-panel" aria-label="Lesson board"><div id="board"></div></div>
   </div>
+  <p class="small wrap" style="color:#b9d8cb;padding:10px 0 0">For a calm, focused class: please raise your hand before muting your microphone, and keep your camera on. The academy records only <b>when</b> microphones and cameras are switched off and on, never sound, video or chat.</p>
   <p class="small wrap" style="color:#b9d8cb;padding:10px 0">If the camera or microphone does not start, allow them when your browser asks, or tap the lock icon by the address and allow camera and microphone.</p>
   <p class="small wrap" style="color:#b9d8cb;padding:0 0 10px">{% if role == 'teacher' %}The lesson board shows the page you choose to your student. Highlight or write with the colours; your student sees every mark. Tick "Student can mark" to let them point or underline too. With the Mistake tool, tap a word your student got wrong: it is saved to the parent's "Words to practise".{% else %}The lesson board shows the page your teacher has chosen, with their highlights and corrections.{% endif %}</p>
 </section>
@@ -35,6 +49,7 @@
 {% if state == 'open' %}
 <script src="https://unpkg.com/@daily-co/daily-js@0.94.0/dist/daily-iframe.js"></script>
 <script src="{{ url_for('static', filename='board.js') }}"></script>
+<script src="{{ url_for('static', filename='classroom.js') }}?v=1"></script>
 <script>
 (function () {
   var frame = window.DailyIframe.createFrame(document.getElementById("call"), {
@@ -85,6 +100,12 @@
     if (failed) { return; }
     window.location = "{{ url_for('portal.teacher_home' if role == 'teacher' else 'portal.family_home' if role == 'student' else 'admin.classes') }}";
   });
+  window.NHClassroom.start({ frame: frame, role: {{ role|tojson }}, name: {{ (cs.teacher.full_name if role == 'teacher' else cs.student.first_name if role == 'student' else 'Supervisor')|tojson }},
+    eventsUrl: "{{ url_for('portal.class_events', cid=cs.id) }}", csrf: "{{ csrf }}", background: {{ bg|tojson }},
+    text: { raise: "\u270b Raise hand", lower: "Lower hand", you: "You", raised: "raised a hand", guest: "Guest",
+            micOn: "mic on", micOff: "mic off", camOn: "camera on", camOff: "camera off", waiting: "Waiting for the other person to join.",
+            nudge: "Your microphone has been off for a while. Next time, please raise your hand first so your teacher knows.",
+            cameraOff: "Your camera is off. Please switch it back on when you can: the academy notes every time a camera is off." } });
   frame.join({ url: {{ url|tojson }}, token: {{ token|tojson }} }).catch(function (err) { showError(err && (err.errorMsg || err.message)); });
 })();
 </script>

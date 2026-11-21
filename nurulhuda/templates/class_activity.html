@@ -1,0 +1,39 @@
+{% extends "base.html" %}
+{% block main %}
+{% macro dur(x) %}{% if x >= 60 %}{{ x // 60 }} min {{ x % 60 }} s{% else %}{{ x }} s{% endif %}{% endmacro %}
+{% if viewer == 'admin' %}{% with tab='classroom' %}{% include "admin/_nav.html" %}{% endwith %}{% else %}
+{% with head="Class activity", sub=cs.student.first_name ~ " with " ~ cs.teacher.full_name ~ ", " ~ fmt_time(cs.starts_at, zone, False) ~ " (" ~ zone_name(zone) ~ ")" %}{% include "_page_head.html" %}{% endwith %}{% endif %}
+<section class="section white"><div class="wrap act">
+  {% if viewer == 'admin' %}<p><a href="{{ url_for('admin.classroom') }}">&larr; All classes</a></p>
+  <h2>{{ cs.student.first_name }} with {{ cs.teacher.full_name }}, {{ fmt_time(cs.starts_at, zone, False) }} ({{ zone_name(zone) }})</h2>{% endif %}
+  <p class="small">Times only: when microphones and cameras went off and on, raised hands and lost connections. No sound, video or chat is recorded. A microphone off for 15 seconds or less is not listed. These records are not a judgement on their own: <b>technical</b> means a connection or device problem, <b>announced</b> means a hand was raised first, and <b>to review</b> means someone should look, not that anything was wrong.</p>
+  {% if not r.measured %}<p class="alert">No activity was recorded for this class (it may not have taken place in the online classroom).</p>{% endif %}
+  <div class="act-grid">
+    {% for role in ('teacher', 'student') %}{% set p = r.people[role] %}
+    <div class="act-card">
+      <h3>{{ p.name }} <span class="small">({{ 'teacher' if role == 'teacher' else 'student' }})</span></h3>
+      <dl>
+        <dt>Joined</dt><dd>{% if p.joined %}{{ hm(p.joined) }}{% if p.late_min > 2 %} <span class="status s-flag">{{ p.late_min }} min late</span>{% else %} <span class="status s-completed">on time</span>{% endif %}{% else %}Did not join{% endif %}</dd>
+        <dt>In the class</dt><dd>{{ p.in_call_min }} of {{ r.length }} min</dd>
+        <dt>Camera on</dt><dd>{{ p.camera_min }} min</dd>
+        <dt>Microphone off over 15 s</dt><dd>{{ p.mic_count }}{% if p.mic_count %} ({{ dur(p.mic_secs) }} in all){% endif %}{% if p.short_mutes %} <span class="small">· {{ p.short_mutes }} short mute{{ 's' if p.short_mutes != 1 }} not counted</span>{% endif %}</dd>
+        <dt>Camera off</dt><dd>{{ p.camera_count }}{% if p.camera_count %} ({{ dur(p.camera_secs) }} in all){% endif %}</dd>
+        <dt>Connection lost</dt><dd>{{ p.network_count }}</dd>
+        <dt>Hands raised</dt><dd>{{ p.hands }}</dd>
+      </dl>
+    </div>{% endfor %}
+  </div>
+  <h3 style="margin-top:28px">Events {% if r.to_review %}<span class="status s-flag">{{ r.to_review }} to review</span>{% endif %}</h3>
+  {% if r.rows %}
+  <div class="table-wrap"><table class="data">
+    <tr><th>Who</th><th>What</th><th>From</th><th>To</th><th>How long</th><th>Reading</th></tr>
+    {% for row in r.rows %}{% set e = row.e %}
+    <tr><td>{{ e.person }} <span class="small">({{ e.role }})</span></td><td>{{ row.label }}{% if e.kind != 'hand' and e.cause %} <span class="small">· {{ {'user': 'switched off by the person', 'device': 'device or permission', 'network': 'connection', 'left': 'left the class', 'unknown': ''}[e.cause] }}</span>{% endif %}</td>
+      <td>{{ hm(e.started_at) }}</td><td>{{ hm(e.ended_at) if e.ended_at else '' }}</td>
+      <td>{% if e.seconds is not none %}{{ dur(e.seconds) }}{% endif %}</td>
+      <td><span class="status {{ {'technical': 's-scheduled', 'announced': 's-completed', 'review': 's-flag'}[row.verdict] }}">{{ {'technical': 'Technical', 'announced': 'Announced', 'review': 'To review'}[row.verdict] }}</span></td></tr>
+    {% endfor %}
+  </table></div>
+  {% else %}<p>Nothing to report.</p>{% endif %}
+</div></section>
+{% endblock %}

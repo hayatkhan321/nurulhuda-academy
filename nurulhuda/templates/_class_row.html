@@ -1,6 +1,6 @@
 <tr>
   <td>{{ fmt_time(c.starts_at, zone) }}</td>
-  <td>{{ c.student.first_name if viewer != 'student' else c.teacher.full_name }}</td>
+  <td>{{ c.student.first_name if viewer != 'student' else c.teacher.full_name }}{% if viewer == 'teacher' %}<br><span class="small lesson-tag{{ ' combined' if c.student.lesson_format == 'combined' }}">{% if c.student.lesson_format == 'combined' %}{{ (c.minutes or 30) - ((c.minutes or 30) / 3)|round|int }} min teaching + {{ ((c.minutes or 30) / 3)|round|int }} min Islamic learning{% else %}{{ c.minutes }} min teaching{% endif %}</span>{% endif %}</td>
   <td>{{ c.minutes }} min</td>
   <td><span class="status s-{{ c.status }}">{{ STATUS_LABELS[c.status] }}</span>{% if c.flagged_at %} <span class="status s-flag">{{ 'Reported' if not c.flag_resolution else 'Resolved' }}</span>{% endif %}</td>
   <td>{% if joinable(c) %}<a class="btn green sm" href="{{ url_for('portal.room', cid=c.id) }}">Join class</a>{% endif %}</td>

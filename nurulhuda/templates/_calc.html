@@ -26,6 +26,14 @@
     {% endfor %}
     </div>
   {% endif %}
+  {% if tiers_list and tiers_list|length > 1 %}
+  <div class="grid2">
+    <div class="field"><label for="tier">Membership</label>
+      <select id="tier" name="tier">{% for t in tiers_list %}<option value="{{ t.key }}"{% if t.key == tier %} selected{% endif %}>{{ t.label }}{% if t.key != 'standard' %} ({{ P.pnum(t.multiplier) }}× the Standard price){% endif %}</option>{% endfor %}</select></div>
+    <div class="field"><label for="minutes">Length of each class</label>
+      <select id="minutes" name="minutes"><option value="30">30 minutes</option><option value="60"{% if minutes == 60 %} selected{% endif %}>60 minutes (Gold and Diamond)</option></select></div>
+  </div>
+  {% endif %}
   <div class="grid2">
     <div class="field"><label for="months">Pay for</label>
       <select id="months" name="months">{% for m in P.MONTH_CHOICES %}<option value="{{ m }}"{% if m == months %} selected{% endif %}>{% if m == 1 %}1 month{% else %}{{ m }} months upfront ({{ P.pnum(P.upfront_pct(m)) }}% off){% endif %}</option>{% endfor %}</select></div>
@@ -41,7 +49,7 @@
   {% if q.lines %}
   <div class="table-wrap"><table class="data">
     <tr><th>Student</th><th>Plan</th><th>Classes</th><th>Price</th><th>Discount</th><th>You pay</th></tr>
-    {% for l in q.lines %}<tr><td>{{ l.child }}</td><td>{{ l.package.name }}</td><td>{{ l.package.classes * q.months }} × {{ l.package.minutes }} min</td>
+    {% for l in q.lines %}<tr><td>{{ l.child }}</td><td>{{ l.package.name }}</td><td>{{ l.package.classes * q.months }} × {{ l.minutes }} min{% if q.tier != 'standard' %}<br><span class="small">{{ M.config(q.tier).label }}</span>{% endif %}</td>
       <td>{{ P.money(l.base, q.currency) }}</td>
       <td>{% if l.percent > 0 %}{{ P.pnum(l.percent) }}%<br><span class="small">{{ l.parts|join(', ') }}{% if l.floored %} (limited to our maximum){% endif %}</span>{% else %}–{% endif %}</td>
       <td><b>{{ P.money(l.total, q.currency) }}</b></td></tr>{% endfor %}

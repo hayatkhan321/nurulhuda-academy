@@ -6,6 +6,8 @@
   <p><a class="btn gold sm" href="{{ url_for('site.resources') }}" target="_blank" rel="noopener">Resources: Quran by juz, Qaida, duas</a> <a class="btn outline sm" href="{{ url_for('site.board_practice') }}" target="_blank" rel="noopener">Practise the lesson board</a> <a class="btn outline sm" href="{{ url_for('recite.page') }}">Practice check (staff test)</a></p>
 </div></section>
 <section class="section white"><div class="wrap">
+  {% if not conduct_ok %}<div class="alert conduct-alert"><b>Please read and accept the Teacher Code of Conduct.</b> You can join classes once you have accepted it. <a class="btn green sm" href="{{ url_for('portal.teacher_conduct') }}">Read the Code of Conduct</a></div>
+  {% else %}<p class="small">You accepted the <a href="{{ url_for('portal.teacher_conduct') }}">Teacher Code of Conduct</a> on {{ fmt_time(teacher.conduct_accepted_at, teacher.timezone, False) }}. Keep classes on the lesson, and never ask students about their family's private life.</p>{% endif %}
   <div class="stats">
     <div class="stat"><b>{{ '%.2f' % owed }} {{ teacher.rate_currency }}</b><span>owed to you, paid weekly</span></div>
     {% if held %}<div class="stat"><b>{{ '%.2f' % held }} {{ teacher.rate_currency }}</b><span>on hold while a parent's report is reviewed</span></div>{% endif %}
@@ -18,7 +20,7 @@
   {% for c in to_mark %}
   <form class="class-note" method="post" action="{{ url_for('portal.mark', cid=c.id) }}">
     <input type="hidden" name="csrf" value="{{ csrf }}">
-    <p><b>{{ fmt_time(c.starts_at, teacher.timezone) }}</b>: {{ c.student.first_name }} ({{ c.student.course or 'course not set' }})</p>
+    <p><b>{{ fmt_time(c.starts_at, teacher.timezone) }}</b>: {{ c.student.first_name }} ({{ c.student.course or 'course not set' }}) · <span class="lesson-tag{{ ' combined' if c.student.lesson_format == 'combined' }}">{% if c.student.lesson_format == 'combined' %}Teaching then Islamic learning{% else %}Teaching only{% endif %}</span> · <a href="{{ url_for('portal.teacher_activity', cid=c.id) }}">Class activity</a></p>
     {% set lp = last_prog.get(c.student_id) %}
     <div class="field"><label for="n{{ c.id }}">What did you cover?</label><textarea id="n{{ c.id }}" name="note" placeholder="e.g. Qaida lesson 6, letters with fatha; revised lesson 5."></textarea></div>
     <p class="small" style="margin:6px 0 0"><b>Where did you stop?</b> Parents see this as a progress bar.</p>
@@ -71,7 +73,7 @@
   <h2 style="margin-top:36px">Recent classes</h2>
   {% if past %}
   <div class="table-wrap"><table class="data"><tr><th>When</th><th>Student</th><th>Status</th><th>Your note</th></tr>
-  {% for c in past %}<tr><td>{{ fmt_time(c.starts_at, teacher.timezone, False) }}</td><td>{{ c.student.first_name }}</td><td>{{ STATUS_LABELS[c.status] }}{% if c.flagged_at and not c.flag_resolution %} (reported){% endif %}</td><td>{{ c.teacher_note or '' }}</td></tr>{% endfor %}
+  {% for c in past %}<tr><td>{{ fmt_time(c.starts_at, teacher.timezone, False) }}</td><td>{{ c.student.first_name }}</td><td>{{ STATUS_LABELS[c.status] }}{% if c.flagged_at and not c.flag_resolution %} (reported){% endif %} · <a href="{{ url_for('portal.teacher_activity', cid=c.id) }}">Activity</a></td><td>{{ c.teacher_note or '' }}</td></tr>{% endfor %}
   </table></div>{% else %}<p>None yet.</p>{% endif %}
 </div></section>
 {% endblock %}

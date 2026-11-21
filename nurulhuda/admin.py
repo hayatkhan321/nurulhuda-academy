@@ -44,7 +44,7 @@ def _receipt_email(fam, e):
     mail.send_email(fam.email, f"Receipt {e.receipt_no}: Nurul Huda Academy",
                     f"<p>Assalamu alaikum {html.escape(fam.parent_name)},</p>"
                     f"<p>Thank you. We have received <b>{e.amount} {e.currency}</b> for {html.escape(e.note or 'classes')} "
-                    f"({e.classes} classes have been added to your balance).</p>"
+                    + (f"({e.classes} classes have been added to your balance).</p>" if e.classes else "</p>") +
                     f'<p>Receipt number: <b>{e.receipt_no}</b>. You can view and print it at <a href="{link}">{link}</a> '
                     "after signing in.</p><p>JazakAllahu khairan,<br>Nurul Huda Academy</p>")
 
@@ -192,6 +192,23 @@ def family(fid):
                 db.session.flush()
                 books.log("entry_corrected", "credit_entry", e.id, corrects=orig.receipt_no or orig.id, reason=reason,
                           amount=e.amount, currency=e.currency, classes=e.classes)
+        elif action == "learning":
+            from nurulhuda import memberships as M
+            before = {"membership": fam.membership, "language": fam.instruction_language,
+                      "formats": {st.first_name: st.lesson_format for st in fam.students}}
+            tier = request.form.get("membership")
+            if tier in M.TIERS and tier != fam.membership:
+                fam.membership, fam.membership_since = tier, now()
+            lang = request.form.get("instruction_language")
+            if lang in C.INSTRUCTION_LANGS or lang == "":
+                fam.instruction_language = lang or None
+            for st in fam.students:
+                want = request.form.get(f"format_{st.id}")
+                if want in ("academic", "combined"):
+                    st.lesson_format = want
+            books.log("family_learning_changed", "family", fam.id, before=before,
+                      after={"membership": fam.membership, "language": fam.instruction_language,
+                             "formats": {st.first_name: st.lesson_format for st in fam.students}})
         elif action == "details":
             before = {"phone": fam.phone, "country": fam.country, "timezone": fam.timezone}
             fam.phone, fam.country = _f("phone", 40), _f("country", 60)
@@ -209,7 +226,8 @@ def family(fid):
     classes = ClassSession.query.filter(ClassSession.student_id.in_(sids)).order_by(ClassSession.starts_at.desc()).limit(50).all()
     entries = CreditEntry.query.filter_by(family_id=fam.id).order_by(CreditEntry.created_at.desc()).all()
     corrected = {e.reverses_id for e in entries if e.reverses_id}
-    return render_template("admin/family.html", title=fam.parent_name, tab="families", fam=fam, classes=classes,
+    from nurulhuda import memberships as M
+    return render_template("admin/family.html", title=fam.parent_name, tab="families", fam=fam, classes=classes, M=M, C=C,
                            entries=entries, balance=ledger.balance(fam.id), corrected=corrected,
                            error=request.args.get("error"),
                            packages=Package.query.filter_by(active=True).order_by(Package.classes).all())
@@ -338,7 +356,8 @@ def packages():
                     expires = None
                 db.session.add(PromoCode(code=code, percent=percent, kind=_f("kind", 20) or "offer",
                                          beyond_cap=bool(request.form.get("beyond_cap")), expires_on=expires,
-                                         max_uses=_int("max_uses") or None, note=_f("note", 200)))
+                                         max_uses=_int("max_uses") or None, note=_f("note", 200),
+                                         tiers=",".join(t for t in request.form.getlist("tiers") if t in ("standard", "gold", "diamond")) or None))
         elif action == "code_toggle":
             c = db.session.get(PromoCode, _int("code_id")) or abort(404)
             c.active = not c.active
@@ -460,6 +479,10 @@ def payments():
                         amount_aed=(received * rate).quantize(Decimal("0.01")))
                     db.session.add(entry)
                     db.session.flush()
+                    if (inv.tier or "standard") != (inv.family.membership or "standard"):
+                        books.log("membership_changed", "family", inv.family_id, before=inv.family.membership,
+                                  after=inv.tier, invoice=inv.number)
+                        inv.family.membership, inv.family.membership_since = inv.tier or "standard", now()
                     books.log("payment_received", "invoice", inv.id, number=inv.number, receipt=entry.receipt_no,
                               amount=str(received), currency=inv.currency, aed=str(entry.amount_aed), method=method)
                     db.session.commit()
@@ -498,8 +521,13 @@ def invoice_new(fid):
     fam = db.session.get(Family, fid) or abort(404)
     cur = (request.values.get("cur") or pricing.currencies()[0]).upper()
     kids = fam.students
+    from nurulhuda import memberships as M
     choices, months, code = calculator_input(max_children=max(4, len(kids)))
-    q = pricing.quote(cur, choices, months, code) if choices else None
+    src = request.form if request.method == "POST" else request.args
+    tier = src.get("tier") or fam.membership or "standard"
+    tier = tier if tier in M.TIERS else "standard"
+    minutes = 60 if src.get("minutes") == "60" and 60 in M.minutes_allowed(tier) else 30
+    q = pricing.quote(cur, choices, months, code, tier, minutes) if choices else None
     if request.method == "POST":
         _check_form()
         if request.form.get("action") == "create" and q and q.lines and not q.error:
@@ -516,7 +544,8 @@ def invoice_new(fid):
     return render_template("admin/invoice_new.html", title=f"Invoice for {fam.parent_name}", tab="payments", fam=fam,
                            kids=kids, P=pricing, cur=cur, plans=pricing.price_list(cur) or
                            Package.query.filter_by(currency=cur, active=True).all(),
-                           q=q, months=months, code=code, choices=choices)
+                           q=q, months=months, code=code, choices=choices, M=M, tier=tier, minutes=minutes,
+                           tiers_list=[M.config(t) for t in M.TIERS])
 
 
 # --- classes --------------------------------------------------------------------------------------
@@ -535,8 +564,16 @@ def classes():
             except ValueError:
                 first = None
             weeks = max(1, min(_int("weeks", 1), 26))
+            from nurulhuda import memberships as M
+            fit, problems = M.suitable(t, st.family) if (st and t) else (True, [])
             if not (st and t and t.active and first):
                 error = "Choose a student, an active teacher, a date and a time."
+            elif not fit:
+                error = "This teacher is not a match for this family: " + " ".join(problems)
+            elif _int("minutes", 30) > 30 and 60 not in M.minutes_allowed(st.family.membership) \
+                    and not (st.course or "").lower().startswith("hifz"):
+                error = ("60-minute classes are for Gold and Diamond families (and hifz). "
+                         "Change the family's membership or choose 30 minutes.")
             else:
                 zone = tz(_f("timezone"))
                 local0 = first.astimezone(zone)                       # first class, in the chosen time zone
@@ -577,8 +614,12 @@ def classes():
     unmarked = ClassSession.query.filter(ClassSession.status == "scheduled",
                                          ClassSession.starts_at < now() - timedelta(hours=1)).count()
     students = Student.query.filter_by(active=True).join(Family).order_by(Family.parent_name, Student.first_name).all()
+    from nurulhuda import classroom, memberships as M
+    teachers = Teacher.query.filter_by(active=True).order_by(Teacher.full_name).all()
+    match = {(st.id, t.id): M.suitable(t, st.family)[0] for st in students for t in teachers}
     return render_template("admin/classes.html", title="Classes", tab="classes", rows=rows, error=error,
-                           students=students, teachers=Teacher.query.filter_by(active=True).order_by(Teacher.full_name).all(),
+                           match=match, review=classroom.summary_counts([c.id for c in rows]),
+                           students=students, teachers=teachers,
                            unmarked=unmarked, joinable=lambda c: c.status == "scheduled")
 
 
@@ -1002,3 +1043,7 @@ def whatsapp_try():
 def current_app_url(endpoint):
     from flask import current_app
     return current_app.config["SITE_URL"].rstrip("/") + url_for(endpoint)
+
+
+# The November 2026 sections (Classroom, Conduct, Memberships, Education support) live in admin_more.py.
+from nurulhuda import admin_more  # noqa: E402,F401

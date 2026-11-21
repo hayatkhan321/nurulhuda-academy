@@ -20,6 +20,25 @@
   {% else %}<p>Our price list is being updated. <a href="{{ url_for('site.contact') }}">Contact us</a> for today's prices.</p>{% endif %}
 </div></section>
 
+{% if M.on() and plans %}
+{% set ref = (plans|selectattr('plan', 'equalto', '3-days')|list or plans)[0] %}
+<section class="section"><div class="wrap">
+  <div class="section-head" id="memberships"><h2>Standard, Gold and Diamond</h2><p>Every membership has the same care and the same reports. Gold and Diamond give you our most experienced, highest-rated teachers, more choice of times, and classes of up to 60 minutes.</p></div>
+  <div class="plans tiers">
+    {% for t in M.offered() %}
+    <div class="plan tier-{{ t.key }}">
+      <h3>{{ t.label }}</h3>
+      <p class="price"><!--nt-->{{ P.money(ref.price * t.multiplier, cur) }}<!--/nt--><span> a month</span></p>
+      <p class="per">{{ ref.name }}{% if t.key != 'standard' %} · {{ P.pnum(t.multiplier) }}× Standard{% endif %}</p>
+      <ul class="tier-benefits">{% for b in t.benefits %}<li>{{ b }}</li>{% endfor %}</ul>
+      {% if t.offer_pct > 0 %}<p class="small"><b>{{ t.offer_label or 'Offer' }}: {{ P.pnum(t.offer_pct) }}% off</b></p>{% endif %}
+    </div>
+    {% endfor %}
+  </div>
+  <p class="small" style="margin-top:12px">Gold and Diamond teachers are chosen by the academy for their checked qualifications, years of experience, reliability and parents' reviews, never ratings alone. 60-minute classes cost twice the 30-minute price.</p>
+</div></section>
+{% endif %}
+
 <section class="section"><div class="wrap">
   <div class="section-head"><h2>Family discounts</h2><p>Discounts add together, up to {{ P.pnum(P.pct('max_discount')) }}% off in total, so we can always pay our teachers fairly.</p></div>
   <div class="discounts">
