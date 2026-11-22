@@ -3,10 +3,10 @@
 BRAND = "Nurul Huda Academy"
 BRAND_AR = "نور الهدى"
 
-YOUTUBE = ""   # e.g. "https://www.youtube.com/@NurulHudaAcademy" once the channel exists
-TIKTOK = ""
+YOUTUBE = "https://www.youtube.com/@Nurulhuda.Academy"
+TIKTOK = "https://www.tiktok.com/@nurulhudaacademy2"
 X_URL = ""
-INSTAGRAM = ""
+INSTAGRAM = "https://www.instagram.com/nurulhuda.academy"
 
 # The learning path. It really is a sequence, so the site numbers it.
 PATH = [
@@ -61,13 +61,38 @@ COUNTRIES = ["Canada", "United States", "United Kingdom", "United Arab Emirates"
 
 COURSE_CHOICES = [p["name"] for p in PATH] + [a["name"] for a in ALONGSIDE] + ["Not sure yet"]
 
-# Short videos (YouTube Shorts / TikTok). Add an entry once a video is uploaded; "youtube" is the video ID.
 # Short videos. Either a YouTube id ("youtube") or our own file in public/media ("file", "poster", "seconds").
+# "lang" is the video's language (a code from i18n.LANGS): visitors see their own language first, then the others.
+# Titles and texts are already in that language, so the page does not translate them.
 VIDEOS: list[dict] = [
-    {"file": "/media/how-your-child-learns-quran.mp4", "poster": "/media/how-your-child-learns-quran.jpg", "seconds": 39,
+    {"lang": "en", "file": "/media/how-your-child-learns-quran.mp4", "poster": "/media/how-your-child-learns-quran.jpg", "seconds": 39,
      "uploaded": "2026-11-15",
      "title": "How your child learns the Quran with us",
      "text": "A free trial class, a tested teacher, live one-to-one lessons and a short report after every class."},
+    {"lang": "en", "file": "/media/see-every-class-en.mp4", "poster": "/media/see-every-class-en.jpg", "seconds": 38, "uploaded": "2026-11-22", "title": "What does an online Quran class look like? | Nurul Huda Academy", "text": "Then you get a report: lesson reached, tajweed rule practised, homework."},
+    {"lang": "en", "file": "/media/teacher-test-en.mp4", "poster": "/media/teacher-test-en.jpg", "seconds": 37, "uploaded": "2026-11-22", "title": "Who teaches your child the Quran? How we test every teacher", "text": "Every teacher passes a recitation test before teaching, and our Head of Academics is a Hafiza."},
+    {"lang": "en", "file": "/media/tartil-en.mp4", "poster": "/media/tartil-en.jpg", "seconds": 28, "uploaded": "2026-11-22", "title": "Tartil: reciting the Quran slowly and clearly (73:4)", "text": "Tartil means reading slowly and clearly, giving every letter its right."},
+    {"lang": "ur", "file": "/media/see-every-class-ur.mp4", "poster": "/media/see-every-class-ur.jpg", "seconds": 39, "uploaded": "2026-11-22", "title": "آن لائن قرآن کلاس کیسی ہوتی ہے؟ | نور الہدیٰ اکیڈمی", "text": "ہر کلاس کے بعد استاد لکھتے ہیں کہ بچہ کہاں تک پہنچا اور کیا مشق کرنی ہے۔"},
+    {"lang": "ur", "file": "/media/teacher-test-ur.mp4", "poster": "/media/teacher-test-ur.jpg", "seconds": 40, "uploaded": "2026-11-22", "title": "آپ کے بچے کو قرآن کون پڑھاتا ہے؟ ہر استاد کا امتحان", "text": "ہر استاد پڑھانے سے پہلے تلاوت کا امتحان پاس کرتا ہے۔"},
+    {"lang": "ur", "file": "/media/tartil-ur.mp4", "poster": "/media/tartil-ur.jpg", "seconds": 36, "uploaded": "2026-11-22", "title": "ترتیل: قرآن کو ٹھہر ٹھہر کر پڑھنا (73:4)", "text": "ترتیل کا مطلب ہے آہستہ اور صاف پڑھنا، ہر حرف کو اس کا حق دے کر۔"},
+    {"lang": "ar", "file": "/media/see-every-class-ar.mp4", "poster": "/media/see-every-class-ar.jpg", "seconds": 38, "uploaded": "2026-11-22", "title": "كيف تبدو حصة القرآن أونلاين؟ | أكاديمية نور الهدى", "text": "ثم يصلك تقرير: الدرس، وقاعدة التجويد، والواجب."},
+    {"lang": "ar", "file": "/media/teacher-test-ar.mp4", "poster": "/media/teacher-test-ar.jpg", "seconds": 37, "uploaded": "2026-11-22", "title": "من يعلّم طفلك القرآن؟ كيف نختبر كل معلم", "text": "كل معلم يجتاز اختبار تلاوة قبل أن يبدأ التدريس."},
+    {"lang": "ar", "file": "/media/tartil-ar.mp4", "poster": "/media/tartil-ar.jpg", "seconds": 34, "uploaded": "2026-11-22", "title": "الترتيل: قراءة القرآن بتمهّل ووضوح (المزمل: 4)", "text": "الترتيل أن تقرأ بتمهّل ووضوح، وتعطي كل حرف حقه."},
+    {"lang": "hi", "file": "/media/see-every-class-hi.mp4", "poster": "/media/see-every-class-hi.jpg", "seconds": 39, "uploaded": "2026-11-22", "title": "ऑनलाइन क़ुरआन क्लास कैसी होती है? | नूरुल हुदा अकैडमी", "text": "फिर आपको रिपोर्ट मिलती है: कौन-सा सबक़, कौन-सा तजवीद नियम, और होमवर्क।"},
+    {"lang": "hi", "file": "/media/teacher-test-hi.mp4", "poster": "/media/teacher-test-hi.jpg", "seconds": 38, "uploaded": "2026-11-22", "title": "आपके बच्चे को क़ुरआन कौन पढ़ाता है? हर शिक्षक की जाँच", "text": "हर शिक्षक पढ़ाने से पहले तिलावत का टेस्ट पास करता है, और हमारी हेड ऑफ़ एकेडमिक्स हाफ़िज़ा हैं।"},
+    {"lang": "hi", "file": "/media/tartil-hi.mp4", "poster": "/media/tartil-hi.jpg", "seconds": 29, "uploaded": "2026-11-22", "title": "तरतील: क़ुरआन को ठहर-ठहर कर पढ़ना (73:4)", "text": "तरतील का मतलब है आहिस्ता और साफ़ पढ़ना, हर अक्षर को उसका हक़ देकर।"},
+    {"lang": "ms", "file": "/media/see-every-class-ms.mp4", "poster": "/media/see-every-class-ms.jpg", "seconds": 39, "uploaded": "2026-11-22", "title": "Bagaimana kelas al-Quran dalam talian? | Nurul Huda Academy", "text": "Kemudian anda menerima laporan: pelajaran, hukum tajwid dan kerja rumah."},
+    {"lang": "ms", "file": "/media/teacher-test-ms.mp4", "poster": "/media/teacher-test-ms.jpg", "seconds": 39, "uploaded": "2026-11-22", "title": "Siapa mengajar al-Quran kepada anak anda? Setiap guru diuji", "text": "Setiap guru lulus ujian bacaan sebelum mengajar, dan Ketua Akademik kami seorang Hafizah."},
+    {"lang": "ms", "file": "/media/tartil-ms.mp4", "poster": "/media/tartil-ms.jpg", "seconds": 32, "uploaded": "2026-11-22", "title": "Tartil: membaca al-Quran dengan perlahan dan jelas (73:4)", "text": "Tartil bermaksud membaca dengan perlahan dan jelas, memberi setiap huruf haknya."},
+    {"lang": "id", "file": "/media/see-every-class-id.mp4", "poster": "/media/see-every-class-id.jpg", "seconds": 38, "uploaded": "2026-11-22", "title": "Seperti apa kelas Al-Qur'an online? | Nurul Huda Academy", "text": "Lalu Anda menerima laporan: pelajaran, hukum tajwid, dan PR."},
+    {"lang": "id", "file": "/media/teacher-test-id.mp4", "poster": "/media/teacher-test-id.jpg", "seconds": 38, "uploaded": "2026-11-22", "title": "Siapa yang mengajari anak Anda Al-Qur'an? Setiap guru diuji", "text": "Setiap guru lulus tes bacaan sebelum mengajar, dan Kepala Akademik kami seorang Hafizah."},
+    {"lang": "id", "file": "/media/tartil-id.mp4", "poster": "/media/tartil-id.jpg", "seconds": 33, "uploaded": "2026-11-22", "title": "Tartil: membaca Al-Qur'an dengan perlahan dan jelas (73:4)", "text": "Tartil berarti membaca dengan perlahan dan jelas, memberi setiap huruf haknya."},
+    {"lang": "es", "file": "/media/see-every-class-es.mp4", "poster": "/media/see-every-class-es.jpg", "seconds": 38, "uploaded": "2026-11-22", "title": "¿Cómo es una clase de Corán online? | Nurul Huda Academy", "text": "Después recibes un informe: lección alcanzada, regla de tajwid practicada y deberes."},
+    {"lang": "es", "file": "/media/teacher-test-es.mp4", "poster": "/media/teacher-test-es.jpg", "seconds": 39, "uploaded": "2026-11-22", "title": "¿Quién enseña el Corán a tu hijo? Así evaluamos a cada profesor", "text": "Cada profesor aprueba una prueba de recitación antes de enseñar, y nuestra directora académica es Hafiza."},
+    {"lang": "es", "file": "/media/tartil-es.mp4", "poster": "/media/tartil-es.jpg", "seconds": 29, "uploaded": "2026-11-22", "title": "Tartil: recitar el Corán despacio y con claridad (73:4)", "text": "Tartil significa leer despacio y con claridad, dando a cada letra su derecho."},
+    {"lang": "fr", "file": "/media/see-every-class-fr.mp4", "poster": "/media/see-every-class-fr.jpg", "seconds": 39, "uploaded": "2026-11-22", "title": "À quoi ressemble un cours de Coran en ligne ? | Nurul Huda Academy", "text": "Ensuite, vous recevez un compte rendu : leçon atteinte, règle de tajwid travaillée et devoirs."},
+    {"lang": "fr", "file": "/media/teacher-test-fr.mp4", "poster": "/media/teacher-test-fr.jpg", "seconds": 39, "uploaded": "2026-11-22", "title": "Qui enseigne le Coran à votre enfant ? Chaque enseignant est évalué", "text": "Chaque enseignant réussit un test de récitation avant d'enseigner, et notre directrice pédagogique est Hafiza."},
+    {"lang": "fr", "file": "/media/tartil-fr.mp4", "poster": "/media/tartil-fr.jpg", "seconds": 28, "uploaded": "2026-11-22", "title": "Tartil : réciter le Coran lentement et clairement (73:4)", "text": "Le tartil, c'est lire lentement et clairement, en donnant à chaque lettre son dû."},
 ]
 
 DAWAH_INTERESTS = ["I am curious about Islam", "I am thinking of becoming Muslim", "I would like to say the Shahada",

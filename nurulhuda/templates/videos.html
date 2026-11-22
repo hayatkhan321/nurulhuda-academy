@@ -1,10 +1,5 @@
 {% extends "base.html" %}
-{% block main %}
-{% with head="Short videos", sub="Short videos for parents and children about learning the Quran and how our classes work." %}{% include "_page_head.html" %}{% endwith %}
-<section class="section"><div class="wrap">
-  {% if C.VIDEOS %}
-  <div class="video-grid">
-    {% for v in C.VIDEOS %}
+{% macro card(v) %}
     <figure class="video-card">
       {% if v.file %}
       <video class="video-frame" controls playsinline preload="none" poster="{{ v.poster }}" aria-label="{{ v.title }}">
@@ -13,14 +8,29 @@
       {% else %}
       <iframe class="video-frame" src="https://www.youtube-nocookie.com/embed/{{ v.youtube }}?rel=0" title="{{ v.title }}" loading="lazy" allow="accelerometer; encrypted-media; picture-in-picture" allowfullscreen></iframe>
       {% endif %}
-      <figcaption><b>{{ v.title }}</b>{% if v.text %}<span>{{ v.text }}</span>{% endif %}</figcaption>
+      {# Titles are written in the video's own language, so they are never run through the translator #}
+      <figcaption lang="{{ v.lang or 'en' }}" dir="{{ 'rtl' if (v.lang or 'en') in ('ur', 'ar') else 'ltr' }}"><b><!--nt-->{{ v.title }}<!--/nt--></b>{% if v.text %}<span><!--nt-->{{ v.text }}<!--/nt--></span>{% endif %}</figcaption>
     </figure>
-    {% endfor %}
+{% endmacro %}
+{% block main %}
+{% with head="Short videos", sub="Short videos for parents and children about learning the Quran and how our classes work." %}{% include "_page_head.html" %}{% endwith %}
+<section class="section"><div class="wrap">
+  {% if C.VIDEOS %}
+  {# The visitor's own language first (English if there are none yet), then every other language under its own name #}
+  {% set first = lang if C.VIDEOS|selectattr("lang", "equalto", lang)|list else "en" %}
+  <div class="video-grid">
+    {% for v in C.VIDEOS if (v.lang or "en") == first %}{{ card(v) }}{% endfor %}
   </div>
   <p style="margin-top:32px"><a class="btn green" href="{{ url_for('site.trial') }}">Book a free trial class</a></p>
+  {% for code in LANGS if code != first %}{% set group = C.VIDEOS|selectattr("lang", "equalto", code)|list %}{% if group %}
+  <h2 class="video-lang" id="videos-{{ code }}" lang="{{ code }}" dir="{{ 'rtl' if code in ('ur', 'ar') else 'ltr' }}"><!--nt-->{{ LANGS[code][0] }}<!--/nt--></h2>
+  <div class="video-grid">
+    {% for v in group %}{{ card(v) }}{% endfor %}
+  </div>
+  {% endif %}{% endfor %}
   {% for v in C.VIDEOS if v.file %}<script type="application/ld+json">{{ {"@context": "https://schema.org", "@type": "VideoObject",
     "name": v.title, "description": v.text, "thumbnailUrl": site_url ~ v.poster, "contentUrl": site_url ~ v.file,
-    "uploadDate": v.uploaded, "duration": "PT" ~ v.seconds ~ "S",
+    "uploadDate": v.uploaded, "duration": "PT" ~ v.seconds ~ "S", "inLanguage": v.lang or "en",
     "publisher": {"@type": "EducationalOrganization", "name": "Nurul Huda Academy", "url": site_url}}|tojson }}</script>
   {% endfor %}
   {% else %}
