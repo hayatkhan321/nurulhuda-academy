@@ -42,6 +42,10 @@ python3 reel.py specs/my-video.json               # builds out/<slug>.mp4, out/<
   it for this command only. Never print it, write it to a file, commit it or put it in a report.
 - Pick voices once with `python3 reel.py --voices en-GB` (then `ur-IN`, `ar-XA`): a calm, clear female voice in each
   language; prefer Chirp3-HD, Neural2 or WaveNet voices. Write the chosen names in this README.
+- **Chosen voices (22 Nov 2026, calm female; Dr Hayat to approve):** en-GB `en-GB-Chirp3-HD-Aoede`,
+  ur-IN `ur-IN-Chirp3-HD-Aoede`, ar-XA `ar-XA-Chirp3-HD-Aoede`, hi-IN `hi-IN-Chirp3-HD-Aoede`,
+  id-ID `id-ID-Chirp3-HD-Aoede`, es-ES `es-ES-Chirp3-HD-Aoede`, fr-FR `fr-FR-Chirp3-HD-Aoede`,
+  ms-MY `ms-MY-Wavenet-A` (Malay has no Chirp3-HD voice). These are the website's 8 languages.
 - The workspace must be allowed to reach texttospeech.googleapis.com (claude.ai Settings > Capabilities). If it can't,
   or there is no key, the video is made caption-only and the report says so.
 - Languages: English for every video; Urdu (`ur-IN`) and Arabic (`ar-XA`) versions use the same scenes with

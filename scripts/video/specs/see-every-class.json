@@ -4,6 +4,7 @@
   "voice": null,
   "tts": {
     "lang": "en-GB",
+    "voice": "en-GB-Chirp3-HD-Aoede",
     "rate": 0.95
   },
   "scenes": [
