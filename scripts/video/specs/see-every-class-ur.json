@@ -1,0 +1,69 @@
+{
+  "slug": "see-every-class-ur",
+  "greeting": true,
+  "voice": null,
+  "lang": "ur-IN",
+  "tts": {
+    "lang": "ur-IN",
+    "rate": 0.95
+  },
+  "scenes": [
+    {
+      "kind": "opener",
+      "h1": "What does a class <em>look like</em>?",
+      "sub": "السلام علیکم۔ نور الہدیٰ اکیڈمی کی قرآن کلاس کیسی ہوتی ہے؟"
+    },
+    {
+      "kind": "board",
+      "kicker": "Our own classroom",
+      "tags": [
+        [
+          "1",
+          "One to one"
+        ],
+        [
+          "30",
+          "minutes"
+        ]
+      ],
+      "sub": "کلاسیں انفرادی ہوتی ہیں، ہمارے اپنے آن لائن کلاس روم میں۔"
+    },
+    {
+      "kind": "headline",
+      "kicker": "Live, one to one",
+      "h1": "The Quran page <em>on screen</em>",
+      "chips": [
+        "The teacher points to every word"
+      ],
+      "sub": "قرآن کا صفحہ اسکرین پر ہوتا ہے۔"
+    },
+    {
+      "kind": "card",
+      "kicker": "When the class ends",
+      "img": "report.jpg",
+      "ur": "ہر کلاس کے بعد رپورٹ",
+      "sub": "ہر کلاس کے بعد استاد لکھتے ہیں کہ بچہ کہاں تک پہنچا اور کیا مشق کرنی ہے۔"
+    },
+    {
+      "kind": "card",
+      "kicker": "Your family page",
+      "img": "dashboard.jpg",
+      "sub": "آپ اپنے فیملی پیج پر پیش رفت دیکھ سکتے ہیں۔"
+    },
+    {
+      "kind": "headline",
+      "kicker": "Fair for families",
+      "h1": "Pay only for classes that <em>happen</em>",
+      "chips": [
+        "Teacher missed it? Not charged"
+      ],
+      "sub": "جو کلاس استاد چھوڑ دے، اس کا چارج نہیں ہوتا۔"
+    },
+    {
+      "kind": "end",
+      "h1": "See it for yourself, <em>free</em>",
+      "ur": "پہلی کلاس مفت ہے",
+      "sub": "مفت آزمائشی کلاس بک کریں: nurulhudaacademy.org"
+    }
+  ]
+}

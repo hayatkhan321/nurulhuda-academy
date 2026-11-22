@@ -1,0 +1,26 @@
+{
+  "slug": "teacher-test",
+  "greeting": true,
+  "voice": null,
+  "tts": {"lang": "en-GB", "rate": 0.95},
+  "scenes": [
+    {"kind": "opener", "h1": "Who is teaching <em>your child</em>?",
+     "sub": "Assalamu alaikum. Who is teaching your child the Quran?"},
+    {"kind": "headline", "kicker": "Before the first class", "h1": "Every teacher is <em>tested</em>",
+     "chips": ["Recitation test", "Head of Academics is a Hafiza"],
+     "sub": "Every teacher passes a recitation test before teaching, and our Head of Academics is a Hafiza."},
+    {"kind": "headline", "kicker": "Then a promise", "h1": "Our teacher <em>Code of Conduct</em>",
+     "chips": ["Kind words, never harsh", "Camera on", "On time"],
+     "sub": "Every teacher also accepts our Code of Conduct before teaching."},
+    {"kind": "headline", "kicker": "Your child's privacy", "h1": "No recording, <em>no photos</em>",
+     "chips": ["No private contact", "No personal social media"],
+     "sub": "Teachers never record a class or share a child's image, and never contact families privately."},
+    {"kind": "board", "kicker": "Our own classroom", "tags": [["1", "One to one"], ["30", "minutes"]],
+     "sub": "Every class takes place inside the academy's own online classroom."},
+    {"kind": "headline", "kicker": "Your choice", "h1": "Female teachers <em>on request</em>",
+     "chips": ["Just ask when you book"],
+     "sub": "Prefer a female teacher? Just ask when you book."},
+    {"kind": "end", "h1": "Meet a tested teacher, <em>free</em>", "ur": "پہلی کلاس مفت ہے",
+     "sub": "Book a free trial class at nurulhudaacademy.org"}
+  ]
+}

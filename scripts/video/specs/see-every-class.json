@@ -1,0 +1,67 @@
+{
+  "slug": "see-every-class",
+  "greeting": true,
+  "voice": null,
+  "tts": {
+    "lang": "en-GB",
+    "rate": 0.95
+  },
+  "scenes": [
+    {
+      "kind": "opener",
+      "h1": "What does a class <em>look like</em>?",
+      "sub": "Assalamu alaikum. What does a Nurul Huda Quran class look like?"
+    },
+    {
+      "kind": "board",
+      "kicker": "Our own classroom",
+      "tags": [
+        [
+          "1",
+          "One to one"
+        ],
+        [
+          "30",
+          "minutes"
+        ]
+      ],
+      "sub": "Your child joins our own online classroom, never a personal account."
+    },
+    {
+      "kind": "headline",
+      "kicker": "Live, one to one",
+      "h1": "The Quran page <em>on screen</em>",
+      "chips": [
+        "The teacher points to every word"
+      ],
+      "sub": "The Quran page is on screen, so the teacher can point to every word."
+    },
+    {
+      "kind": "card",
+      "kicker": "When the class ends",
+      "img": "report.jpg",
+      "sub": "Then you get a report: lesson reached, tajweed rule practised, homework."
+    },
+    {
+      "kind": "card",
+      "kicker": "Your family page",
+      "img": "dashboard.jpg",
+      "sub": "Every report stays on your family page."
+    },
+    {
+      "kind": "headline",
+      "kicker": "Fair for families",
+      "h1": "Pay only for classes that <em>happen</em>",
+      "chips": [
+        "Teacher missed it? Not charged"
+      ],
+      "sub": "You pay only for classes that happen. Missed by the teacher? Not charged."
+    },
+    {
+      "kind": "end",
+      "h1": "See it for yourself, <em>free</em>",
+      "ur": "پہلی کلاس مفت ہے",
+      "sub": "Book a free trial class at nurulhudaacademy.org"
+    }
+  ]
+}
