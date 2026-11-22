@@ -1,0 +1,55 @@
+{
+  "slug": "tartil-id",
+  "greeting": true,
+  "voice": null,
+  "lang": "id-ID",
+  "tts": {
+    "lang": "id-ID",
+    "voice": "id-ID-Chirp3-HD-Aoede",
+    "rate": 1.0
+  },
+  "scenes": [
+    {
+      "kind": "verse",
+      "kicker": "Surah Al-Muzzammil",
+      "ref": [
+        73,
+        4
+      ],
+      "seconds": 8,
+      "sub": "Allah memerintahkan kita membaca Al-Qur'an dengan perlahan dan jelas."
+    },
+    {
+      "kind": "headline",
+      "kicker": "Arti tartil",
+      "h1": "<em>Tartil</em>: perlahan dan jelas",
+      "chips": [
+        "Setiap huruf diberi haknya"
+      ],
+      "sub": "Tartil berarti membaca dengan perlahan dan jelas, memberi setiap huruf haknya."
+    },
+    {
+      "kind": "headline",
+      "kicker": "Cara kami mengajar",
+      "h1": "Membaca keras, <em>dikoreksi dengan lembut</em>",
+      "chips": [
+        "Privat",
+        "Langsung",
+        "Guru teruji"
+      ],
+      "sub": "Di setiap kelas, anak Anda membaca dengan suara keras dan guru langsung mengoreksi bacaannya."
+    },
+    {
+      "kind": "card",
+      "kicker": "Setelah setiap kelas",
+      "img": "report.jpg",
+      "sub": "Setelah setiap kelas, laporan menunjukkan hukum tajwid yang dilatih anak Anda."
+    },
+    {
+      "kind": "end",
+      "h1": "Kelas pertama <em>gratis</em>",
+      "sub": "Pesan kelas uji coba gratis di nurulhudaacademy.org",
+      "say": "Pesan kelas uji coba gratis di Nurul Huda Academy titik org."
+    }
+  ]
+}

@@ -1,0 +1,57 @@
+{
+  "slug": "tartil-ms",
+  "greeting": true,
+  "voice": null,
+  "lang": "ms-MY",
+  "tts": {
+    "lang": "ms-MY",
+    "voice": "ms-MY-Wavenet-A",
+    "rate": 1.0
+  },
+  "scenes": [
+    {
+      "kind": "verse",
+      "kicker": "Surah Al-Muzzammil",
+      "ref": [
+        73,
+        4
+      ],
+      "seconds": 8,
+      "sub": "Allah menyuruh kita membaca al-Quran dengan perlahan dan jelas.",
+      "translation": "Ataupun lebihkan (sedikit) daripadanya; dan bacalah Al-Quran dengan \"Tartil\".",
+      "translation_source": "Abdullah Muhammad Basmeih"
+    },
+    {
+      "kind": "headline",
+      "kicker": "Maksud tartil",
+      "h1": "<em>Tartil</em>: perlahan dan jelas",
+      "chips": [
+        "Setiap huruf diberi haknya"
+      ],
+      "sub": "Tartil bermaksud membaca dengan perlahan dan jelas, memberi setiap huruf haknya."
+    },
+    {
+      "kind": "headline",
+      "kicker": "Cara kami mengajar",
+      "h1": "Baca dengan kuat, <em>dibetulkan dengan lembut</em>",
+      "chips": [
+        "Secara individu",
+        "Langsung",
+        "Guru yang diuji"
+      ],
+      "sub": "Dalam setiap kelas, anak anda membaca dengan kuat dan guru membetulkan bacaannya."
+    },
+    {
+      "kind": "card",
+      "kicker": "Selepas setiap kelas",
+      "img": "report.jpg",
+      "sub": "Selepas setiap kelas, laporan menunjukkan hukum yang dilatih oleh anak anda."
+    },
+    {
+      "kind": "end",
+      "h1": "Kelas pertama <em>percuma</em>",
+      "sub": "Tempah kelas percubaan percuma di nurulhudaacademy.org",
+      "say": "Tempah kelas percubaan percuma di Nurul Huda Academy titik org."
+    }
+  ]
+}

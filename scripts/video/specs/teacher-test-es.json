@@ -1,0 +1,79 @@
+{
+  "slug": "teacher-test-es",
+  "greeting": true,
+  "voice": null,
+  "lang": "es-ES",
+  "tts": {
+    "lang": "es-ES",
+    "voice": "es-ES-Chirp3-HD-Aoede",
+    "rate": 1.0
+  },
+  "scenes": [
+    {
+      "kind": "opener",
+      "h1": "¿Quién enseña <em>a tu hijo</em>?",
+      "sub": "Assalamu alaikum. ¿Quién le enseña el Corán a tu hijo?"
+    },
+    {
+      "kind": "headline",
+      "kicker": "Antes de la primera clase",
+      "h1": "Cada profesor pasa <em>una prueba</em>",
+      "chips": [
+        "Prueba de recitación",
+        "La directora académica es Hafiza"
+      ],
+      "sub": "Cada profesor aprueba una prueba de recitación antes de enseñar, y nuestra directora académica es Hafiza."
+    },
+    {
+      "kind": "headline",
+      "kicker": "Y un compromiso",
+      "h1": "Nuestro <em>código de conducta</em>",
+      "chips": [
+        "Palabras amables, nunca duras",
+        "Cámara encendida",
+        "Puntualidad"
+      ],
+      "sub": "Cada profesor también acepta nuestro código de conducta antes de enseñar."
+    },
+    {
+      "kind": "headline",
+      "kicker": "La privacidad de tu hijo",
+      "h1": "Sin grabaciones, <em>sin fotos</em>",
+      "chips": [
+        "Sin contacto privado",
+        "Sin redes sociales personales"
+      ],
+      "sub": "Los profesores nunca graban una clase ni comparten la imagen de un niño, ni contactan a las familias en privado."
+    },
+    {
+      "kind": "board",
+      "kicker": "Nuestra propia aula",
+      "tags": [
+        [
+          "1",
+          "Individual"
+        ],
+        [
+          "30",
+          "minutos"
+        ]
+      ],
+      "sub": "Cada clase se da dentro del aula en línea de la academia."
+    },
+    {
+      "kind": "headline",
+      "kicker": "Tú eliges",
+      "h1": "Profesoras <em>si lo pides</em>",
+      "chips": [
+        "Pídelo al reservar"
+      ],
+      "sub": "¿Prefieres una profesora? Solo pídelo al reservar."
+    },
+    {
+      "kind": "end",
+      "h1": "Conoce a un profesor evaluado, <em>gratis</em>",
+      "sub": "Reserva una clase de prueba gratis en nurulhudaacademy.org",
+      "say": "Reserva una clase de prueba gratis en Nurul Huda Academy punto org."
+    }
+  ]
+}

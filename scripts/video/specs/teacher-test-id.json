@@ -1,0 +1,79 @@
+{
+  "slug": "teacher-test-id",
+  "greeting": true,
+  "voice": null,
+  "lang": "id-ID",
+  "tts": {
+    "lang": "id-ID",
+    "voice": "id-ID-Chirp3-HD-Aoede",
+    "rate": 1.0
+  },
+  "scenes": [
+    {
+      "kind": "opener",
+      "h1": "Siapa mengajar <em>anak Anda</em>?",
+      "sub": "Assalamu alaikum. Siapa yang mengajari anak Anda Al-Qur'an?"
+    },
+    {
+      "kind": "headline",
+      "kicker": "Sebelum kelas pertama",
+      "h1": "Setiap guru <em>diuji</em>",
+      "chips": [
+        "Tes bacaan",
+        "Kepala Akademik seorang Hafizah"
+      ],
+      "sub": "Setiap guru lulus tes bacaan sebelum mengajar, dan Kepala Akademik kami seorang Hafizah."
+    },
+    {
+      "kind": "headline",
+      "kicker": "Lalu sebuah janji",
+      "h1": "<em>Kode Etik</em> guru kami",
+      "chips": [
+        "Kata-kata lembut, tidak kasar",
+        "Kamera menyala",
+        "Tepat waktu"
+      ],
+      "sub": "Setiap guru juga menyetujui Kode Etik kami sebelum mengajar."
+    },
+    {
+      "kind": "headline",
+      "kicker": "Privasi anak Anda",
+      "h1": "Tanpa rekaman, <em>tanpa foto</em>",
+      "chips": [
+        "Tanpa kontak pribadi",
+        "Tanpa media sosial pribadi"
+      ],
+      "sub": "Guru tidak merekam kelas atau membagikan foto anak, dan tidak menghubungi keluarga secara pribadi."
+    },
+    {
+      "kind": "board",
+      "kicker": "Kelas kami sendiri",
+      "tags": [
+        [
+          "1",
+          "Privat"
+        ],
+        [
+          "30",
+          "menit"
+        ]
+      ],
+      "sub": "Setiap kelas berlangsung di kelas online milik akademi sendiri."
+    },
+    {
+      "kind": "headline",
+      "kicker": "Pilihan Anda",
+      "h1": "Guru perempuan <em>sesuai permintaan</em>",
+      "chips": [
+        "Sampaikan saat memesan"
+      ],
+      "sub": "Ingin guru perempuan? Sampaikan saja saat memesan."
+    },
+    {
+      "kind": "end",
+      "h1": "Kenali guru yang teruji, <em>gratis</em>",
+      "sub": "Pesan kelas uji coba gratis di nurulhudaacademy.org",
+      "say": "Pesan kelas uji coba gratis di Nurul Huda Academy titik org."
+    }
+  ]
+}

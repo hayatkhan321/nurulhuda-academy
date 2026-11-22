@@ -1,0 +1,55 @@
+{
+  "slug": "tartil-es",
+  "greeting": true,
+  "voice": null,
+  "lang": "es-ES",
+  "tts": {
+    "lang": "es-ES",
+    "voice": "es-ES-Chirp3-HD-Aoede",
+    "rate": 1.0
+  },
+  "scenes": [
+    {
+      "kind": "verse",
+      "kicker": "Sura Al-Muzzammil",
+      "ref": [
+        73,
+        4
+      ],
+      "seconds": 8,
+      "sub": "Allah nos pide recitar el Corán despacio y con claridad."
+    },
+    {
+      "kind": "headline",
+      "kicker": "Qué significa tartil",
+      "h1": "<em>Tartil</em>: despacio y claro",
+      "chips": [
+        "Cada letra recibe su derecho"
+      ],
+      "sub": "Tartil significa leer despacio y con claridad, dando a cada letra su derecho."
+    },
+    {
+      "kind": "headline",
+      "kicker": "Cómo enseñamos",
+      "h1": "En voz alta, <em>con corrección amable</em>",
+      "chips": [
+        "Individual",
+        "En directo",
+        "Profesor evaluado"
+      ],
+      "sub": "En cada clase, tu hijo lee en voz alta y un profesor evaluado le corrige sobre la marcha."
+    },
+    {
+      "kind": "card",
+      "kicker": "Después de cada clase",
+      "img": "report.jpg",
+      "sub": "Después de cada clase, el informe muestra qué regla practicó tu hijo."
+    },
+    {
+      "kind": "end",
+      "h1": "Tu primera clase es <em>gratis</em>",
+      "sub": "Reserva una clase de prueba gratis en nurulhudaacademy.org",
+      "say": "Reserva una clase de prueba gratis en Nurul Huda Academy punto org."
+    }
+  ]
+}

@@ -48,7 +48,13 @@ def ayat(surah, first, last=None):
     return " ".join(out)
 
 
-EDITIONS = {"eng-ummmuhammad": "Sahih International", "urd-muhammadjunagar": "Muhammad Junagarhi"}
+EDITIONS = {"eng-ummmuhammad": "Sahih International", "urd-muhammadjunagar": "Muhammad Junagarhi",
+            "urd-fatehmuhammadja": "Fateh Muhammad Jalandhry", "hin-suhelfarooqkhan": "Suhel Farooq Khan & Saifur Rahman Nadwi",
+            "msa-abdullahmuhamma": "Abdullah Muhammad Basmeih", "ind-indonesianislam": "Kementerian Agama RI",
+            "spa-muhammadisagarc": "Muhammad Isa García", "fra-muhammadhamidul": "Muhammad Hamidullah"}
+# Per language for verse scenes ("edition" in the scene overrides). Arabic videos show the verse with no translation.
+EDITION_FOR = {"en": "eng-ummmuhammad", "ur": "urd-muhammadjunagar", "hi": "hin-suhelfarooqkhan", "ms": "msa-abdullahmuhamma",
+               "id": "ind-indonesianislam", "es": "spa-muhammadisagarc", "fr": "fra-muhammadhamidul"}
 
 
 def translation(surah, first, last=None, edition="eng-ummmuhammad"):
@@ -226,12 +232,17 @@ def body(sc):
     if k == "verse":           # Quran text from the King Fahd data, never typed; translation from a published source
         s, a = sc["ref"][0], sc["ref"][1]
         b = sc["ref"][2] if len(sc["ref"]) > 2 else a
+        refx = f'Quran {s}:{a}{"–"+str(b) if b != a else ""}'
+        if SCRIPT_LANG.startswith("ar") and not sc.get("translation"):   # Arabic speakers read the verse itself
+            return (f'{TOP}<div class="glow"></div><div class="stage">{kick}<div class="verse in d1"><div class="ar">{html.escape(ayat(s, a, b))}</div>'
+                    f'<div class="ref">{refx}</div></div></div>')
         if not sc.get("translation"):
-            sc["translation"], sc["translation_source"] = translation(s, a, b)
+            ed = sc.get("edition") or EDITION_FOR.get(SCRIPT_LANG[:2] or "en", "eng-ummmuhammad")
+            sc["translation"], sc["translation_source"] = translation(s, a, b, ed)
         if not sc.get("translation_source"):
             sys.exit("verse scene needs translation_source (a published translation, named)")
         return (f'{TOP}<div class="glow"></div><div class="stage">{kick}<div class="verse in d1"><div class="ar">{html.escape(ayat(s, a, b))}</div>'
-                f'<div class="tr">{t(sc["translation"])}</div><div class="ref">Quran {s}:{a}{"–"+str(b) if b != a else ""} · '
+                f'<div class="tr">{t(sc["translation"])}</div><div class="ref">{refx} · '
                 f'{t(sc["translation_source"])}</div></div></div>')
     if k == "end":             # call to action with the free-trial QR code
         qr = f'<div class="qrbox pop d3"><img src="{asset(sc.get("qr", "qr-free-trial.png"))}"></div>' if sc.get("qr", True) else ""
@@ -337,6 +348,21 @@ def google_key():
     return ""
 
 
+# How the academy's name must be SPOKEN (checked by ear and with speech recognition, 22 Nov 2026).
+# The Urdu voice reads "نور الہدیٰ" as "al-Hudez", and a spelling without the alif even as "Nurul Hadith";
+# the English voice blurs "Nurul Huda Academy" into "Neural-uda". Screens keep the correct spelling.
+NAME_SAY = {
+    "ur": [(r"نور\s*ال\s*ہدیٰ|نورالہدیٰ|نور\s*الہدی\b|نورل\s*ہدیٰ", "نورُل ہُدا")],
+    "en": [(r"\bNurul\s+Huda\b", "Noor-ul Hooda")],
+}
+
+
+def say_name(text, lang):
+    for pat, rep in NAME_SAY.get(lang[:2], []):
+        text = re.sub(pat, rep, text)
+    return text
+
+
 def google_say(key, text, tts, out):
     import base64, urllib.request, urllib.error
     body = {"input": {"text": text},
@@ -372,6 +398,7 @@ def google_timeline(spec, work):
     for i, sc in enumerate(spec["scenes"]):
         text = re.sub(r"<[^>]+>", " ", sc.get("say") or sc["sub"])
         text = re.sub(r"(?i)(www\.)?nurulhudaacademy\.org", "Nurul Huda Academy dot org", text)
+        text = say_name(text, tts.get("lang", "en-GB"))
         if i == 0 and spec.get("greeting", True):            # Dr Hayat's own greeting replaces the spoken one
             text = re.sub(r"^\s*(assalamu?\s*alaikum|السلام\s*علیکم|السلام\s*عليكم|अस्सलामु\s*अलैकुम)[.,!۔।،]?\s*", "", text, flags=re.I)
         clip = os.path.join(work, f"say{i}.wav")

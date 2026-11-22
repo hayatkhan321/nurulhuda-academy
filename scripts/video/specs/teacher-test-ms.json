@@ -1,0 +1,79 @@
+{
+  "slug": "teacher-test-ms",
+  "greeting": true,
+  "voice": null,
+  "lang": "ms-MY",
+  "tts": {
+    "lang": "ms-MY",
+    "voice": "ms-MY-Wavenet-A",
+    "rate": 1.05
+  },
+  "scenes": [
+    {
+      "kind": "opener",
+      "h1": "Siapa mengajar <em>anak anda</em>?",
+      "sub": "Assalamu alaikum. Siapakah yang mengajar al-Quran kepada anak anda?"
+    },
+    {
+      "kind": "headline",
+      "kicker": "Sebelum kelas pertama",
+      "h1": "Setiap guru <em>diuji</em>",
+      "chips": [
+        "Ujian bacaan",
+        "Ketua Akademik seorang Hafizah"
+      ],
+      "sub": "Setiap guru lulus ujian bacaan sebelum mengajar, dan Ketua Akademik kami seorang Hafizah."
+    },
+    {
+      "kind": "headline",
+      "kicker": "Kemudian satu janji",
+      "h1": "<em>Kod Etika</em> guru kami",
+      "chips": [
+        "Kata-kata lembut, tidak kasar",
+        "Kamera dihidupkan",
+        "Tepat masa"
+      ],
+      "sub": "Setiap guru juga menerima Kod Etika kami sebelum mengajar."
+    },
+    {
+      "kind": "headline",
+      "kicker": "Privasi anak anda",
+      "h1": "Tiada rakaman, <em>tiada gambar</em>",
+      "chips": [
+        "Tiada hubungan peribadi",
+        "Tiada media sosial peribadi"
+      ],
+      "sub": "Guru tidak merakam kelas atau berkongsi gambar anak, dan tidak menghubungi keluarga secara peribadi."
+    },
+    {
+      "kind": "board",
+      "kicker": "Kelas kami sendiri",
+      "tags": [
+        [
+          "1",
+          "Secara individu"
+        ],
+        [
+          "30",
+          "minit"
+        ]
+      ],
+      "sub": "Setiap kelas berlangsung dalam kelas dalam talian akademi sendiri."
+    },
+    {
+      "kind": "headline",
+      "kicker": "Pilihan anda",
+      "h1": "Guru wanita <em>atas permintaan</em>",
+      "chips": [
+        "Beritahu semasa tempahan"
+      ],
+      "sub": "Mahu guru wanita? Beritahu sahaja semasa membuat tempahan."
+    },
+    {
+      "kind": "end",
+      "h1": "Kenali guru yang diuji, <em>percuma</em>",
+      "sub": "Tempah kelas percubaan percuma di nurulhudaacademy.org",
+      "say": "Tempah kelas percubaan percuma di Nurul Huda Academy titik org."
+    }
+  ]
+}

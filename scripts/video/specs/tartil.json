@@ -2,21 +2,55 @@
   "slug": "tartil",
   "greeting": true,
   "voice": null,
-  "tts": {"lang": "en-GB", "rate": 0.95},
+  "tts": {
+    "lang": "en-GB",
+    "voice": "en-GB-Chirp3-HD-Aoede",
+    "rate": 0.95
+  },
   "scenes": [
-    {"kind": "verse", "kicker": "Surah Al-Muzzammil", "ref": [73, 4], "seconds": 8,
-     "sub": "Allah tells us to recite the Quran slowly and clearly.",
-     "translation": "Or add to it, and recite the Qur'an with measured recitation.",
-     "translation_source": "Sahih International"},
-    {"kind": "headline", "kicker": "What tartil means", "h1": "<em>Tartil</em>: slow and clear",
-     "chips": ["Every letter given its right"],
-     "sub": "Tartil means reading slowly and clearly, giving every letter its right."},
-    {"kind": "headline", "kicker": "How we teach", "h1": "Read aloud, <em>corrected gently</em>",
-     "chips": ["One to one", "Live", "Tested teacher"],
-     "sub": "In every class, your child reads aloud and a tested teacher corrects along the way."},
-    {"kind": "card", "kicker": "After every class", "img": "report.jpg",
-     "sub": "After every class, the report shows which rule your child practised."},
-    {"kind": "end", "h1": "Your first class is <em>free</em>", "ur": "پہلی کلاس مفت ہے",
-     "sub": "Book a free trial class at nurulhudaacademy.org"}
+    {
+      "kind": "verse",
+      "kicker": "Surah Al-Muzzammil",
+      "ref": [
+        73,
+        4
+      ],
+      "seconds": 8,
+      "sub": "Allah tells us to recite the Quran slowly and clearly.",
+      "translation": "Or add to it, and recite the Qur'an with measured recitation.",
+      "translation_source": "Sahih International"
+    },
+    {
+      "kind": "headline",
+      "kicker": "What tartil means",
+      "h1": "<em>Tartil</em>: slow and clear",
+      "chips": [
+        "Every letter given its right"
+      ],
+      "sub": "Tartil means reading slowly and clearly, giving every letter its right."
+    },
+    {
+      "kind": "headline",
+      "kicker": "How we teach",
+      "h1": "Read aloud, <em>corrected gently</em>",
+      "chips": [
+        "One to one",
+        "Live",
+        "Tested teacher"
+      ],
+      "sub": "In every class, your child reads aloud and a tested teacher corrects along the way."
+    },
+    {
+      "kind": "card",
+      "kicker": "After every class",
+      "img": "report.jpg",
+      "sub": "After every class, the report shows which rule your child practised."
+    },
+    {
+      "kind": "end",
+      "h1": "Your first class is <em>free</em>",
+      "ur": "پہلی کلاس مفت ہے",
+      "sub": "Book a free trial class at nurulhudaacademy.org"
+    }
   ]
 }
