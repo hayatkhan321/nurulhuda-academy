@@ -1,0 +1,69 @@
+{
+  "slug": "see-every-class-fr",
+  "greeting": true,
+  "voice": null,
+  "lang": "fr-FR",
+  "tts": {
+    "lang": "fr-FR",
+    "voice": "fr-FR-Chirp3-HD-Aoede",
+    "rate": 1.0
+  },
+  "scenes": [
+    {
+      "kind": "opener",
+      "h1": "À quoi ressemble <em>un cours</em> ?",
+      "sub": "Assalamu alaikum. À quoi ressemble un cours de Coran à Nurul Huda Academy ?"
+    },
+    {
+      "kind": "board",
+      "kicker": "Notre propre salle de classe",
+      "tags": [
+        [
+          "1",
+          "En individuel"
+        ],
+        [
+          "30",
+          "minutes"
+        ]
+      ],
+      "sub": "Votre enfant rejoint notre propre classe en ligne, jamais un compte personnel."
+    },
+    {
+      "kind": "headline",
+      "kicker": "En direct, en individuel",
+      "h1": "La page du Coran <em>à l'écran</em>",
+      "chips": [
+        "L'enseignant montre chaque mot"
+      ],
+      "sub": "La page du Coran est à l'écran, pour que l'enseignant montre chaque mot."
+    },
+    {
+      "kind": "card",
+      "kicker": "À la fin du cours",
+      "img": "report.jpg",
+      "sub": "Ensuite, vous recevez un compte rendu : leçon atteinte, règle de tajwid travaillée et devoirs."
+    },
+    {
+      "kind": "card",
+      "kicker": "Votre espace famille",
+      "img": "dashboard.jpg",
+      "sub": "Chaque compte rendu reste dans votre espace famille."
+    },
+    {
+      "kind": "headline",
+      "kicker": "Juste pour les familles",
+      "h1": "Vous ne payez que les cours <em>donnés</em>",
+      "chips": [
+        "Enseignant absent ? Rien à payer"
+      ],
+      "sub": "Vous ne payez que les cours donnés. Un cours manqué par l'enseignant n'est pas facturé."
+    },
+    {
+      "kind": "end",
+      "h1": "Voyez par vous-même, <em>gratuitement</em>",
+      "sub": "Réservez un cours d'essai gratuit sur nurulhudaacademy.org",
+      "say": "Réservez un cours d'essai gratuit sur Nurul Huda Academy point org."
+    }
+  ]
+}

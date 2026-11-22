@@ -5,65 +5,67 @@
   "lang": "ur-IN",
   "tts": {
     "lang": "ur-IN",
+    "voice": "ur-IN-Chirp3-HD-Aoede",
     "rate": 0.95
   },
   "scenes": [
     {
       "kind": "opener",
-      "h1": "What does a class <em>look like</em>?",
+      "h1": "کلاس <em>کیسی ہوتی ہے</em>؟",
       "sub": "السلام علیکم۔ نور الہدیٰ اکیڈمی کی قرآن کلاس کیسی ہوتی ہے؟"
     },
     {
       "kind": "board",
-      "kicker": "Our own classroom",
+      "kicker": "ہمارا اپنا کلاس روم",
       "tags": [
         [
           "1",
-          "One to one"
+          "انفرادی"
         ],
         [
           "30",
-          "minutes"
+          "منٹ"
         ]
       ],
       "sub": "کلاسیں انفرادی ہوتی ہیں، ہمارے اپنے آن لائن کلاس روم میں۔"
     },
     {
       "kind": "headline",
-      "kicker": "Live, one to one",
-      "h1": "The Quran page <em>on screen</em>",
+      "kicker": "براہِ راست، انفرادی",
+      "h1": "قرآن کا صفحہ <em>اسکرین پر</em>",
       "chips": [
-        "The teacher points to every word"
+        "استاد ہر لفظ کی نشاندہی کرتے ہیں"
       ],
       "sub": "قرآن کا صفحہ اسکرین پر ہوتا ہے۔"
     },
     {
       "kind": "card",
-      "kicker": "When the class ends",
+      "kicker": "کلاس کے بعد",
       "img": "report.jpg",
-      "ur": "ہر کلاس کے بعد رپورٹ",
-      "sub": "ہر کلاس کے بعد استاد لکھتے ہیں کہ بچہ کہاں تک پہنچا اور کیا مشق کرنی ہے۔"
+      "sub": "ہر کلاس کے بعد استاد لکھتے ہیں کہ بچہ کہاں تک پہنچا اور کیا مشق کرنی ہے۔",
+      "ur": "ہر کلاس کے بعد رپورٹ"
     },
     {
       "kind": "card",
-      "kicker": "Your family page",
+      "kicker": "آپ کا فیملی پیج",
       "img": "dashboard.jpg",
       "sub": "آپ اپنے فیملی پیج پر پیش رفت دیکھ سکتے ہیں۔"
     },
     {
       "kind": "headline",
-      "kicker": "Fair for families",
-      "h1": "Pay only for classes that <em>happen</em>",
+      "kicker": "خاندانوں کے ساتھ انصاف",
+      "h1": "صرف انہی کلاسوں کی ادائیگی <em>جو ہوں</em>",
       "chips": [
-        "Teacher missed it? Not charged"
+        "استاد نے چھوڑی؟ کوئی چارج نہیں"
       ],
       "sub": "جو کلاس استاد چھوڑ دے، اس کا چارج نہیں ہوتا۔"
     },
     {
       "kind": "end",
-      "h1": "See it for yourself, <em>free</em>",
-      "ur": "پہلی کلاس مفت ہے",
-      "sub": "مفت آزمائشی کلاس بک کریں: nurulhudaacademy.org"
+      "h1": "خود دیکھیں، <em>مفت</em>",
+      "sub": "مفت آزمائشی کلاس بک کریں: nurulhudaacademy.org",
+      "say": "مفت آزمائشی کلاس بک کریں، نور الہدیٰ اکیڈمی ڈاٹ او آر جی پر۔",
+      "ur": "پہلی کلاس مفت ہے"
     }
   ]
 }

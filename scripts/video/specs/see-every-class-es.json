@@ -1,0 +1,69 @@
+{
+  "slug": "see-every-class-es",
+  "greeting": true,
+  "voice": null,
+  "lang": "es-ES",
+  "tts": {
+    "lang": "es-ES",
+    "voice": "es-ES-Chirp3-HD-Aoede",
+    "rate": 1.0
+  },
+  "scenes": [
+    {
+      "kind": "opener",
+      "h1": "¿Cómo es <em>una clase</em>?",
+      "sub": "Assalamu alaikum. ¿Cómo es una clase de Corán en Nurul Huda Academy?"
+    },
+    {
+      "kind": "board",
+      "kicker": "Nuestra propia aula",
+      "tags": [
+        [
+          "1",
+          "Individual"
+        ],
+        [
+          "30",
+          "minutos"
+        ]
+      ],
+      "sub": "Tu hijo entra en nuestra propia aula en línea, nunca en una cuenta personal."
+    },
+    {
+      "kind": "headline",
+      "kicker": "En directo, individual",
+      "h1": "La página del Corán <em>en pantalla</em>",
+      "chips": [
+        "El profesor señala cada palabra"
+      ],
+      "sub": "La página del Corán está en pantalla, para que el profesor señale cada palabra."
+    },
+    {
+      "kind": "card",
+      "kicker": "Al terminar la clase",
+      "img": "report.jpg",
+      "sub": "Después recibes un informe: lección alcanzada, regla de tajwid practicada y deberes."
+    },
+    {
+      "kind": "card",
+      "kicker": "Tu página familiar",
+      "img": "dashboard.jpg",
+      "sub": "Cada informe queda guardado en tu página familiar."
+    },
+    {
+      "kind": "headline",
+      "kicker": "Justo para las familias",
+      "h1": "Pagas solo las clases que <em>se dan</em>",
+      "chips": [
+        "¿Faltó el profesor? No se cobra"
+      ],
+      "sub": "Solo pagas las clases que se dan. ¿Faltó el profesor? No se cobra."
+    },
+    {
+      "kind": "end",
+      "h1": "Compruébalo tú mismo, <em>gratis</em>",
+      "sub": "Reserva una clase de prueba gratis en nurulhudaacademy.org",
+      "say": "Reserva una clase de prueba gratis en Nurul Huda Academy punto org."
+    }
+  ]
+}

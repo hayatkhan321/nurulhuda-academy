@@ -1,0 +1,69 @@
+{
+  "slug": "see-every-class-ms",
+  "greeting": true,
+  "voice": null,
+  "lang": "ms-MY",
+  "tts": {
+    "lang": "ms-MY",
+    "voice": "ms-MY-Wavenet-A",
+    "rate": 1.05
+  },
+  "scenes": [
+    {
+      "kind": "opener",
+      "h1": "Bagaimana <em>kelasnya</em>?",
+      "sub": "Assalamu alaikum. Bagaimanakah kelas al-Quran di Nurul Huda Academy?"
+    },
+    {
+      "kind": "board",
+      "kicker": "Kelas kami sendiri",
+      "tags": [
+        [
+          "1",
+          "Secara individu"
+        ],
+        [
+          "30",
+          "minit"
+        ]
+      ],
+      "sub": "Anak anda masuk ke kelas dalam talian kami sendiri, bukan akaun peribadi."
+    },
+    {
+      "kind": "headline",
+      "kicker": "Langsung, secara individu",
+      "h1": "Halaman al-Quran <em>di skrin</em>",
+      "chips": [
+        "Guru menunjuk setiap perkataan"
+      ],
+      "sub": "Halaman al-Quran di skrin, supaya guru boleh menunjuk setiap perkataan."
+    },
+    {
+      "kind": "card",
+      "kicker": "Selepas kelas",
+      "img": "report.jpg",
+      "sub": "Kemudian anda menerima laporan: pelajaran, hukum tajwid dan kerja rumah."
+    },
+    {
+      "kind": "card",
+      "kicker": "Halaman keluarga anda",
+      "img": "dashboard.jpg",
+      "sub": "Setiap laporan disimpan di halaman keluarga anda."
+    },
+    {
+      "kind": "headline",
+      "kicker": "Adil untuk keluarga",
+      "h1": "Bayar hanya untuk kelas yang <em>berlangsung</em>",
+      "chips": [
+        "Guru tidak hadir? Tiada caj"
+      ],
+      "sub": "Anda hanya membayar untuk kelas yang berlangsung. Guru tidak hadir? Tiada caj."
+    },
+    {
+      "kind": "end",
+      "h1": "Lihat sendiri, <em>percuma</em>",
+      "sub": "Tempah kelas percubaan percuma di nurulhudaacademy.org",
+      "say": "Tempah kelas percubaan percuma di Nurul Huda Academy titik org."
+    }
+  ]
+}

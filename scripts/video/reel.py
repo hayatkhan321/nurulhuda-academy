@@ -78,6 +78,8 @@ CSS = """
 @font-face{font-family:B;src:url(file://%(A)s/brico.woff2) format('woff2');font-weight:200 800}
 @font-face{font-family:N;src:url(file://%(A)s/nast.woff2) format('woff2')}
 @font-face{font-family:Hafs;src:url(file://%(HAFS)s) format('woff2')}
+@font-face{font-family:AN;src:url(file://%(A)s/naskh.woff2) format('woff2')}
+@font-face{font-family:DV;src:url(file://%(A)s/deva.woff2) format('woff2')}
 *{box-sizing:border-box;margin:0}
 html,body{width:1080px;height:1920px;overflow:hidden}
 body{font-family:B,sans-serif;color:#fff;background:radial-gradient(ellipse at 50%% 22%%,#15845f 0%%,#08402f 46%%,#021a13 100%%);position:relative;perspective:1600px}
@@ -149,7 +151,8 @@ h1 em{font-style:normal;color:#f7cf6a}
 .sub{position:absolute;left:70px;right:70px;bottom:430px;z-index:5;display:flex;justify-content:center}
 .sub span{background:rgba(2,20,14,.78);border:1px solid rgba(247,207,106,.35);color:#fff;font-size:40px;line-height:1.3;font-weight:560;text-align:center;padding:18px 28px;border-radius:22px;animation:sub .4s ease-out both}
 .rtlx{font-family:N,serif;direction:rtl;unicode-bidi:isolate;letter-spacing:0;line-height:1.9}
-h1 .rtlx{font-size:.72em;line-height:1.75}.chip .rtlx{line-height:1.7}.sub .rtlx{display:block;line-height:1.75;font-size:38px}
+.rtlx.naskh{font-family:AN,serif;line-height:1.55}.deva{font-family:DV,B,sans-serif;line-height:1.45}
+h1 .rtlx{font-size:.72em;line-height:1.75}h1 .rtlx.naskh{font-size:.8em;line-height:1.5}.chip .rtlx{line-height:1.7}.sub .rtlx{display:block;line-height:1.75;font-size:38px}
 @keyframes sub{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:none}}
 .prog{position:absolute;left:70px;right:70px;top:70px;height:6px;background:rgba(255,255,255,.14);border-radius:6px;overflow:hidden;z-index:6}
 .prog i{display:block;height:100%%;background:#e3a237;animation:grow linear both}
@@ -163,12 +166,18 @@ ARCH = ('<svg class="frame" viewBox="0 0 620 760"><path d="M40 740 V330 C40 170 
         '<path class="in2" d="M78 740 V340 C78 200 200 104 310 62 C420 104 542 200 542 340 V740 Z"/></svg>')
 
 
+SCRIPT_LANG = ""   # set from the spec's "lang" (e.g. "ar-XA" switches Arabic text to a Naskh font)
+
+
 def t(s):
     """Escape text but keep <em> and <br> (the only markup allowed in spec text)."""
     s = html.escape(s or "")
     s = re.sub(r"&lt;(/?em|br)&gt;", r"<\1>", s)
-    if re.search(r"[\u0600-\u06FF]", s):     # Urdu / Arabic caption or headline: Nastaliq font, right to left
-        s = f'<span class="rtlx" dir="rtl">{s}</span>'
+    if re.search(r"[\u0600-\u06FF]", s):     # Urdu (Nastaliq) or Arabic (Naskh, for "lang": "ar-XA" specs), right to left
+        naskh = " naskh" if SCRIPT_LANG.startswith("ar") else ""
+        s = f'<span class="rtlx{naskh}" dir="rtl">{s}</span>'
+    elif re.search(r"[\u0900-\u097F]", s):  # Hindi: Devanagari font
+        s = f'<span class="deva">{s}</span>'
     return s
 
 
@@ -364,7 +373,7 @@ def google_timeline(spec, work):
         text = re.sub(r"<[^>]+>", " ", sc.get("say") or sc["sub"])
         text = re.sub(r"(?i)(www\.)?nurulhudaacademy\.org", "Nurul Huda Academy dot org", text)
         if i == 0 and spec.get("greeting", True):            # Dr Hayat's own greeting replaces the spoken one
-            text = re.sub(r"^\s*assalamu?\s*alaikum[.,!]?\s*", "", text, flags=re.I)
+            text = re.sub(r"^\s*(assalamu?\s*alaikum|السلام\s*علیکم|السلام\s*عليكم|अस्सलामु\s*अलैकुम)[.,!۔।،]?\s*", "", text, flags=re.I)
         clip = os.path.join(work, f"say{i}.wav")
         google_say(key, text, tts, clip)
         parts.append((g, clip) if (i == 0 and spec.get("greeting", True)) else (clip,))
@@ -493,6 +502,7 @@ if __name__ == "__main__":
         list_voices(sys.argv[2] if len(sys.argv) > 2 else "en-GB"); sys.exit()
     spec_path = os.path.abspath(sys.argv[1])
     spec = json.load(open(spec_path)); spec["_path"] = spec_path
+    SCRIPT_LANG = spec.get("lang", "")
     work = os.path.join(os.path.dirname(spec_path), f".work-{spec['slug']}")
     os.makedirs(work, exist_ok=True)
     outdir = os.environ.get("REEL_OUT", os.path.join(os.path.dirname(spec_path), "out"))

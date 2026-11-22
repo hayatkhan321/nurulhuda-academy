@@ -1,0 +1,69 @@
+{
+  "slug": "see-every-class-id",
+  "greeting": true,
+  "voice": null,
+  "lang": "id-ID",
+  "tts": {
+    "lang": "id-ID",
+    "voice": "id-ID-Chirp3-HD-Aoede",
+    "rate": 1.0
+  },
+  "scenes": [
+    {
+      "kind": "opener",
+      "h1": "Seperti apa <em>kelasnya</em>?",
+      "sub": "Assalamu alaikum. Seperti apa kelas Al-Qur'an di Nurul Huda Academy?"
+    },
+    {
+      "kind": "board",
+      "kicker": "Kelas kami sendiri",
+      "tags": [
+        [
+          "1",
+          "Privat"
+        ],
+        [
+          "30",
+          "menit"
+        ]
+      ],
+      "sub": "Anak Anda masuk ke kelas online kami sendiri, bukan akun pribadi."
+    },
+    {
+      "kind": "headline",
+      "kicker": "Langsung dan privat",
+      "h1": "Halaman Al-Qur'an <em>di layar</em>",
+      "chips": [
+        "Guru menunjuk setiap kata"
+      ],
+      "sub": "Halaman Al-Qur'an tampil di layar, sehingga guru bisa menunjuk setiap kata."
+    },
+    {
+      "kind": "card",
+      "kicker": "Setelah kelas selesai",
+      "img": "report.jpg",
+      "sub": "Lalu Anda menerima laporan: pelajaran, hukum tajwid, dan PR."
+    },
+    {
+      "kind": "card",
+      "kicker": "Halaman keluarga Anda",
+      "img": "dashboard.jpg",
+      "sub": "Setiap laporan tersimpan di halaman keluarga Anda."
+    },
+    {
+      "kind": "headline",
+      "kicker": "Adil untuk keluarga",
+      "h1": "Bayar hanya untuk kelas yang <em>berlangsung</em>",
+      "chips": [
+        "Guru tidak hadir? Tidak ditagih"
+      ],
+      "sub": "Anda hanya membayar kelas yang berlangsung. Guru tidak hadir? Tidak ditagih."
+    },
+    {
+      "kind": "end",
+      "h1": "Lihat sendiri, <em>gratis</em>",
+      "sub": "Pesan kelas uji coba gratis di nurulhudaacademy.org",
+      "say": "Pesan kelas uji coba gratis di Nurul Huda Academy titik org."
+    }
+  ]
+}
