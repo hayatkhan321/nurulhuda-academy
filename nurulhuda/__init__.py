@@ -5,6 +5,11 @@ from config import Config
 
 db = SQLAlchemy()
 
+# The project's spare Vercel address. Page views there are sent to the main site so Google sees one address.
+SPARE_HOSTS = {"nurulhuda-academy-1pw6.vercel.app"}
+# Never redirect these: scheduled jobs and webhooks may still call the vercel.app address.
+NO_REDIRECT_PREFIXES = ("/cron", "/whatsapp", "/api")
+
 
 def create_app(config_class=Config):
     app = Flask(__name__)
@@ -21,6 +26,20 @@ def create_app(config_class=Config):
 
     from nurulhuda import i18n
     i18n.init_app(app)
+
+    @app.before_request
+    def _spare_host_to_main_site():
+        from flask import redirect, request
+        host = (request.host or "").split(":")[0].lower()
+        if host not in SPARE_HOSTS or request.method not in ("GET", "HEAD"):
+            return None
+        if request.path.startswith(NO_REDIRECT_PREFIXES):
+            return None
+        base = (app.config.get("SITE_URL") or "").rstrip("/")
+        if not base or host in base:
+            return None
+        target = base + request.full_path if request.query_string else base + request.path
+        return redirect(target, code=308)
 
     app.register_blueprint(site_bp)
     app.register_blueprint(portal_bp)
