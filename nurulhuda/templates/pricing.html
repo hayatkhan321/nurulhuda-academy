@@ -56,14 +56,17 @@
 </div></section>
 
 <section class="section"><div class="wrap">
+  {% set on = P.methods_on()|map(attribute='key')|list %}
+  {% if on %}
   <div class="section-head"><h2>How to pay</h2><p>After your free trial class, you choose a plan from your family page and get an invoice with its own reference number. Pay it any of these ways:</p></div>
   <div class="discounts">
-    {% set on = P.methods_on()|map(attribute='key')|list %}
-    <div><b>Bank transfer</b><span>{% if 'bank' in on %}To our business bank account{% else %}Coming soon{% endif %}</span></div>
-    <div><b>Wise</b><span>{% if 'wise' in on %}Low-fee transfers in USD, GBP, EUR or CAD{% else %}Coming soon{% endif %}</span></div>
-    <div><b>PayPal</b><span>{% if 'paypal' in on %}With a PayPal account or a card{% else %}Coming soon{% endif %}</span></div>
-    <div><b>Card</b><span>Coming soon</span></div>
+    {% if 'bank' in on %}<div><b>Bank transfer</b><span>To our business bank account</span></div>{% endif %}
+    {% if 'wise' in on %}<div><b>Wise</b><span>Low-fee transfers in USD, GBP, EUR or CAD</span></div>{% endif %}
+    {% if 'paypal' in on %}<div><b>PayPal</b><span>With a PayPal account or a card</span></div>{% endif %}
   </div>
+  {% else %}
+  <div class="section-head"><h2>How to pay</h2><p>Your first class is free and you pay nothing to book it. After the trial, you choose a plan from your family page, and we send you an invoice with its own reference number and the payment details.</p></div>
+  {% endif %}
   <ul class="small" style="margin-top:20px">
     <li>Your classes are added as soon as we see your payment, usually the same day.</li>
     <li>Classes the teacher misses, or that are cancelled with 12 hours' notice, are credited back.</li>
