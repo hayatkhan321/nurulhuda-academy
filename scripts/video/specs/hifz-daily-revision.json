@@ -1,0 +1,58 @@
+{
+  "slug": "hifz-daily-revision",
+  "greeting": true,
+  "voice": null,
+  "tts": {
+    "lang": "en-GB",
+    "voice": "en-GB-Chirp3-HD-Aoede",
+    "rate": 0.95
+  },
+  "scenes": [
+    {
+      "kind": "opener",
+      "h1": "Memorising the Quran? <em>Revise</em> every day",
+      "sub": "Assalamu alaikum. Is your child memorising the Quran?"
+    },
+    {
+      "kind": "headline",
+      "kicker": "Every day",
+      "h1": "A new lesson: <em>sabaq</em>",
+      "chips": [
+        "New verses each day"
+      ],
+      "sub": "Each day, your child learns a new lesson, called sabaq."
+    },
+    {
+      "kind": "headline",
+      "kicker": "Every day too",
+      "h1": "Revision: <em>muraja'ah</em>",
+      "chips": [
+        "So nothing is forgotten"
+      ],
+      "sub": "And each day they revise what they learned before, called muraja'ah.",
+      "say": "And each day they revise what they learned before, called mura-ja-ah."
+    },
+    {
+      "kind": "card",
+      "kicker": "After every class",
+      "img": "report.jpg",
+      "sub": "The report shows the verse reached and what to practise before the next class."
+    },
+    {
+      "kind": "headline",
+      "kicker": "With a tested teacher",
+      "h1": "Approved by a <em>Hafiza</em>",
+      "chips": [
+        "One to one",
+        "Female teachers on request"
+      ],
+      "sub": "Every teacher is approved by our Head of Academics, a Hafiza of the Quran."
+    },
+    {
+      "kind": "end",
+      "h1": "Start hifz with a free <em>trial class</em>",
+      "sub": "Book a free trial class at nurulhudaacademy.org",
+      "ur": "پہلی کلاس مفت ہے"
+    }
+  ]
+}

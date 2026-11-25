@@ -29,6 +29,27 @@ python3 reel.py specs/my-video.json               # builds out/<slug>.mp4, out/<
    "ghun-nah" with the doubled n, never "guna": write the narration with a `say` line spelled for the voice
    (English "ghun-nah", Spanish "gún-na", French "gounna") and keep the caption "ghunnah".
 
+## Quran facts videos (counts and themes)
+
+Word and root counts come only from `qcount.py`, never from memory or the internet:
+
+```
+python3 qcount.py رحم                 # every word on the root ر ح م: total, verses, surahs, each word form
+python3 qcount.py رحم --lemma رَحْمَة   # one word of that root
+python3 qcount.py رحم --json mercy.json
+```
+
+It uses the Quranic Arabic Corpus morphology (downloaded to `data/` on first use, not committed) and checks every
+counted word against the verified King Fahd text. Rules for these videos:
+
+1. Put the method on screen (a "How we counted" scene), e.g. "Each word from the root, once · Quranic Arabic Corpus ·
+   Checked against the King Fahd text". Say "words from the root of mercy", not "the word mercy", when counting a root.
+2. Never repeat a viral number (e.g. "love and hate appear the same number of times") unless `qcount.py` gives it.
+3. The Head of Academics approves every count before a video is posted; write the full qcount output in the captions Doc.
+4. Quranic Arabic still only through a verse scene; the narrator explains, never recites.
+5. No hadith until Dr Hayat lifts rule 3 (then: Bukhari or Muslim only, reference on screen, checked by the Head of
+   Academics).
+
 ## Voice
 
 **Google voices (preferred, paid from the academy's Google Cloud credits).** Add to the spec:

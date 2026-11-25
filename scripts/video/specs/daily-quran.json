@@ -1,0 +1,53 @@
+{
+  "slug": "daily-quran",
+  "greeting": true,
+  "voice": null,
+  "tts": {
+    "lang": "en-GB",
+    "voice": "en-GB-Chirp3-HD-Aoede",
+    "rate": 0.95
+  },
+  "scenes": [
+    {
+      "kind": "opener",
+      "h1": "Do you read the Quran <em>every day</em>?",
+      "sub": "Assalamu alaikum. Do you read the Quran every day?"
+    },
+    {
+      "kind": "verse",
+      "kicker": "Surah Fatir",
+      "ref": [
+        35,
+        29
+      ],
+      "sub": "Allah praises those who recite His Book and pray: they hope for a trade that will never fail.",
+      "seconds": 10
+    },
+    {
+      "kind": "headline",
+      "kicker": "Little and often",
+      "h1": "A few verses, <em>every day</em>",
+      "chips": [
+        "Even five minutes",
+        "At the same time each day"
+      ],
+      "sub": "A few verses every day, even five minutes, keeps you close to the Quran."
+    },
+    {
+      "kind": "headline",
+      "kicker": "For your children too",
+      "h1": "Small steps, <em>every class</em>",
+      "chips": [
+        "One to one",
+        "Report after every class"
+      ],
+      "sub": "Our teachers help children take small steps, with a report after every class."
+    },
+    {
+      "kind": "end",
+      "h1": "Start with a free <em>trial class</em>",
+      "sub": "Book a free trial class at nurulhudaacademy.org",
+      "ur": "پہلی کلاس مفت ہے"
+    }
+  ]
+}

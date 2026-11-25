@@ -1,0 +1,64 @@
+{
+  "slug": "mercy-counted",
+  "greeting": true,
+  "voice": null,
+  "tts": {
+    "lang": "en-GB",
+    "voice": "en-GB-Chirp3-HD-Aoede",
+    "rate": 1.05
+  },
+  "scenes": [
+    {
+      "kind": "opener",
+      "h1": "How often is <em>mercy</em> in the Quran?",
+      "sub": "Assalamu alaikum. How often does the Quran speak of mercy?"
+    },
+    {
+      "kind": "number",
+      "kicker": "Words from the root of mercy",
+      "big": "339",
+      "h1": "times in the <em>Quran</em>",
+      "sub": "Words from the root of mercy appear 339 times.",
+      "say": "Words from the root of mercy appear 339 times."
+    },
+    {
+      "kind": "headline",
+      "kicker": "Some of these words",
+      "h1": "The words for <em>mercy</em>",
+      "chips": [
+        "Rahim (Merciful): 116",
+        "Rahmah (mercy): 114",
+        "Ar-Rahman: 57"
+      ],
+      "sub": "Rahim, Merciful: 116. Rahmah, mercy: 114. Ar-Rahman: 57.",
+      "say": "Raheem: one sixteen. Rahmah: one fourteen. Ar-Rahmaan: fifty-seven."
+    },
+    {
+      "kind": "verse",
+      "kicker": "Surah Al-Anbiya",
+      "ref": [
+        21,
+        107
+      ],
+      "sub": "Allah sent the Prophet, peace be upon him, as a mercy to the worlds.",
+      "seconds": 8
+    },
+    {
+      "kind": "headline",
+      "kicker": "How we counted",
+      "h1": "Counted, <em>not copied</em>",
+      "chips": [
+        "Each word from the root, once",
+        "Quranic Arabic Corpus",
+        "Checked against the King Fahd text"
+      ],
+      "sub": "Each word from this root counted once, checked against the King Fahd text."
+    },
+    {
+      "kind": "end",
+      "h1": "Your child's first class is <em>free</em>",
+      "sub": "Book a free trial class at nurulhudaacademy.org",
+      "ur": "پہلی کلاس مفت ہے"
+    }
+  ]
+}
