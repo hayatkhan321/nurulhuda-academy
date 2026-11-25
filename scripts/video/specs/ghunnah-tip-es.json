@@ -19,17 +19,18 @@
       "kicker": "Regla de tajwid",
       "h1": "<em>Ghunna</em>: un sonido nasal",
       "chips": [
-        "Nun con shadda",
-        "Mim con shadda"
+        "Nun con tashdid",
+        "Mim con tashdid"
       ],
-      "sub": "Cuando la nun o la mim llevan shadda, el sonido se mantiene en la nariz."
+      "sub": "Cuando la nun o la mim llevan tashdid, el sonido se mantiene en la nariz."
     },
     {
       "kind": "number",
       "kicker": "Mantenlo unos",
       "big": "2",
       "h1": "tiempos",
-      "sub": "Mantenlo unos dos tiempos. Esto se llama ghunna."
+      "sub": "Mantenlo unos dos tiempos. Esto se llama ghunna.",
+      "say": "Mantenlo unos dos tiempos. Esto se llama gún-na."
     },
     {
       "kind": "headline",

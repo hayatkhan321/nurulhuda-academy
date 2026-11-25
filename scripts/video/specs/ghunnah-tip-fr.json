@@ -19,17 +19,18 @@
       "kicker": "Règle de tajwid",
       "h1": "<em>Ghunna</em> : un son nasal",
       "chips": [
-        "Noun avec chadda",
-        "Mim avec chadda"
+        "Noun avec tashdid",
+        "Mim avec tashdid"
       ],
-      "sub": "Quand le noun ou le mim porte une chadda, le son est tenu dans le nez."
+      "sub": "Quand le noun ou le mim porte un tashdid, le son est tenu dans le nez."
     },
     {
       "kind": "number",
       "kicker": "Tenez-le environ",
       "big": "2",
       "h1": "temps",
-      "sub": "Tenez-le environ deux temps. C'est ce qu'on appelle la ghunna."
+      "sub": "Tenez-le environ deux temps. C'est ce qu'on appelle la ghunna.",
+      "say": "Tenez-le environ deux temps. C'est ce qu'on appelle la gounna."
     },
     {
       "kind": "headline",

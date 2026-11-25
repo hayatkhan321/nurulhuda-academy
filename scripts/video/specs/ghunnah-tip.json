@@ -18,17 +18,19 @@
       "kicker": "Tajweed rule",
       "h1": "<em>Ghunnah</em>: a sound in the nose",
       "chips": [
-        "Noon with shaddah",
-        "Meem with shaddah"
+        "Noon with tashdeed",
+        "Meem with tashdeed"
       ],
-      "sub": "When noon or meem has a shaddah, the sound is held in the nose."
+      "sub": "When noon or meem has a tashdeed, the sound is held in the nose.",
+      "say": "When noon or meem has a tash-deed, the sound is held in the nose."
     },
     {
       "kind": "number",
       "kicker": "Hold it for about",
       "big": "2",
       "h1": "counts",
-      "sub": "Hold it for about two counts. This is called ghunnah."
+      "sub": "Hold it for about two counts. This is called ghunnah.",
+      "say": "Hold it for about two counts. This is called ghun-nah."
     },
     {
       "kind": "headline",
