@@ -24,6 +24,10 @@ python3 reel.py specs/my-video.json               # builds out/<slug>.mp4, out/<
    live, 30 minutes, tested teachers, female teachers on request, Head of Academics is a Hafiza, a report after
    every class, pay only for classes that take place. No invented numbers, reviews, testimonials or rankings.
 8. No donations, no fatwas, no politics. Prices only as "see our Prices page".
+9. **Tajweed words (Dr Hayat, 25 Nov 2026):** call the doubling mark **tashdeed** (Urdu تشدید, Hindi तशदीद, Spanish and French
+   "tashdid"), not "shaddah", in every language except Arabic (Arabic keeps مشدّدة / الشدّة). Ghunnah is said
+   "ghun-nah" with the doubled n, never "guna": write the narration with a `say` line spelled for the voice
+   (English "ghun-nah", Spanish "gún-na", French "gounna") and keep the caption "ghunnah".
 
 ## Voice
 
