@@ -1,0 +1,62 @@
+{
+  "slug": "parents-can-watch",
+  "greeting": true,
+  "voice": null,
+  "tts": {
+    "lang": "en-GB",
+    "voice": "en-GB-Chirp3-HD-Aoede",
+    "rate": 0.95
+  },
+  "scenes": [
+    {
+      "kind": "opener",
+      "h1": "Can you <em>watch</em> the class?",
+      "sub": "Assalamu alaikum. Can you watch your child's Quran class?"
+    },
+    {
+      "kind": "headline",
+      "kicker": "Yes, any time",
+      "h1": "Parents can <em>always watch</em>",
+      "chips": [
+        "Join any lesson"
+      ],
+      "sub": "Yes. Parents can join any lesson, whenever they like."
+    },
+    {
+      "kind": "board",
+      "kicker": "Our own video room",
+      "tags": [
+        [
+          "1",
+          "One to one"
+        ],
+        [
+          "30",
+          "minutes"
+        ]
+      ],
+      "sub": "Classes run in our own video room, never on a personal account."
+    },
+    {
+      "kind": "card",
+      "kicker": "After every lesson",
+      "img": "report.jpg",
+      "sub": "And after each lesson, you see a short progress note."
+    },
+    {
+      "kind": "headline",
+      "kicker": "Your choice",
+      "h1": "A male or <em>female</em> teacher",
+      "chips": [
+        "Female teacher only, if you wish"
+      ],
+      "sub": "Choose a male or female teacher; girls and mothers can learn with a female teacher only."
+    },
+    {
+      "kind": "end",
+      "h1": "Watch the first class, <em>free</em>",
+      "ur": "پہلی کلاس مفت ہے",
+      "sub": "Book a free trial class at nurulhudaacademy.org"
+    }
+  ]
+}

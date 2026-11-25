@@ -1,0 +1,59 @@
+{
+  "slug": "uk-canada-evenings-ms",
+  "greeting": true,
+  "voice": null,
+  "lang": "ms-MY",
+  "tts": {
+    "lang": "ms-MY",
+    "voice": "ms-MY-Wavenet-A",
+    "rate": 1.0
+  },
+  "scenes": [
+    {
+      "kind": "opener",
+      "h1": "Di UK atau <em>Kanada</em>?",
+      "sub": "Assalamu alaikum. Adakah keluarga anda tinggal di UK atau Kanada?"
+    },
+    {
+      "kind": "headline",
+      "kicker": "Waktu yang sesuai dengan zon waktu anda",
+      "h1": "Kelas pada <em>petang dan hujung minggu</em>",
+      "chips": [
+        "UK",
+        "Kanada",
+        "AS",
+        "Negara Teluk"
+      ],
+      "sub": "Kami padankan anda dengan guru yang waktunya sesuai dengan petang dan hujung minggu anda."
+    },
+    {
+      "kind": "number",
+      "kicker": "Setiap kelas",
+      "big": "30",
+      "h1": "minit, langsung dan <em>individu</em>",
+      "sub": "Setiap kelas berlangsung secara langsung, individu, selama tiga puluh minit."
+    },
+    {
+      "kind": "headline",
+      "kicker": "Rentak anda",
+      "h1": "2, 3 atau <em>5 hari</em> seminggu",
+      "chips": [
+        "Selang sehari",
+        "Jadual anda sendiri"
+      ],
+      "sub": "Pilih dua, tiga atau lima hari seminggu, selang sehari, atau jadual anda sendiri."
+    },
+    {
+      "kind": "card",
+      "kicker": "Di mana pun anda berada",
+      "img": "report.jpg",
+      "sub": "Selepas setiap kelas, anda menerima laporan ringkas tentang apa yang dipelajari anak anda."
+    },
+    {
+      "kind": "end",
+      "h1": "Cuba kelas petang, <em>percuma</em>",
+      "sub": "Tempah kelas percubaan percuma di nurulhudaacademy.org",
+      "say": "Tempah kelas percubaan percuma di Nurul Huda Academy titik org."
+    }
+  ]
+}

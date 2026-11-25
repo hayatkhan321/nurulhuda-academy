@@ -1,0 +1,63 @@
+{
+  "slug": "parents-can-watch-ms",
+  "greeting": true,
+  "voice": null,
+  "lang": "ms-MY",
+  "tts": {
+    "lang": "ms-MY",
+    "voice": "ms-MY-Wavenet-A",
+    "rate": 1.0
+  },
+  "scenes": [
+    {
+      "kind": "opener",
+      "h1": "Bolehkah anda <em>memantau</em> kelas?",
+      "sub": "Assalamu alaikum. Bolehkah anda memantau kelas al-Quran anak anda?"
+    },
+    {
+      "kind": "headline",
+      "kicker": "Ya, bila-bila masa",
+      "h1": "Ibu bapa sentiasa <em>boleh memantau</em>",
+      "chips": [
+        "Sertai mana-mana kelas"
+      ],
+      "sub": "Ya, ibu bapa boleh menyertai mana-mana kelas, bila-bila masa."
+    },
+    {
+      "kind": "board",
+      "kicker": "Bilik video kami sendiri",
+      "tags": [
+        [
+          "1",
+          "Secara individu"
+        ],
+        [
+          "30",
+          "minit"
+        ]
+      ],
+      "sub": "Kelas diadakan dalam bilik video kami sendiri, bukan akaun peribadi."
+    },
+    {
+      "kind": "card",
+      "kicker": "Selepas setiap kelas",
+      "img": "report.jpg",
+      "sub": "Dan selepas setiap kelas, anda melihat nota kemajuan ringkas."
+    },
+    {
+      "kind": "headline",
+      "kicker": "Pilihan anda",
+      "h1": "Guru lelaki atau <em>perempuan</em>",
+      "chips": [
+        "Guru perempuan sahaja, jika mahu"
+      ],
+      "sub": "Pilih guru lelaki atau perempuan; anak perempuan dan ibu boleh belajar dengan guru perempuan sahaja."
+    },
+    {
+      "kind": "end",
+      "h1": "Pantau kelas pertama, <em>percuma</em>",
+      "sub": "Tempah kelas percubaan percuma di nurulhudaacademy.org",
+      "say": "Tempah kelas percubaan percuma di Nurul Huda Academy titik org."
+    }
+  ]
+}

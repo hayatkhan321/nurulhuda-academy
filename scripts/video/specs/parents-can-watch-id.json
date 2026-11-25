@@ -1,0 +1,63 @@
+{
+  "slug": "parents-can-watch-id",
+  "greeting": true,
+  "voice": null,
+  "lang": "id-ID",
+  "tts": {
+    "lang": "id-ID",
+    "voice": "id-ID-Chirp3-HD-Aoede",
+    "rate": 1.0
+  },
+  "scenes": [
+    {
+      "kind": "opener",
+      "h1": "Bisakah Anda <em>memantau</em> kelas?",
+      "sub": "Assalamu alaikum. Bisakah Anda memantau kelas Al-Qur'an anak Anda?"
+    },
+    {
+      "kind": "headline",
+      "kicker": "Ya, kapan saja",
+      "h1": "Orang tua selalu <em>dapat memantau</em>",
+      "chips": [
+        "Ikuti pelajaran kapan saja"
+      ],
+      "sub": "Ya, orang tua dapat mengikuti pelajaran mana pun, kapan saja."
+    },
+    {
+      "kind": "board",
+      "kicker": "Ruang video kami sendiri",
+      "tags": [
+        [
+          "1",
+          "Privat"
+        ],
+        [
+          "30",
+          "menit"
+        ]
+      ],
+      "sub": "Kelas berlangsung di ruang video kami sendiri, bukan akun pribadi."
+    },
+    {
+      "kind": "card",
+      "kicker": "Setelah setiap kelas",
+      "img": "report.jpg",
+      "sub": "Dan setelah setiap kelas, Anda melihat catatan kemajuan singkat."
+    },
+    {
+      "kind": "headline",
+      "kicker": "Pilihan Anda",
+      "h1": "Guru laki-laki atau <em>perempuan</em>",
+      "chips": [
+        "Hanya guru perempuan, jika ingin"
+      ],
+      "sub": "Pilih guru laki-laki atau perempuan; anak perempuan dan ibu bisa belajar dengan guru perempuan saja."
+    },
+    {
+      "kind": "end",
+      "h1": "Pantau kelas pertama, <em>gratis</em>",
+      "sub": "Pesan kelas uji coba gratis di nurulhudaacademy.org",
+      "say": "Pesan kelas uji coba gratis di Nurul Huda Academy titik org."
+    }
+  ]
+}

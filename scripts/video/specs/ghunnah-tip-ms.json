@@ -1,0 +1,57 @@
+{
+  "slug": "ghunnah-tip-ms",
+  "greeting": true,
+  "voice": null,
+  "lang": "ms-MY",
+  "tts": {
+    "lang": "ms-MY",
+    "voice": "ms-MY-Wavenet-A",
+    "rate": 1.0
+  },
+  "scenes": [
+    {
+      "kind": "opener",
+      "h1": "Tip <em>tajwid</em> ringkas",
+      "sub": "Assalamu alaikum. Ini tip tajwid ringkas untuk ibu bapa."
+    },
+    {
+      "kind": "headline",
+      "kicker": "Hukum tajwid",
+      "h1": "<em>Dengung</em>: bunyi di hidung",
+      "chips": [
+        "Nun bersabdu",
+        "Mim bersabdu"
+      ],
+      "sub": "Apabila nun atau mim bersabdu, bunyinya ditahan di hidung."
+    },
+    {
+      "kind": "number",
+      "kicker": "Tahan kira-kira",
+      "big": "2",
+      "h1": "harakat",
+      "sub": "Tahan kira-kira dua harakat. Inilah yang dipanggil dengung."
+    },
+    {
+      "kind": "headline",
+      "kicker": "Cara kami mengajar",
+      "h1": "Satu hukum <em>pada satu masa</em>",
+      "chips": [
+        "Dilatih secara lisan",
+        "Secara individu"
+      ],
+      "sub": "Anak anda melatih satu hukum pada satu masa, secara lisan bersama guru."
+    },
+    {
+      "kind": "card",
+      "kicker": "Selepas setiap kelas",
+      "img": "report.jpg",
+      "sub": "Kemudian laporan menunjukkan hukum tajwid yang dilatih."
+    },
+    {
+      "kind": "end",
+      "h1": "Mulakan dengan <em>kelas percubaan</em> percuma",
+      "sub": "Tempah kelas percubaan percuma di nurulhudaacademy.org",
+      "say": "Tempah kelas percubaan percuma di Nurul Huda Academy titik org."
+    }
+  ]
+}

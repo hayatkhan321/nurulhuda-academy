@@ -1,0 +1,59 @@
+{
+  "slug": "uk-canada-evenings-id",
+  "greeting": true,
+  "voice": null,
+  "lang": "id-ID",
+  "tts": {
+    "lang": "id-ID",
+    "voice": "id-ID-Chirp3-HD-Aoede",
+    "rate": 1.0
+  },
+  "scenes": [
+    {
+      "kind": "opener",
+      "h1": "Di Inggris atau <em>Kanada</em>?",
+      "sub": "Assalamu alaikum. Apakah keluarga Anda tinggal di Inggris atau Kanada?"
+    },
+    {
+      "kind": "headline",
+      "kicker": "Waktu yang sesuai dengan zona waktu Anda",
+      "h1": "Kelas di <em>sore hari dan akhir pekan</em>",
+      "chips": [
+        "Inggris",
+        "Kanada",
+        "AS",
+        "Negara Teluk"
+      ],
+      "sub": "Kami pasangkan Anda dengan guru yang jam mengajarnya cocok dengan sore hari dan akhir pekan Anda."
+    },
+    {
+      "kind": "number",
+      "kicker": "Setiap kelas",
+      "big": "30",
+      "h1": "menit, langsung dan <em>privat</em>",
+      "sub": "Setiap kelas berlangsung langsung, privat, selama tiga puluh menit."
+    },
+    {
+      "kind": "headline",
+      "kicker": "Ritme Anda",
+      "h1": "2, 3, atau <em>5 hari</em> seminggu",
+      "chips": [
+        "Selang sehari",
+        "Jadwal Anda sendiri"
+      ],
+      "sub": "Pilih dua, tiga, atau lima hari seminggu, selang sehari, atau jadwal Anda sendiri."
+    },
+    {
+      "kind": "card",
+      "kicker": "Di mana pun Anda tinggal",
+      "img": "report.jpg",
+      "sub": "Setelah setiap kelas, Anda menerima laporan singkat tentang apa yang dipelajari anak Anda."
+    },
+    {
+      "kind": "end",
+      "h1": "Coba kelas sore, <em>gratis</em>",
+      "sub": "Pesan kelas uji coba gratis di nurulhudaacademy.org",
+      "say": "Pesan kelas uji coba gratis di Nurul Huda Academy titik org."
+    }
+  ]
+}

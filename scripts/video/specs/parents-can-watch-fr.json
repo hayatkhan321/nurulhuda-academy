@@ -1,0 +1,63 @@
+{
+  "slug": "parents-can-watch-fr",
+  "greeting": true,
+  "voice": null,
+  "lang": "fr-FR",
+  "tts": {
+    "lang": "fr-FR",
+    "voice": "fr-FR-Chirp3-HD-Aoede",
+    "rate": 1.0
+  },
+  "scenes": [
+    {
+      "kind": "opener",
+      "h1": "Pouvez-vous <em>regarder</em> le cours ?",
+      "sub": "Assalamu alaikum. Pouvez-vous regarder le cours de Coran de votre enfant ?"
+    },
+    {
+      "kind": "headline",
+      "kicker": "Oui, à tout moment",
+      "h1": "Les parents peuvent <em>toujours regarder</em>",
+      "chips": [
+        "Assistez à n'importe quelle leçon"
+      ],
+      "sub": "Oui. Les parents peuvent assister à n'importe quelle leçon, quand ils le souhaitent."
+    },
+    {
+      "kind": "board",
+      "kicker": "Notre propre salle vidéo",
+      "tags": [
+        [
+          "1",
+          "En individuel"
+        ],
+        [
+          "30",
+          "minutes"
+        ]
+      ],
+      "sub": "Les cours ont lieu dans notre propre salle vidéo, jamais sur un compte personnel."
+    },
+    {
+      "kind": "card",
+      "kicker": "Après chaque leçon",
+      "img": "report.jpg",
+      "sub": "Et après chaque leçon, vous recevez une courte note de progression."
+    },
+    {
+      "kind": "headline",
+      "kicker": "Votre choix",
+      "h1": "Un enseignant ou une <em>enseignante</em>",
+      "chips": [
+        "Enseignante uniquement, si vous le souhaitez"
+      ],
+      "sub": "Choisissez un enseignant ou une enseignante ; filles et mamans peuvent apprendre avec une enseignante uniquement."
+    },
+    {
+      "kind": "end",
+      "h1": "Regardez le premier cours, <em>gratuitement</em>",
+      "sub": "Réservez un cours d'essai gratuit sur nurulhudaacademy.org",
+      "say": "Réservez un cours d'essai gratuit sur Nurul Huda Academy point org."
+    }
+  ]
+}

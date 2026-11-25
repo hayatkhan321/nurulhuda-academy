@@ -1,0 +1,59 @@
+{
+  "slug": "uk-canada-evenings-es",
+  "greeting": true,
+  "voice": null,
+  "lang": "es-ES",
+  "tts": {
+    "lang": "es-ES",
+    "voice": "es-ES-Chirp3-HD-Aoede",
+    "rate": 1.0
+  },
+  "scenes": [
+    {
+      "kind": "opener",
+      "h1": "¿En Reino Unido o <em>Canadá</em>?",
+      "sub": "Assalamu alaikum. ¿Tu familia vive en Reino Unido o en Canadá?"
+    },
+    {
+      "kind": "headline",
+      "kicker": "Horarios adaptados a tu zona horaria",
+      "h1": "Clases en tus <em>tardes y fines de semana</em>",
+      "chips": [
+        "Reino Unido",
+        "Canadá",
+        "EE. UU.",
+        "El Golfo"
+      ],
+      "sub": "Te asignamos un profesor cuyo horario encaja con tus tardes y fines de semana."
+    },
+    {
+      "kind": "number",
+      "kicker": "Cada clase",
+      "big": "30",
+      "h1": "minutos, en directo e <em>individual</em>",
+      "sub": "Cada clase es en directo, individual y dura treinta minutos."
+    },
+    {
+      "kind": "headline",
+      "kicker": "Tu ritmo",
+      "h1": "2, 3 o <em>5 días</em> a la semana",
+      "chips": [
+        "Días alternos",
+        "Tu propio horario"
+      ],
+      "sub": "Elige dos, tres o cinco días a la semana, días alternos o tu propio horario."
+    },
+    {
+      "kind": "card",
+      "kicker": "Vivas donde vivas",
+      "img": "report.jpg",
+      "sub": "Después de cada clase, recibes un breve informe de lo que aprendió tu hijo."
+    },
+    {
+      "kind": "end",
+      "h1": "Prueba una clase de tarde, <em>gratis</em>",
+      "sub": "Reserva una clase de prueba gratis en nurulhudaacademy.org",
+      "say": "Reserva una clase de prueba gratis en Nurul Huda Academy punto org."
+    }
+  ]
+}

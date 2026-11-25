@@ -1,0 +1,58 @@
+{
+  "slug": "uk-canada-evenings",
+  "greeting": true,
+  "voice": null,
+  "tts": {
+    "lang": "en-GB",
+    "voice": "en-GB-Chirp3-HD-Aoede",
+    "rate": 0.95
+  },
+  "scenes": [
+    {
+      "kind": "opener",
+      "h1": "In the UK or <em>Canada</em>?",
+      "sub": "Assalamu alaikum. Does your family live in the UK or Canada?"
+    },
+    {
+      "kind": "headline",
+      "kicker": "Times that suit your time zone",
+      "h1": "Classes in your <em>evenings and weekends</em>",
+      "chips": [
+        "UK",
+        "Canada",
+        "US",
+        "The Gulf"
+      ],
+      "sub": "We match you with a teacher whose hours fit your evenings and weekends."
+    },
+    {
+      "kind": "number",
+      "kicker": "Each class",
+      "big": "30",
+      "h1": "minutes, live and <em>one to one</em>",
+      "sub": "Each class is live, one to one, and thirty minutes long."
+    },
+    {
+      "kind": "headline",
+      "kicker": "Your rhythm",
+      "h1": "2, 3 or <em>5 days</em> a week",
+      "chips": [
+        "Alternate days",
+        "Your own schedule"
+      ],
+      "sub": "Choose two, three or five days a week, alternate days, or your own schedule."
+    },
+    {
+      "kind": "card",
+      "kicker": "Wherever you live",
+      "img": "report.jpg",
+      "sub": "After every class, you get a short report of what your child learned."
+    },
+    {
+      "kind": "end",
+      "h1": "Try an evening class, <em>free</em>",
+      "ur": "پہلی کلاس مفت ہے",
+      "sub": "Book a free trial class at nurulhudaacademy.org"
+    }
+  ]
+}

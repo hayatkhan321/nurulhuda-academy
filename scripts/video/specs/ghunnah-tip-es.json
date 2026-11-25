@@ -1,0 +1,57 @@
+{
+  "slug": "ghunnah-tip-es",
+  "greeting": true,
+  "voice": null,
+  "lang": "es-ES",
+  "tts": {
+    "lang": "es-ES",
+    "voice": "es-ES-Chirp3-HD-Aoede",
+    "rate": 1.0
+  },
+  "scenes": [
+    {
+      "kind": "opener",
+      "h1": "Un consejo rápido de <em>tajwid</em>",
+      "sub": "Assalamu alaikum. Aquí tienes un consejo rápido de tajwid para padres."
+    },
+    {
+      "kind": "headline",
+      "kicker": "Regla de tajwid",
+      "h1": "<em>Ghunna</em>: un sonido nasal",
+      "chips": [
+        "Nun con shadda",
+        "Mim con shadda"
+      ],
+      "sub": "Cuando la nun o la mim llevan shadda, el sonido se mantiene en la nariz."
+    },
+    {
+      "kind": "number",
+      "kicker": "Mantenlo unos",
+      "big": "2",
+      "h1": "tiempos",
+      "sub": "Mantenlo unos dos tiempos. Esto se llama ghunna."
+    },
+    {
+      "kind": "headline",
+      "kicker": "Cómo lo enseñamos",
+      "h1": "Una regla <em>cada vez</em>",
+      "chips": [
+        "En voz alta",
+        "Individual"
+      ],
+      "sub": "Tu hijo practica una regla cada vez, en voz alta, a solas con el profesor."
+    },
+    {
+      "kind": "card",
+      "kicker": "Después de cada clase",
+      "img": "report.jpg",
+      "sub": "Luego el informe te muestra qué regla de tajwid se practicó."
+    },
+    {
+      "kind": "end",
+      "h1": "Empieza con una <em>clase de prueba</em> gratis",
+      "sub": "Reserva una clase de prueba gratis en nurulhudaacademy.org",
+      "say": "Reserva una clase de prueba gratis en Nurul Huda Academy punto org."
+    }
+  ]
+}

@@ -1,0 +1,59 @@
+{
+  "slug": "uk-canada-evenings-fr",
+  "greeting": true,
+  "voice": null,
+  "lang": "fr-FR",
+  "tts": {
+    "lang": "fr-FR",
+    "voice": "fr-FR-Chirp3-HD-Aoede",
+    "rate": 1.0
+  },
+  "scenes": [
+    {
+      "kind": "opener",
+      "h1": "Au Royaume-Uni ou au <em>Canada</em> ?",
+      "sub": "Assalamu alaikum. Votre famille vit-elle au Royaume-Uni ou au Canada ?"
+    },
+    {
+      "kind": "headline",
+      "kicker": "Des horaires adaptés à votre fuseau",
+      "h1": "Des cours en <em>soirée et le week-end</em>",
+      "chips": [
+        "Royaume-Uni",
+        "Canada",
+        "États-Unis",
+        "Le Golfe"
+      ],
+      "sub": "Nous vous associons à un enseignant dont les horaires correspondent à vos soirées et week-ends."
+    },
+    {
+      "kind": "number",
+      "kicker": "Chaque cours",
+      "big": "30",
+      "h1": "minutes, en direct et <em>en individuel</em>",
+      "sub": "Chaque cours est en direct, en individuel, et dure trente minutes."
+    },
+    {
+      "kind": "headline",
+      "kicker": "Votre rythme",
+      "h1": "2, 3 ou <em>5 jours</em> par semaine",
+      "chips": [
+        "Un jour sur deux",
+        "Votre propre emploi du temps"
+      ],
+      "sub": "Choisissez deux, trois ou cinq jours par semaine, un jour sur deux, ou votre propre emploi du temps."
+    },
+    {
+      "kind": "card",
+      "kicker": "Où que vous viviez",
+      "img": "report.jpg",
+      "sub": "Après chaque cours, vous recevez un court compte rendu de ce que votre enfant a appris."
+    },
+    {
+      "kind": "end",
+      "h1": "Essayez un cours du soir, <em>gratuitement</em>",
+      "sub": "Réservez un cours d'essai gratuit sur nurulhudaacademy.org",
+      "say": "Réservez un cours d'essai gratuit sur Nurul Huda Academy point org."
+    }
+  ]
+}

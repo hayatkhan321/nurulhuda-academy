@@ -1,0 +1,63 @@
+{
+  "slug": "parents-can-watch-es",
+  "greeting": true,
+  "voice": null,
+  "lang": "es-ES",
+  "tts": {
+    "lang": "es-ES",
+    "voice": "es-ES-Chirp3-HD-Aoede",
+    "rate": 1.0
+  },
+  "scenes": [
+    {
+      "kind": "opener",
+      "h1": "¿Puedes <em>ver</em> la clase?",
+      "sub": "Assalamu alaikum. ¿Puedes ver la clase de Corán de tu hijo?"
+    },
+    {
+      "kind": "headline",
+      "kicker": "Sí, cuando quieras",
+      "h1": "Los padres siempre <em>pueden ver</em>",
+      "chips": [
+        "Únete a cualquier clase"
+      ],
+      "sub": "Sí. Los padres pueden unirse a cualquier clase, cuando quieran."
+    },
+    {
+      "kind": "board",
+      "kicker": "Nuestra propia sala de vídeo",
+      "tags": [
+        [
+          "1",
+          "Individual"
+        ],
+        [
+          "30",
+          "minutos"
+        ]
+      ],
+      "sub": "Las clases se imparten en nuestra propia sala de vídeo, nunca en una cuenta personal."
+    },
+    {
+      "kind": "card",
+      "kicker": "Después de cada clase",
+      "img": "report.jpg",
+      "sub": "Y después de cada clase, ves una breve nota de progreso."
+    },
+    {
+      "kind": "headline",
+      "kicker": "Tú eliges",
+      "h1": "Profesor o <em>profesora</em>",
+      "chips": [
+        "Solo profesora, si lo prefieres"
+      ],
+      "sub": "Elige profesor o profesora; niñas y madres pueden aprender solo con una profesora."
+    },
+    {
+      "kind": "end",
+      "h1": "Mira la primera clase, <em>gratis</em>",
+      "sub": "Reserva una clase de prueba gratis en nurulhudaacademy.org",
+      "say": "Reserva una clase de prueba gratis en Nurul Huda Academy punto org."
+    }
+  ]
+}

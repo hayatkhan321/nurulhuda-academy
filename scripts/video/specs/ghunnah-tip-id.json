@@ -1,0 +1,57 @@
+{
+  "slug": "ghunnah-tip-id",
+  "greeting": true,
+  "voice": null,
+  "lang": "id-ID",
+  "tts": {
+    "lang": "id-ID",
+    "voice": "id-ID-Chirp3-HD-Aoede",
+    "rate": 1.0
+  },
+  "scenes": [
+    {
+      "kind": "opener",
+      "h1": "Tips <em>tajwid</em> singkat",
+      "sub": "Assalamu alaikum. Ini tips tajwid singkat untuk orang tua."
+    },
+    {
+      "kind": "headline",
+      "kicker": "Hukum tajwid",
+      "h1": "<em>Ghunnah</em>: dengung di hidung",
+      "chips": [
+        "Nun bertasydid",
+        "Mim bertasydid"
+      ],
+      "sub": "Jika nun atau mim bertasydid, suaranya ditahan di hidung."
+    },
+    {
+      "kind": "number",
+      "kicker": "Tahan sekitar",
+      "big": "2",
+      "h1": "harakat",
+      "sub": "Tahan sekitar dua harakat. Inilah yang disebut ghunnah."
+    },
+    {
+      "kind": "headline",
+      "kicker": "Cara kami mengajar",
+      "h1": "Satu hukum <em>dalam satu waktu</em>",
+      "chips": [
+        "Dilatih bersuara",
+        "Privat"
+      ],
+      "sub": "Anak Anda berlatih satu hukum dalam satu waktu, bersuara bersama guru."
+    },
+    {
+      "kind": "card",
+      "kicker": "Setelah setiap kelas",
+      "img": "report.jpg",
+      "sub": "Lalu laporan menunjukkan hukum tajwid yang dilatih."
+    },
+    {
+      "kind": "end",
+      "h1": "Mulai dengan <em>kelas uji coba</em> gratis",
+      "sub": "Pesan kelas uji coba gratis di nurulhudaacademy.org",
+      "say": "Pesan kelas uji coba gratis di Nurul Huda Academy titik org."
+    }
+  ]
+}

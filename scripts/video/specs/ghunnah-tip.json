@@ -1,0 +1,56 @@
+{
+  "slug": "ghunnah-tip",
+  "greeting": true,
+  "voice": null,
+  "tts": {
+    "lang": "en-GB",
+    "voice": "en-GB-Chirp3-HD-Aoede",
+    "rate": 0.95
+  },
+  "scenes": [
+    {
+      "kind": "opener",
+      "h1": "A quick <em>tajweed</em> tip",
+      "sub": "Assalamu alaikum. Here is a quick tajweed tip for parents."
+    },
+    {
+      "kind": "headline",
+      "kicker": "Tajweed rule",
+      "h1": "<em>Ghunnah</em>: a sound in the nose",
+      "chips": [
+        "Noon with shaddah",
+        "Meem with shaddah"
+      ],
+      "sub": "When noon or meem has a shaddah, the sound is held in the nose."
+    },
+    {
+      "kind": "number",
+      "kicker": "Hold it for about",
+      "big": "2",
+      "h1": "counts",
+      "sub": "Hold it for about two counts. This is called ghunnah."
+    },
+    {
+      "kind": "headline",
+      "kicker": "How we teach it",
+      "h1": "One rule <em>at a time</em>",
+      "chips": [
+        "Practised aloud",
+        "One to one"
+      ],
+      "sub": "Your child practises one rule at a time, aloud, one to one with the teacher."
+    },
+    {
+      "kind": "card",
+      "kicker": "After every class",
+      "img": "report.jpg",
+      "sub": "Then the report shows you which tajweed rule was practised."
+    },
+    {
+      "kind": "end",
+      "h1": "Start with a free <em>trial class</em>",
+      "ur": "پہلی کلاس مفت ہے",
+      "sub": "Book a free trial class at nurulhudaacademy.org"
+    }
+  ]
+}
