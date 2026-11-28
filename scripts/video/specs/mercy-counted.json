@@ -5,11 +5,11 @@
   "tts": {
     "lang": "en-GB",
     "voice": "en-GB-Chirp3-HD-Aoede",
-    "rate": 1.05,
+    "rate": 0.9,
     "pronunciations": {
       "Raheem": "ɹʌˈhiːm",
-      "Rahmah": "ˈɹʌhmʌ",
-      "ArRahmaan": "ɑːɹ ɹʌhˈmɑːn"
+      "Rahmah": "ˈɹʌh.mʌh",
+      "ArRahmaan": "ɑːɹ ɹʌhˈhmɑːn"
     }
   },
   "scenes": [
