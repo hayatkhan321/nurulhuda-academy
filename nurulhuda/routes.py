@@ -1,4 +1,5 @@
 import hmac
+import os
 import re
 import secrets
 from datetime import datetime, timezone
@@ -17,12 +18,33 @@ PAGES = ["site.home", "site.courses", "site.families", "site.trial", "site.teach
          "site.resources", "site.why_quran", "site.pricing", "site.dashboard_demo"]
 
 
+_CSS_CACHE = {}
+
+
+def _minify_css(css):
+    """Small, safe minifier: drops comments and spare whitespace only."""
+    css = re.sub(r"/\*.*?\*/", "", css, flags=re.S)
+    css = re.sub(r"\s+", " ", css)
+    css = re.sub(r"\s*([{};,>])\s*", r"\1", css)
+    return css.replace(";}", "}").strip()
+
+
+def inline_css():
+    """The site stylesheet, minified, for a <style> tag in <head>: no render-blocking request."""
+    path = current_app.static_folder + "/site.css"
+    mtime = os.path.getmtime(path)
+    if _CSS_CACHE.get("mtime") != mtime:
+        with open(path, encoding="utf-8") as f:
+            _CSS_CACHE.update(mtime=mtime, css=_minify_css(f.read()))
+    return _CSS_CACHE["css"]
+
+
 @site_bp.app_context_processor
 def _inject():
     if "csrf" not in session:
         session["csrf"] = secrets.token_urlsafe(24)
     return {"C": C, "site_url": current_app.config["SITE_URL"].rstrip("/"), "csrf": session["csrf"],
-            "contact_email": current_app.config["CONTACT_EMAIL"], "admin_email": current_app.config["ADMIN_EMAIL"],
+            "contact_email": current_app.config["CONTACT_EMAIL"], "inline_css": inline_css, "admin_email": current_app.config["ADMIN_EMAIL"],
             **_whatsapp_links()}
 
 
@@ -553,7 +575,6 @@ def board_practice():
 @site_bp.route("/quran/<path:name>")
 def public_quran(name):
     """On Vercel, files in public/quran are served straight from the CDN; this only answers in local development."""
-    import os
     folder = os.path.join(os.path.dirname(current_app.root_path), "public", "quran")
     return send_from_directory(folder, name, max_age=86400)
 

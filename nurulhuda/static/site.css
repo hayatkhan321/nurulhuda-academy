@@ -313,11 +313,12 @@ h1 { font-size: clamp(2.5rem, 5.8vw, 4.6rem); letter-spacing: -0.035em; }
   background: radial-gradient(circle, rgba(242,169,59,.35), rgba(242,169,59,0) 65%); filter: blur(10px); }
 .calligraphy svg.arch { z-index: 1; }
 /* a single glint across the gold when the page opens */
-.calligraphy .glint { position: absolute; inset: 0; z-index: 2; pointer-events: none; mix-blend-mode: overlay;
-  background: linear-gradient(105deg, transparent 35%, rgba(255,255,255,.85) 50%, transparent 65%) no-repeat;
-  background-size: 250% 100%; background-position: 130% 0; animation: glint 2.6s ease-out .5s 1 both; }
-@keyframes glint { to { background-position: -130% 0; } }
-@media (prefers-reduced-motion: reduce) { .calligraphy::before, .calligraphy .glint { animation: none; } .calligraphy .glint { display: none; } }
+.calligraphy .glint { position: absolute; inset: 0; z-index: 2; pointer-events: none; mix-blend-mode: overlay; overflow: hidden; }
+.calligraphy .glint::before { content: ""; position: absolute; top: 0; bottom: 0; left: 0; width: 250%;
+  background: linear-gradient(105deg, transparent 35%, rgba(255,255,255,.85) 50%, transparent 65%);
+  transform: translateX(-78%); animation: glint 2.6s ease-out .5s 1 both; }
+@keyframes glint { from { transform: translateX(-78%); } to { transform: translateX(78%); } }
+@media (prefers-reduced-motion: reduce) { .calligraphy::before, .calligraphy .glint::before { animation: none; } .calligraphy .glint { display: none; } }
 
 /* white sections: crisper cards with a gold hairline */
 .door { position: relative; border: 1px solid rgba(11,93,69,.10); box-shadow: 0 1px 0 rgba(255,255,255,.8) inset, 0 20px 40px -24px rgba(7,61,46,.35); }
