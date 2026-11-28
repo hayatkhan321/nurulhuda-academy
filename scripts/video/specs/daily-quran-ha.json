@@ -1,0 +1,52 @@
+{
+  "slug": "daily-quran-ha",
+  "greeting": true,
+  "voice": null,
+  "lang": "ha-NG",
+  "scenes": [
+    {
+      "kind": "opener",
+      "h1": "Kuna karanta Alƙur'ani <em>kowace rana</em>?",
+      "sub": "Assalamu alaikum. Kuna karanta Alƙur'ani kowace rana?",
+      "seconds": 6
+    },
+    {
+      "kind": "verse",
+      "kicker": "Suratul Fatir",
+      "ref": [
+        35,
+        29
+      ],
+      "sub": "Allah yana yabon waɗanda ke karanta Littafinsa kuma suke tsayar da salla.",
+      "seconds": 11
+    },
+    {
+      "kind": "headline",
+      "kicker": "Kaɗan, amma kowace rana",
+      "h1": "Ayoyi kaɗan <em>kowace rana</em>",
+      "chips": [
+        "Ko da minti biyar ne",
+        "A lokaci ɗaya kowace rana"
+      ],
+      "sub": "Ayoyi kaɗan kowace rana, ko da minti biyar ne, suna kusantar da ku da Alƙur'ani.",
+      "seconds": 6
+    },
+    {
+      "kind": "headline",
+      "kicker": "Har ma ga yaranku",
+      "h1": "Mataki ɗaya <em>a kowane aji</em>",
+      "chips": [
+        "Malami ɗaya, ɗalibi ɗaya",
+        "Rahoto bayan kowane aji"
+      ],
+      "sub": "Malamanmu suna taimaka wa yara su ci gaba mataki-mataki, tare da rahoto bayan kowane aji.",
+      "seconds": 6
+    },
+    {
+      "kind": "end",
+      "h1": "Fara da <em>ajin gwaji kyauta</em>",
+      "sub": "Ajin gwaji kyauta: nurulhudaacademy.org",
+      "seconds": 6
+    }
+  ]
+}

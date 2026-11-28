@@ -1,0 +1,54 @@
+{
+  "slug": "daily-quran-tr",
+  "greeting": true,
+  "voice": null,
+  "lang": "tr-TR",
+  "tts": {
+    "lang": "tr-TR",
+    "voice": "tr-TR-Chirp3-HD-Aoede",
+    "rate": 0.95
+  },
+  "scenes": [
+    {
+      "kind": "opener",
+      "h1": "Her gün <em>Kur'an</em> okuyor musunuz?",
+      "sub": "Esselamü aleyküm. Her gün Kur'an okuyor musunuz?"
+    },
+    {
+      "kind": "verse",
+      "kicker": "Fâtır Suresi",
+      "ref": [
+        35,
+        29
+      ],
+      "sub": "Allah, Kitabını okuyan ve namazı kılanları övüyor.",
+      "seconds": 10
+    },
+    {
+      "kind": "headline",
+      "kicker": "Az ama her gün",
+      "h1": "Her gün <em>birkaç ayet</em>",
+      "chips": [
+        "Beş dakika bile olsa",
+        "Her gün aynı saatte"
+      ],
+      "sub": "Her gün birkaç ayet, beş dakika bile olsa, sizi Kur'an'a yakın tutar."
+    },
+    {
+      "kind": "headline",
+      "kicker": "Çocuklarınız için de",
+      "h1": "Her derste <em>bir adım</em>",
+      "chips": [
+        "Birebir ders",
+        "Her dersten sonra rapor"
+      ],
+      "sub": "Öğretmenlerimiz çocukları adım adım ilerletir ve her dersten sonra rapor gönderir."
+    },
+    {
+      "kind": "end",
+      "h1": "<em>Ücretsiz deneme dersiyle</em> başlayın",
+      "sub": "Ücretsiz deneme dersi: nurulhudaacademy.org",
+      "say": "Ücretsiz deneme dersinizi Nurul Huda Academy nokta org adresinden ayırtın."
+    }
+  ]
+}

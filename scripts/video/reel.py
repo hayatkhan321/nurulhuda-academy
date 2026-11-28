@@ -51,10 +51,15 @@ def ayat(surah, first, last=None):
 EDITIONS = {"eng-ummmuhammad": "Sahih International", "urd-muhammadjunagar": "Muhammad Junagarhi",
             "urd-fatehmuhammadja": "Fateh Muhammad Jalandhry", "hin-suhelfarooqkhan": "Suhel Farooq Khan & Saifur Rahman Nadwi",
             "msa-abdullahmuhamma": "Abdullah Muhammad Basmeih", "ind-indonesianislam": "Kementerian Agama RI",
-            "spa-muhammadisagarc": "Muhammad Isa García", "fra-muhammadhamidul": "Muhammad Hamidullah"}
+            "spa-muhammadisagarc": "Muhammad Isa García", "fra-muhammadhamidul": "Muhammad Hamidullah",
+            "rus-elmirkuliev": "Elmir Kuliev", "mal-abdulhameedmada": "Abdul Hameed Madani & Kunhi Mohammed",
+            "jpn-ryoichimita": "Ryoichi Mita", "ben-muhiuddinkhan": "Muhiuddin Khan", "swa-alimuhsinalbarw": "Ali Muhsin Al-Barwani",
+            "tur-diyanetisleri": "Diyanet İşleri", "hau-abubakarmahmoud": "Abubakar Mahmoud Gumi"}
 # Per language for verse scenes ("edition" in the scene overrides). Arabic videos show the verse with no translation.
 EDITION_FOR = {"en": "eng-ummmuhammad", "ur": "urd-muhammadjunagar", "hi": "hin-suhelfarooqkhan", "ms": "msa-abdullahmuhamma",
-               "id": "ind-indonesianislam", "es": "spa-muhammadisagarc", "fr": "fra-muhammadhamidul"}
+               "id": "ind-indonesianislam", "es": "spa-muhammadisagarc", "fr": "fra-muhammadhamidul",
+               "ru": "rus-elmirkuliev", "ml": "mal-abdulhameedmada", "ja": "jpn-ryoichimita", "bn": "ben-muhiuddinkhan",
+               "sw": "swa-alimuhsinalbarw", "tr": "tur-diyanetisleri", "ha": "hau-abubakarmahmoud"}
 
 
 def translation(surah, first, last=None, edition="eng-ummmuhammad"):
@@ -86,6 +91,8 @@ CSS = """
 @font-face{font-family:Hafs;src:url(file://%(HAFS)s) format('woff2')}
 @font-face{font-family:AN;src:url(file://%(A)s/naskh.woff2) format('woff2')}
 @font-face{font-family:DV;src:url(file://%(A)s/deva.woff2) format('woff2')}
+@font-face{font-family:ML;src:url(file://%(A)s/mlym.woff2) format('woff2')}
+@font-face{font-family:BN;src:url(file://%(A)s/beng.woff2) format('woff2')}
 *{box-sizing:border-box;margin:0}
 html,body{width:1080px;height:1920px;overflow:hidden}
 body{font-family:B,sans-serif;color:#fff;background:radial-gradient(ellipse at 50%% 22%%,#15845f 0%%,#08402f 46%%,#021a13 100%%);position:relative;perspective:1600px}
@@ -158,6 +165,7 @@ h1 em{font-style:normal;color:#f7cf6a}
 .sub span{background:rgba(2,20,14,.78);border:1px solid rgba(247,207,106,.35);color:#fff;font-size:40px;line-height:1.3;font-weight:560;text-align:center;padding:18px 28px;border-radius:22px;animation:sub .4s ease-out both}
 .rtlx{font-family:N,serif;direction:rtl;unicode-bidi:isolate;letter-spacing:0;line-height:1.9}
 .rtlx.naskh{font-family:AN,serif;line-height:1.55}.deva{font-family:DV,B,sans-serif;line-height:1.45}
+.mlym{font-family:ML,B,sans-serif;line-height:1.5}.sub .mlym,.sub .beng{display:block;font-size:34px;line-height:1.6}.sub .cjk{display:block;line-height:1.7}h1 .mlym{font-size:.8em}.beng{font-family:BN,B,sans-serif;line-height:1.5}.cjk{font-family:"Noto Sans CJK JP",B,sans-serif;line-height:1.45;line-break:strict;word-break:normal;overflow-wrap:anywhere}
 h1 .rtlx{font-size:.72em;line-height:1.75}h1 .rtlx.naskh{font-size:.8em;line-height:1.5}.chip .rtlx{line-height:1.7}.sub .rtlx{display:block;line-height:1.75;font-size:38px}
 @keyframes sub{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:none}}
 .prog{position:absolute;left:70px;right:70px;top:70px;height:6px;background:rgba(255,255,255,.14);border-radius:6px;overflow:hidden;z-index:6}
@@ -184,8 +192,20 @@ def t(s):
         s = f'<span class="rtlx{naskh}" dir="rtl">{s}</span>'
     elif re.search(r"[\u0900-\u097F]", s):  # Hindi: Devanagari font
         s = f'<span class="deva">{s}</span>'
+    elif re.search(r"[\u0D00-\u0D7F]", s):  # Malayalam
+        s = f'<span class="mlym">{s}</span>'
+    elif re.search(r"[\u0980-\u09FF]", s):  # Bengali
+        s = f'<span class="beng">{s}</span>'
+    elif re.search(r"[\u3040-\u30FF\u4E00-\u9FFF]", s):  # Japanese
+        s = f'<span class="cjk">{s}</span>'
     return s
 
+
+
+def _trsize(s):
+    """Long translations (or scripts that need more room, like Malayalam) get a smaller font so the card fits."""
+    n = len(s) * (1.6 if re.search(r"[\u0D00-\u0D7F\u0980-\u09FF]", s) else 1)
+    return "" if n <= 230 else ("font-size:32px" if n <= 330 else "font-size:26px;line-height:1.3")
 
 def chips(items, start=2, gold=None):
     out = "".join(f'<div class="chip pop d{min(start+i,6)}"><b>✓</b>{t(c)}</div>' for i, c in enumerate(items))
@@ -242,7 +262,7 @@ def body(sc):
         if not sc.get("translation_source"):
             sys.exit("verse scene needs translation_source (a published translation, named)")
         return (f'{TOP}<div class="glow"></div><div class="stage">{kick}<div class="verse in d1"><div class="ar">{html.escape(ayat(s, a, b))}</div>'
-                f'<div class="tr">{t(sc["translation"])}</div><div class="ref">{refx} · '
+                f'<div class="tr" style="{_trsize(sc["translation"])}">{t(sc["translation"])}</div><div class="ref">{refx} · '
                 f'{t(sc["translation_source"])}</div></div></div>')
     if k == "end":             # call to action with the free-trial QR code
         qr = f'<div class="qrbox pop d3"><img src="{asset(sc.get("qr", "qr-free-trial.png"))}"></div>' if sc.get("qr", True) else ""
@@ -405,7 +425,7 @@ def google_timeline(spec, work):
         text = re.sub(r"(?i)(www\.)?nurulhudaacademy\.org", "Nurul Huda Academy dot org", text)
         text = say_name(text, tts.get("lang", "en-GB"))
         if i == 0 and spec.get("greeting", True):            # Dr Hayat's own greeting replaces the spoken one
-            text = re.sub(r"^\s*(assalamu?\s*alaikum|السلام\s*علیکم|السلام\s*عليكم|अस्सलामु\s*अलैकुम)[.,!۔।،]?\s*", "", text, flags=re.I)
+            text = re.sub(r"^\s*(assalamu?\s*alaikum|السلام\s*علیکم|السلام\s*عليكم|अस्सलामु\s*अलैकुम|ассаляму\s*алейкум|അസ്സലാമു\s*അലൈക്കും|アッサラーム\S*アライクム|আসসালামু\s*আলাইকুম|esselamü\s*aleyküm)[.,!۔।،。]?\s*", "", text, flags=re.I)
         clip = os.path.join(work, f"say{i}.wav")
         google_say(key, text, tts, clip)
         parts.append((g, clip) if (i == 0 and spec.get("greeting", True)) else (clip,))

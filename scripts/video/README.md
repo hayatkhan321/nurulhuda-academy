@@ -50,6 +50,27 @@ counted word against the verified King Fahd text. Rules for these videos:
 5. No hadith until Dr Hayat lifts rule 3 (then: Bukhari or Muslim only, reference on screen, checked by the Head of
    Academics).
 
+## More languages (added 28 Nov 2026, Dr Hayat's request)
+
+Beyond the website's 8 languages, videos can be made in these (pilot: `specs/daily-quran-<code>.json`):
+
+| code | language | who it reaches | "lang" | voice | verse translation (fetched automatically) |
+|---|---|---|---|---|---|
+| ru | Russian | Russia, Central Asia, the Caucasus | ru-RU | ru-RU-Chirp3-HD-Aoede | Elmir Kuliev |
+| ml | Malayalam | Kerala, and Keralites in the Gulf | ml-IN | ml-IN-Chirp3-HD-Aoede | Abdul Hameed Madani & Kunhi Mohammed |
+| ja | Japanese | Japan | ja-JP | ja-JP-Chirp3-HD-Aoede | Ryoichi Mita |
+| bn | Bengali | Bangladesh and West Bengal | bn-IN | bn-IN-Chirp3-HD-Aoede | Muhiuddin Khan |
+| sw | Swahili | Kenya, Tanzania, East Africa | sw-KE | sw-KE-Chirp3-HD-Aoede | Ali Muhsin Al-Barwani |
+| tr | Turkish | Turkey and the Turkish diaspora | tr-TR | tr-TR-Chirp3-HD-Aoede | Diyanet İşleri |
+| ha | Hausa | Northern Nigeria, Niger, West Africa | ha-NG | none (Google has no Hausa voice): caption-only, give each scene "seconds" | Abubakar Mahmoud Gumi |
+
+Nigeria's English speakers are already reached by the English videos. Yoruba, Somali, Persian and Pashto have no Google
+voice and are not set up yet. The toolkit draws Malayalam and Bengali with Noto fonts (assets/mlym.woff2, beng.woff2) and
+Japanese with Noto Sans CJK. Openings start with the local "Assalamu alaikum" (Russian "Ассаляму алейкум.", Malayalam
+"അസ്സലാമു അലൈക്കും.", Japanese "アッサラーム・アライクム。", Bengali "আসসালামু আলাইকুম।", Turkish "Esselamü aleyküm.",
+Swahili and Hausa "Assalamu alaikum."), which is dropped after Dr Hayat's recorded greeting. Every version in these
+languages is a draft for a native speaker to check.
+
 ## Voice
 
 **Google voices (preferred, paid from the academy's Google Cloud credits).** Add to the spec:

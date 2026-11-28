@@ -1,0 +1,54 @@
+{
+  "slug": "daily-quran-sw",
+  "greeting": true,
+  "voice": null,
+  "lang": "sw-KE",
+  "tts": {
+    "lang": "sw-KE",
+    "voice": "sw-KE-Chirp3-HD-Aoede",
+    "rate": 0.95
+  },
+  "scenes": [
+    {
+      "kind": "opener",
+      "h1": "Je, unasoma Qur'ani <em>kila siku</em>?",
+      "sub": "Assalamu alaikum. Je, unasoma Qur'ani kila siku?"
+    },
+    {
+      "kind": "verse",
+      "kicker": "Surat Fatir",
+      "ref": [
+        35,
+        29
+      ],
+      "sub": "Mwenyezi Mungu anawasifu wanaosoma Kitabu chake na kusimamisha Sala.",
+      "seconds": 10
+    },
+    {
+      "kind": "headline",
+      "kicker": "Kidogo, lakini kila siku",
+      "h1": "Aya chache <em>kila siku</em>",
+      "chips": [
+        "Hata dakika tano",
+        "Wakati uleule kila siku"
+      ],
+      "sub": "Aya chache kila siku, hata dakika tano tu, zinakuweka karibu na Qur'ani."
+    },
+    {
+      "kind": "headline",
+      "kicker": "Na kwa watoto wako",
+      "h1": "Hatua moja <em>kila darasa</em>",
+      "chips": [
+        "Mmoja kwa mmoja",
+        "Ripoti baada ya kila darasa"
+      ],
+      "sub": "Walimu wetu huwasaidia watoto kusonga hatua kwa hatua, na ripoti baada ya kila darasa."
+    },
+    {
+      "kind": "end",
+      "h1": "Anza na darasa la <em>majaribio bure</em>",
+      "sub": "Darasa la majaribio bure: nurulhudaacademy.org",
+      "say": "Weka nafasi ya darasa la majaribio bure kwenye Nurul Huda Academy dot org."
+    }
+  ]
+}
