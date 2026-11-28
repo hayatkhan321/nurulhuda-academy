@@ -368,7 +368,12 @@ def google_say(key, text, tts, out):
     body = {"input": {"text": text},
             "voice": {"languageCode": tts.get("lang", "en-GB"), **({"name": tts["voice"]} if tts.get("voice") else {})},
             "audioConfig": {"audioEncoding": "LINEAR16", "sampleRateHertz": 44100, "speakingRate": tts.get("rate", 0.95)}}
-    req = urllib.request.Request("https://texttospeech.googleapis.com/v1/text:synthesize", data=json.dumps(body).encode(),
+    # "pronunciations": {"Rahmah": "ˈɹʌhmʌ"} in a spec's tts fixes how a word is said (IPA; the word must appear as written)
+    prons = [{"phrase": p, "phoneticEncoding": "PHONETIC_ENCODING_IPA", "pronunciation": ipa}
+             for p, ipa in (tts.get("pronunciations") or {}).items() if re.search(r"\b" + re.escape(p) + r"\b", text)]
+    if prons:
+        body["input"]["customPronunciations"] = {"pronunciations": prons}
+    req =urllib.request.Request("https://texttospeech.googleapis.com/v1/text:synthesize", data=json.dumps(body).encode(),
                                  headers={"Content-Type": "application/json", "X-Goog-Api-Key": key}, method="POST")
     try:
         with urllib.request.urlopen(req, timeout=30) as r:

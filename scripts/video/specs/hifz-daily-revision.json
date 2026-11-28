@@ -5,7 +5,12 @@
   "tts": {
     "lang": "en-GB",
     "voice": "en-GB-Chirp3-HD-Aoede",
-    "rate": 0.95
+    "rate": 0.95,
+    "pronunciations": {
+      "sabaq": "ˈsʌbʌk",
+      "muraajaah": "mʊˈɹɑːdʒʌ.ʌ",
+      "Hafiza": "ˈhɑːfɪzʌ"
+    }
   },
   "scenes": [
     {
@@ -30,7 +35,7 @@
         "So nothing is forgotten"
       ],
       "sub": "And each day they revise what they learned before, called muraja'ah.",
-      "say": "And each day they revise what they learned before, called mura-ja-ah."
+      "say": "And each day they revise what they learned before, called muraajaah."
     },
     {
       "kind": "card",

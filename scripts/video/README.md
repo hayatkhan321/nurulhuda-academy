@@ -58,6 +58,11 @@ counted word against the verified King Fahd text. Rules for these videos:
 "tts": {"lang": "en-GB", "voice": "<a voice name>", "rate": 0.95}, "greeting": true, "voice": null
 ```
 
+- **Pronunciation of Arabic words in English (and other) narration:** add `"pronunciations": {"Rahmah": "ˈɹʌhmʌ", "ArRahmaan": "ɑːɹ ɹʌhˈmɑːn", "Raheem": "ɹʌˈhiːm", "Hafiza": "ˈhɑːfɪzʌ", "sabaq": "ˈsʌbʌk", "muraajaah": "mʊˈɹɑːdʒʌ.ʌ"}` inside `"tts"`, and
+  write the word exactly that way in the scene's `say` (captions keep the normal spelling). IPA symbols Google accepts
+  include ɹ ʌ ɑː iː ʊ ˈ (not ħ or ʔ); an invalid entry makes Google refuse the request, so test with one preview build.
+  Keep Ar-Rahman (the Most Gracious) and Rahmah (mercy) clearly different (Dr Hayat, 28 Nov 2026). In Arabic narration add
+  tashkeel to names and key words instead (الرَّحْمَٰن، رَحْمَة).
 - Each scene's sentence (`say`, or its caption `sub`) is spoken separately and joined with short pauses, so every
   scene cut lands exactly between sentences. Use `say` when the spoken words should differ from the caption.
 - With `"greeting": true` the video opens with Dr Hayat's own recording (`assets/greeting-assalamu-alaikum.mp3`); a

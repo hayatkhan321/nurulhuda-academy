@@ -5,7 +5,12 @@
   "tts": {
     "lang": "en-GB",
     "voice": "en-GB-Chirp3-HD-Aoede",
-    "rate": 1.05
+    "rate": 1.05,
+    "pronunciations": {
+      "Raheem": "ɹʌˈhiːm",
+      "Rahmah": "ˈɹʌhmʌ",
+      "ArRahmaan": "ɑːɹ ɹʌhˈmɑːn"
+    }
   },
   "scenes": [
     {
@@ -30,8 +35,8 @@
         "Rahmah (mercy): 114",
         "Ar-Rahman: 57"
       ],
-      "sub": "Rahim, Merciful: 116. Rahmah, mercy: 114. Ar-Rahman: 57.",
-      "say": "Raheem: one sixteen. Rahmah: one fourteen. Ar-Rahmaan: fifty-seven."
+      "sub": "Rahim, Merciful: 116. Rahmah, mercy: 114. Ar-Rahman, Most Gracious: 57.",
+      "say": "Raheem, the Merciful: one hundred and sixteen. Rahmah, mercy: one hundred and fourteen. ArRahmaan, the Most Gracious: fifty-seven."
     },
     {
       "kind": "verse",
